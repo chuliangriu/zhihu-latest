@@ -152,9 +152,8 @@ function home(state) {
   return `<main class="home paper-home"><section class="paper-hero" aria-labelledby="home-title">
     <div class="hero-copy">
       <p class="paper-kicker"><span aria-hidden="true">✳</span> 看山们的信箱</p>
-      <p class="hero-prelude">有些答案，写于事情过去之后。</p>
-      <h1 id="home-title">但此刻，在知乎，还有谁，<br/><span>也正在经历与你相似的事？</span></h1>
-      <p class="hero-description">和看山聊聊最近的近况，找到同样身在其中的人。<br/>你们可能生活不同，却正面对相通的犹豫、选择或期待。</p>
+      <h1 id="home-title">此刻，在知乎，还有谁，<br/><span>也正在经历与你相似的事？</span></h1>
+      <p class="hero-description">和看山聊聊近况，留下一张纸条，遇见有相似经历的人。</p>
       <button class="explore-link mvp-chat-entry" data-action="start">和看山聊聊 <span aria-hidden="true">↗</span></button>
       <aside class="home-mailbox" aria-label="看山们的信箱与相遇示例">
         <div class="mailbox-scene">
@@ -162,17 +161,15 @@ function home(state) {
           <button id="home-paper-researcher" class="mailbox-slip mailbox-slip-researcher" data-action="open-home-example" data-id="researcher" aria-haspopup="dialog" aria-controls="home-example" aria-expanded="${state.homeExampleOpen ? 'true' : 'false'}" aria-label="打开相遇示例：正在做研究的 TA"><span>正在做研究<br/>的 TA</span><span class="slip-lines" aria-hidden="true"></span></button>
           <img class="home-mailbox-illustration" src="/paper-assets/home-mailbox.png" width="282" height="191" alt="看山们的信箱"/>
         </div>
-        <div class="mailbox-copy"><h2>把正在经历的事，<br/>写给也在经历的人。</h2><p>留下一张经你确认的纸条，读读另一个人此刻的近况。如果愿意，就给彼此回信。</p></div>
       </aside>
     </div>
     <div class="hero-illustration">
       <div class="mascot-window" role="img" aria-label="戴着灰蓝围巾的白色刘看山，轻轻招手"><img src="/paper-assets/kanshan.png" alt=""/></div>
-      <span class="mascot-caption">我帮你发现。接下来，交给你们。</span>
     </div>
   </section>
   <section class="home-how" aria-labelledby="home-how-title">
     <h2 id="home-how-title">这个信箱是做什么的？</h2>
-    <ol><li><span class="home-step-number" aria-hidden="true">01</span><h3>聊聊你的近况</h3><p>说说最近让你投入、犹豫或反复思考的事。</p></li>
+    <ol><li><span class="home-step-number" aria-hidden="true">01</span><h3>聊聊你最近正在经历的事</h3></li>
       <li><span class="home-step-number" aria-hidden="true">02</span><h3>留下一段话，然后放进信箱</h3></li>
       <li><span class="home-step-number" aria-hidden="true">03</span><h3>读纸条，然后回信，开启和别人的交流</h3></li></ol>
   </section>
