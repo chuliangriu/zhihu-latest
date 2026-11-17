@@ -7,7 +7,9 @@ import { profileModelSchema, type FootprintSource, type ProfileSummary } from ".
 
 export class ProfileSummaryService {
   constructor(private readonly source: FootprintSource, private readonly createLlm: () => LlmProvider) {}
-  async generate(userId: string) {
+  async generate(userId: string) { return this.run(userId, false); }
+  async inspect(userId: string) { return this.run(userId, true); }
+  private async run(userId: string, inspectOnly: boolean) {
     const trace: PipelineTrace = { requestId: randomUUID(), matchPolicy: null, stages: [], rejectedMatches: [] };
     const result: ProfileSummary = { status: "needs_input", reasonCode: "insufficient_footprints", profile: null,
       coverage: { creations: 0, collections: 0, browsingAvailable: false, likedHistoryAvailable: false } };
@@ -19,6 +21,10 @@ export class ProfileSummaryService {
       const footprints = raw.filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0).slice(0,16);
       result.coverage.creations = footprints.filter(f => f.kind === "creation").length;
       result.coverage.collections = footprints.filter(f => f.kind === "collection").length;
+      if (inspectOnly) {
+        if (footprints.length >= 2) result.reasonCode = "profile_footprints_available";
+        return { result, trace, userDataRequests };
+      }
       if (footprints.length < 2) return { result, trace, userDataRequests };
       const stage = { name: "profile_summary", durationMs: 0 };
       trace.stages.push(stage);

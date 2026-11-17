@@ -40,6 +40,7 @@ export interface AppDependencies {
   monitoringStore?: MonitoringStore;
   sessionResolver?: SessionResolver;
   profileService?: Pick<ProfileSummaryService, "generate">;
+  profileInspector?: Pick<ProfileSummaryService, "inspect">;
   chatService?: ChatService;
   workflowService?: WorkflowService;
   workflowStore?: WorkflowStore;
@@ -71,17 +72,28 @@ export function createApp(dependencies: AppDependencies) {
     });
   });
 
-  app.post("/api/profile/summary",
+  for (const route of [
+    { method: "post", path: "/api/profile/summary", inspectOnly: false },
+    { method: "get", path: "/api/profile/footprints", inspectOnly: true }
+  ] as const) app[route.method](route.path,
     dependencies.config.authMode === "session"
       ? requireSessionIdentity(dependencies.sessionResolver, dependencies.config.corsOrigins)
       : requireInternalIdentity(dependencies.config),
     async (request, response, next) => {
       try {
-        if (!z.object({ useAuthorizedFootprints: z.literal(true) }).strict().safeParse(request.body).success) {
-          response.status(400).json({ error: { code: "PROFILE_REQUEST_INVALID" } }); return;
+        response.setHeader("Cache-Control", "no-store");
+        if (route.inspectOnly && request.header("sec-fetch-site") === "cross-site") {
+          response.status(403).json({ error: { code: "ORIGIN_FORBIDDEN" } }); return;
         }
-        if (!dependencies.profileService) { response.status(503).json({ error: { code: "PROFILE_NOT_CONNECTED" } }); return; }
-        const key = request.header("idempotency-key") ?? "";
+        const valid = route.inspectOnly
+          ? z.object({ requestId: z.string().regex(idempotencyKeyPattern) }).strict().safeParse(request.query).success
+          : z.object({ useAuthorizedFootprints: z.literal(true) }).strict().safeParse(request.body).success;
+        if (!valid) { response.status(400).json({ error: { code: "PROFILE_REQUEST_INVALID" } }); return; }
+        const profileHandler = route.inspectOnly
+          ? dependencies.profileInspector?.inspect.bind(dependencies.profileInspector)
+          : dependencies.profileService?.generate.bind(dependencies.profileService);
+        if (!profileHandler) { response.status(503).json({ error: { code: "PROFILE_NOT_CONNECTED" } }); return; }
+        const key = route.inspectOnly ? String(request.query.requestId) : request.header("idempotency-key") ?? "";
         if (!idempotencyKeyPattern.test(key)) { response.status(400).json({ error: { code: "IDEMPOTENCY_KEY_REQUIRED" } }); return; }
         const principal = request.principal, secret = dependencies.config.identity.ipHashSecret, ipHash = request.clientIpHash;
         if (!principal || !secret || !ipHash) { response.status(503).json({ error: { code: "IDENTITY_SERVICE_UNAVAILABLE" } }); return; }
@@ -93,7 +105,7 @@ export function createApp(dependencies: AppDependencies) {
         }
         response.setHeader("RateLimit-Remaining", begin.rateRemaining.toString());
         let detail: Awaited<ReturnType<ProfileSummaryService["generate"]>>;
-        try { detail = await dependencies.profileService.generate(principal.userId); }
+        try { detail = await profileHandler(principal.userId); }
         catch (error) {
           await protection.finishDiscovery(begin.context, { statusCode: 503, businessStatus: "unavailable", reasonCode: "PROFILE_UNAVAILABLE", conservative: true });
           response.locals.monitoringRecorded = true; throw error;

@@ -18,9 +18,10 @@ async function main(): Promise<void> {
   const config = loadConfig();
   const stores = await createSecurityStores(config);
   const database = config.authMode === "session" || config.profile.enabled ? new SupabaseAdapter(config.supabase.url!, config.supabase.serviceKey!) : null;
-  const profileService = config.profile.enabled ? new ProfileSummaryService(
-    new ZhihuFootprintSource(database!, config.profile.accessSecret!, config.profile.encryptionKey!),
+  const profileInspector = database && config.profile.accessSecret && config.profile.encryptionKey ? new ProfileSummaryService(
+    new ZhihuFootprintSource(database, config.profile.accessSecret, config.profile.encryptionKey),
     () => new OpenAiCompatibleProvider(config.llm)) : undefined;
+  const profileService = config.profile.enabled ? profileInspector : undefined;
   const workflowStore = config.businessStoreMode === "supabase"
     ? new SupabaseWorkflowStore(config.supabase.url!,config.supabase.serviceKey!)
     : new InMemoryWorkflowStore();
@@ -30,6 +31,7 @@ async function main(): Promise<void> {
   const app = createApp({ config, runtime: new DiscoveryRuntime(config), ...stores,
     workflowStore, chatService, workflowService,
     ...(profileService ? { profileService } : {}),
+    ...(profileInspector ? { profileInspector } : {}),
     ...(database ? { sessionResolver: database.session.bind(database) } : {}) });
   const server = createServer({ maxHeaderSize: 16_384, requestTimeout: 30_000, headersTimeout: 10_000 }, app);
 

@@ -136,3 +136,69 @@ it("profile endpoint is authenticated, scoped, rate-limited, idempotent and moni
   const success=events.events.find(e=>e.quotaDecision==="allowed");
   expect(success?.zhihu.userDataRequests).toBe(2); expect(success?.llm.requests).toBe(1);
 });
+
+describe("footprint inspection without a model", () => {
+  it("returns only coverage and never creates or calls a model", async () => {
+    const createLlm=vi.fn(()=>{ throw new Error("model must not run"); });
+    const service=new ProfileSummaryService({load:async(_id,_signal,onRequest)=>{onRequest();onRequest();return footprints;}},createLlm);
+    const detail=await service.inspect(userId);
+    expect(detail.result.reasonCode).toBe("profile_footprints_available");
+    expect(detail.result.coverage).toEqual({creations:0,collections:2,browsingAvailable:false,likedHistoryAvailable:false});
+    expect(detail.result.profile).toBeNull();
+    expect(detail.userDataRequests).toBe(2);
+    expect(detail.trace.stages).toEqual([]);
+    expect(createLlm).not.toHaveBeenCalled();
+    expect(JSON.stringify(detail)).not.toContain(footprints[0]!.summary);
+  });
+  it("separates empty data from failed authorization without model access", async () => {
+    const createLlm=vi.fn(()=>{ throw new Error("model must not run"); });
+    const empty=await new ProfileSummaryService({load:async()=>[]},createLlm).inspect(userId);
+    expect(empty.result.status).toBe("needs_input");
+    expect(empty.result.reasonCode).toBe("insufficient_footprints");
+    const failed=await new ProfileSummaryService({load:async()=>{throw Object.assign(new Error("private upstream message"),{code:"OAUTH_REAUTH_REQUIRED"});}},createLlm).inspect(userId);
+    expect(failed.result.status).toBe("unavailable");
+    expect(failed.result.reasonCode).toBe("OAUTH_REAUTH_REQUIRED");
+    expect(JSON.stringify(failed)).not.toContain("private upstream message");
+    expect(createLlm).not.toHaveBeenCalled();
+  });
+  function setup(rate="20"){
+    const config=loadConfig({NODE_ENV:"test",AUTH_MODE:"session",SUPABASE_URL:"https://project.supabase.co",SUPABASE_SERVICE_ROLE_KEY:"test-service-key",
+      CORS_ORIGINS:"https://app.example",IP_HASH_SECRET:"test-ip-hash-secret-with-32-characters",RATE_USER_MAX:rate});
+    const monitoringStore=new InMemoryMonitoringStore();
+    const createLlm=vi.fn(()=>{throw new Error("model must not run");});
+    const service=new ProfileSummaryService({load:async(_id,_signal,onRequest)=>{onRequest();onRequest();return footprints;}},createLlm);
+    const inspect=vi.fn(service.inspect.bind(service));
+    const app=createApp({config,runtime:{evaluateDetailed:vi.fn()},profileInspector:{inspect},monitoringStore,
+      sessionResolver:async cookie=>cookie==="wjr_session=test"?{userId,sessionId:"session-test",role:"user",status:"active"}:null});
+    const call=(key:string)=>request(app).get("/api/profile/footprints").query({requestId:key}).set("Cookie","wjr_session=test");
+    return {app,call,inspect,createLlm,monitoringStore};
+  }
+  it("requires the current session and rejects target-user overrides and cross-site calls", async()=>{
+    const h=setup();
+    await request(h.app).get("/api/profile/footprints").query({requestId:"inspect-request-001"}).expect(401);
+    await h.call("inspect-request-001").query({userId:"victim"}).expect(400);
+    await h.call("inspect-request-001").set("Sec-Fetch-Site","cross-site").expect(403);
+    expect(h.inspect).not.toHaveBeenCalled();
+    const r=await h.call("inspect-request-001").expect(200);
+    expect(h.inspect).toHaveBeenCalledWith(userId);
+    expect(r.headers["cache-control"]).toBe("no-store");
+    expect(r.body.data.profile).toBeNull();
+    expect(r.body.data.coverage.collections).toBe(2);
+    expect(JSON.stringify(r.body)).not.toContain(footprints[0]!.title);
+    // The generation switch remains off even though inspection is available.
+    await request(h.app).post("/api/profile/summary").set("Cookie","wjr_session=test").set("Origin","https://app.example")
+      .send({useAuthorizedFootprints:true}).expect(503);
+    expect(h.createLlm).not.toHaveBeenCalled();
+  });
+  it("shares rate and idempotency protection and records zero model requests",async()=>{
+    const h=setup("2");
+    await h.call("inspect-request-001").expect(200);
+    await h.call("inspect-request-001").expect(409);
+    await h.call("inspect-request-002").expect(429);
+    expect(h.inspect).toHaveBeenCalledTimes(1);
+    const events=await h.monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:20,cursor:0});
+    const success=events.events.find(e=>e.quotaDecision==="allowed");
+    expect(success?.zhihu.userDataRequests).toBe(2);
+    expect(success?.llm.requests).toBe(0);
+  });
+});

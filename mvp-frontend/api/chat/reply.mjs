@@ -19,9 +19,10 @@ async function getApp() {
     const stores = await createSecurityStores(config);
     const database = config.authMode === "session" || config.profile.enabled
       ? new SupabaseAdapter(config.supabase.url, config.supabase.serviceKey) : null;
-    const profileService = config.profile.enabled
+    const profileInspector = database && config.profile.accessSecret && config.profile.encryptionKey
       ? new ProfileSummaryService(new ZhihuFootprintSource(database, config.profile.accessSecret, config.profile.encryptionKey), () => new OpenAiCompatibleProvider(config.llm))
       : undefined;
+    const profileService = config.profile.enabled ? profileInspector : undefined;
     const workflowStore = config.businessStoreMode === "supabase"
       ? new SupabaseWorkflowStore(config.supabase.url, config.supabase.serviceKey)
       : new InMemoryWorkflowStore();
@@ -29,7 +30,7 @@ async function getApp() {
     const chatService = new ChatService(workflowStore, createWorkflowLlm);
     const workflowService = new WorkflowService(workflowStore, createWorkflowLlm);
     return createApp({ config, runtime: new DiscoveryRuntime(config), ...stores, workflowStore, chatService, workflowService,
-      ...(profileService ? { profileService } : {}), ...(database ? { sessionResolver: database.session.bind(database) } : {}) });
+      ...(profileService ? { profileService } : {}), ...(profileInspector ? { profileInspector } : {}), ...(database ? { sessionResolver: database.session.bind(database) } : {}) });
   })();
   return appPromise;
 }
