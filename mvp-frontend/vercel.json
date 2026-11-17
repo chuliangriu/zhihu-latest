@@ -15,5 +15,11 @@
     }
   ],
   "buildCommand": "npm run build",
-  "outputDirectory": "public"
+  "outputDirectory": "public",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  }
 }

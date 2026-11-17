@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { ProfileSummaryService } from "../src/profile/summary-service.js";
 import { ZhihuFootprintSource, decryptProfileToken } from "../src/profile/zhihu-footprints.js";
+import { LlmProviderError } from "../src/llm/provider.js";
 import { MockLlmProvider } from "../src/llm/mock-provider.js";
 import { KANSHAN_PROFILE_PROMPT } from "../src/prompts/profile-summary.js";
 import type { Footprint } from "../src/profile/contracts.js";
@@ -45,6 +46,16 @@ describe("profile generation", () => {
     expect(result.profile?.requiresConfirmation).toBe(true);
     expect(llm.calls).toEqual(["profile_summary"]);
     expect(result.coverage).toEqual({creations:0,collections:2,browsingAvailable:false,likedHistoryAvailable:false});
+  });
+  it("keeps successful footprint coverage when model authentication fails", async () => {
+    const llm = new MockLlmProvider({profile_summary:output});
+    vi.spyOn(llm, "completeJson").mockRejectedValue(new LlmProviderError("LLM_HTTP_401", "provider authentication failed"));
+    const {result} = await new ProfileSummaryService({load:async()=>footprints},()=>llm).generate(userId);
+    expect(result.status).toBe("unavailable");
+    expect(result.reasonCode).toBe("LLM_HTTP_401");
+    expect(result.coverage).toEqual({creations:0,collections:2,browsingAvailable:false,likedHistoryAvailable:false});
+    expect(result.profile).toBeNull();
+    expect(JSON.stringify(result)).not.toContain(footprints[0]!.summary);
   });
   it("does not use a collection as evidence for a personal identity", async () => {
     const bad = structuredClone(output); bad.background[0]!.kind = "self_report";
