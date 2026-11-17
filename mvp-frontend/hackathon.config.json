@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "projectName": "unseen-people-mvp-frontend",
+  "projectSlug": "mvp-frontend",
+  "auth": {
+    "mode": "same-origin-session",
+    "currentUserPath": "/api/auth-me",
+    "loginPath": "/api/zhihu-login"
+  },
+  "host": "127.0.0.1",
+  "port": 4174
+}

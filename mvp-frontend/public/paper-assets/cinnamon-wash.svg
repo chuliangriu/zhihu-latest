@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="820" viewBox="0 0 640 820">
+  <defs>
+    <filter id="wash" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency=".018 .047" numOctaves="3" seed="17" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="38" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <filter id="paper" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".63" numOctaves="3" seed="8" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <filter id="dry" x="-20%" y="-40%" width="140%" height="180%">
+      <feTurbulence type="fractalNoise" baseFrequency=".05 .32" numOctaves="3" seed="23" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="14"/>
+    </filter>
+  </defs>
+  <g filter="url(#wash)">
+    <path d="M-30 18 Q170 -25 298 30 L270 125 Q102 88 -20 176Z" fill="#a86749" opacity=".13"/>
+    <path d="M492 -20 Q591 50 668 15 L670 354 Q584 274 541 155Z" fill="#b7795a" opacity=".16"/>
+    <path d="M-45 541 Q21 491 58 554 L123 848 -30 849Z" fill="#9b7056" opacity=".13"/>
+    <path d="M285 759 Q483 691 674 719 L666 858 256 852Z" fill="#ad6246" opacity=".13"/>
+  </g>
+  <g fill="none" stroke="#95664d" stroke-linecap="round" filter="url(#dry)" opacity=".12">
+    <path d="M17 111 Q10 249 24 337" stroke-width="9"/>
+    <path d="M610 380 Q623 544 610 652" stroke-width="13"/>
+    <path d="M76 792 Q208 778 336 797" stroke-width="8"/>
+    <path d="M397 24 Q509 35 593 19" stroke-width="7"/>
+  </g>
+  <path fill="#888" d="M0 0H640V820H0Z" filter="url(#paper)" opacity=".14" style="mix-blend-mode:multiply"/>
+</svg>

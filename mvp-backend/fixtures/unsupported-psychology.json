@@ -1,0 +1,58 @@
+{
+  "id": "unsupported-psychology",
+  "description": "缺少原文支持的心理解释不能成为匹配依据。",
+  "trustedContext": { "allowDiscovery": true, "safetyPassed": true },
+  "request": {
+    "conversation": {
+      "messages": [
+        { "id": "u-help-1", "role": "user", "content": "同事今天让我帮忙，我答应了，晚上才发现自己的事情没做完。" },
+        {
+          "id": "a-help-1",
+          "role": "assistant",
+          "content": "你可以先处理最紧急的部分，之后再和同事重新约定协作范围。",
+          "generationStatus": "complete"
+        }
+      ]
+    }
+  },
+  "candidates": [
+    {
+      "candidateId": "relationship-boundary",
+      "authorId": "author-relation",
+      "authorDisplayName": "River",
+      "domain": "romantic_relationship",
+      "text": "我们最近因为周末去哪儿争执了几次，我还没想好下次要怎么说。",
+      "source": {
+        "sourceId": "private-relation-1",
+        "sourceType": "authorized_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "ageDays": 2,
+        "verified": true
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": false,
+        "contactable": true,
+        "status": "active"
+      }
+    }
+  ],
+  "mockOutputs": {
+    "intent": {
+      "shouldSearch": true,
+      "reasonCodes": ["personal_context", "answer_turn_complete"],
+      "primaryDomain": "workplace",
+      "explicitConcerns": ["答应帮助同事后影响了自己的任务"],
+      "uncertainPoints": ["用户是否在意拒绝、协作安排或任务优先级"],
+      "searchDirections": ["近期在关系安排中重新划定边界的人"],
+      "refusalReason": null
+    },
+    "candidateAnalysis": {
+      "matches": [],
+      "inviteCopy": null,
+      "rejectionReasons": ["双方原文不足以支持害怕拒绝或讨好他人的共同心理解释。"]
+    }
+  },
+  "expected": { "status": "no_match", "structureRelatedCandidateId": null }
+}

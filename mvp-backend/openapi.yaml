@@ -1,0 +1,552 @@
+openapi: 3.1.0
+info:
+  title: Unseen People Discovery Service
+  version: 0.4.0
+  description: 带身份校验、共享额度、调用监控与 Prompt Injection 防护的发现服务。AUTH_MODE=signed 使用 BFF 身份断言；session 使用同源 Cookie 与 Origin 校验。内部管理接口仍禁止浏览器直接调用。
+servers:
+  - url: http://127.0.0.1:8787
+paths:
+  /api/chat/reply:
+    post:
+      summary: 保存用户消息并流式返回刘看山的正常回答
+      description: 返回 SSE delta/answer_done/done/error。主题判断与正常回答并行；answer_done 在正常回答完成时通知会话/消息 ID，done 在判断完成后给出发现建议。只有正常回答完成后才启动发现。断开连接会取消上游。浏览器不能提交 userId、模型或系统提示词。
+      security: [{ internalBearerAuth: [] }, { sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/IdempotencyKey" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [message]
+              properties:
+                conversationId: { type: [string, "null"], format: uuid }
+                message: { type: string, minLength: 1, maxLength: 4000 }
+      responses:
+        "200": { description: text/event-stream；done 事件含会话、消息与发现入口建议 }
+        "400": { description: 格式或注入指令被拒绝 }
+        "401": { description: 未登录 }
+        "409": { description: 幂等键重放 }
+        "429": { description: 限流或额度不足 }
+        "503": { description: 模型、存储或安全计量不可用 }
+  /api/conversations/{conversationId}/discovery:
+    post:
+      summary: 对已完成回答执行发现，并只在匹配成立时登记入口已展示
+      security: [{ internalBearerAuth: [] }, { sessionCookie: [] }]
+      parameters:
+        - { name: conversationId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [assistantMessageId, topicKey]
+              properties:
+                assistantMessageId: { type: string, format: uuid }
+                topicKey: { type: string, minLength: 1, maxLength: 120 }
+      responses:
+        "200": { description: 0/1/2 个候选；matched 时额外返回服务端 discoveryId }
+        "409": { description: 主题不允许重复展示或状态冲突 }
+  /api/papers/drafts:
+    post:
+      summary: 从本人对话与已确认背景整理待确认纸条
+      security: [{ internalBearerAuth: [] }, { sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/IdempotencyKey" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [conversationId]
+              properties:
+                conversationId: { type: string, format: uuid }
+                confirmedProfile:
+                  type: [object, "null"]
+                  properties:
+                    background: { type: array, maxItems: 2, items: { type: string, maxLength: 160 } }
+                    recentFocus: { type: [string, "null"], maxLength: 180 }
+      responses:
+        "201": { description: status=draft、version=1；尚未进入信箱 }
+        "502": { description: LLM_OUTPUT_INVALID，模型输出格式或长度未通过校验；保留选择，由用户手动重试 }
+        "503": { description: LLM_UPSTREAM_BUSY 或 LLM_UNAVAILABLE，模型繁忙或暂不可用；不返回上游原始错误 }
+        "504": { description: LLM_TIMEOUT，纸条整理超时；不冒充保存或投入成功 }
+  /api/papers/{paperId}:
+    patch:
+      summary: 本人按版本修改尚未确认的纸条
+      security: [{ internalBearerAuth: [] }, { sessionCookie: [] }]
+      parameters:
+        - { name: paperId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaperEditRequest"
+      responses:
+        "200": { description: 返回递增后的确切版本 }
+        "403": { description: 不是纸条所有者 }
+        "409": { description: 版本或状态冲突 }
+  /api/papers/{paperId}/confirm:
+    post:
+      summary: 确认纸条进入信箱，并可原子地递给已选择的私域真人
+      description: public 与 synthetic_private 不能伪装成私域投递目标。discoverableDays 最大 7。
+      security: [{ internalBearerAuth: [] }, { sessionCookie: [] }]
+      parameters:
+        - { name: paperId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaperConfirmRequest"
+      responses:
+        "200": { description: 返回 active 纸条及可选 delivery }
+        "409": { description: 版本、状态、权限或目标不满足 }
+  /api/papers/{paperId}/withdraw:
+    post:
+      summary: 本人撤回纸条，使其停止新的匹配与递送
+      security: [{ internalBearerAuth: [] }, { sessionCookie: [] }]
+      parameters:
+        - { name: paperId, in: path, required: true, schema: { type: string, format: uuid } }
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200": { description: status=withdrawn；重复撤回幂等 }
+  /api/handoffs:
+    post:
+      summary: 返回已核实的知乎主页或原文跳转
+      description: 请求体没有聊天文字；响应固定 textTransferred=false，不冒充已经发出私信或评论。
+      security: [{ internalBearerAuth: [] }, { sessionCookie: [] }]
+      parameters: [{ $ref: "#/components/parameters/IdempotencyKey" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [discoveryId, candidateId]
+              properties:
+                discoveryId: { type: string, format: uuid }
+                candidateId: { type: string, minLength: 1, maxLength: 80 }
+      responses:
+        "200": { description: 返回知乎 HTTPS redirectUrl }
+        "422": { description: 没有可核实入口或候选是非真人 }
+  /api/profile/summary:
+    post:
+      summary: 根据当前用户的授权创作与近期收藏生成有限背景
+      description: 需启用 PROFILE_SUMMARY_ENABLED。只接受当前可信登录用户，不接受客户端提供 userId、Token、足迹或 Prompt。使用最多 8 条创作及 8 条收藏，返回现有第二页所需的文字字段；不自动投入信箱。
+      security:
+        - internalBearerAuth: []
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [useAuthorizedFootprints]
+              properties:
+                useAuthorizedFootprints: { type: boolean, const: true }
+      responses:
+        "200":
+          description: data.status 为 ready 或 needs_input；后者应保留手动补充入口。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      status: { type: string, enum: [ready, needs_input, unavailable] }
+                      reasonCode: { type: string }
+                      profile:
+                        type: [object, "null"]
+                        properties:
+                          role: { type: string }
+                          impression: { type: array, minItems: 2, maxItems: 2, items: { type: string, maxLength: 80 } }
+                          recentFocus: { type: string, maxLength: 90 }
+                          markdown: { type: string }
+                          requiresConfirmation: { type: boolean, const: true }
+                      coverage:
+                        type: object
+                        properties:
+                          creations: { type: integer }
+                          collections: { type: integer }
+                          browsingAvailable: { type: boolean, const: false }
+                          likedHistoryAvailable: { type: boolean, const: false }
+        "400": { description: 未确认使用已授权足迹、传了额外字段或缺少幂等键 }
+        "401": { description: 未登录 }
+        "403": { description: Cookie 模式下 Origin 不被允许 }
+        "409": { description: 相同请求已提交 }
+        "429": { description: 账号或 IP 限流或额度不足 }
+        "503": { description: 服务未启用、OAuth 需重新授权、上游错误或安全预算不可用 }
+  /health:
+    get:
+      summary: 最小健康检查
+      responses:
+        "200":
+          description: 服务可用
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service, publicReady]
+                properties:
+                  status: { type: string, const: ok }
+                  service: { type: string }
+                  publicReady: { type: boolean }
+  /api/discovery/evaluate:
+    post:
+      summary: 使用服务端选择的 fixture 或真人优先分流执行发现流程
+      description: CANDIDATE_MODE=routed 时必须传 conversation，禁止传 fixtureSet；来源与随机概率只能由服务端配置。AUTH_MODE=session 时不需要签名身份头，但需要 wjr_session Cookie 和允许的 Origin。
+      security:
+        - internalBearerAuth: []
+        - sessionCookie: []
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/UserRole"
+        - $ref: "#/components/parameters/UserStatus"
+        - $ref: "#/components/parameters/AuthTimestamp"
+        - $ref: "#/components/parameters/AuthSignature"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluateRequest"
+      responses:
+        "200":
+          description: 流程已完成；业务状态见 data.status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: { type: boolean, const: true }
+                  data: { $ref: "#/components/schemas/DiscoveryResult" }
+        "400": { description: 请求 JSON 或字段不符合契约 }
+        "401": { description: 内部凭证或签名用户身份无效 }
+        "409": { description: Idempotency-Key 重放 }
+        "404": { description: fixture 不存在 }
+        "429": { description: IP／账号短期限流、每日额度或并发限制 }
+        "503": { description: 全站预算、Kill Switch、共享安全存储或上游不可用 }
+  /internal/usage/summary:
+    get:
+      summary: 管理员查看当日脱敏用量汇总
+      security: [{ internalBearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/UserRole"
+        - $ref: "#/components/parameters/UserStatus"
+        - $ref: "#/components/parameters/AuthTimestamp"
+        - $ref: "#/components/parameters/AuthSignature"
+        - { name: date, in: query, schema: { type: string, format: date } }
+      responses:
+        "200": { description: 用量汇总与 Kill Switch 状态 }
+        "401": { description: 身份断言无效 }
+        "403": { description: 不是配置的管理员 }
+  /internal/usage/requests:
+    get:
+      summary: 管理员分页查看脱敏调用事件
+      security: [{ internalBearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/UserRole"
+        - $ref: "#/components/parameters/UserStatus"
+        - $ref: "#/components/parameters/AuthTimestamp"
+        - $ref: "#/components/parameters/AuthSignature"
+        - { name: date, in: query, schema: { type: string, format: date } }
+        - { name: cursor, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+        - { name: endpointId, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: integer } }
+      responses:
+        "200": { description: 脱敏调用事件 }
+        "401": { description: 身份断言无效 }
+        "403": { description: 不是配置的管理员 }
+  /internal/usage/top-consumers:
+    get:
+      summary: 管理员查看账号与 IP 哈希的主要消耗者
+      security: [{ internalBearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/UserRole"
+        - $ref: "#/components/parameters/UserStatus"
+        - $ref: "#/components/parameters/AuthTimestamp"
+        - $ref: "#/components/parameters/AuthSignature"
+        - { name: date, in: query, schema: { type: string, format: date } }
+      responses:
+        "200": { description: 主要消耗者的不可逆哈希与用量 }
+  /internal/controls/llm-mode:
+    post:
+      summary: 管理员动态启停真实高成本模型调用
+      security: [{ internalBearerAuth: [] }]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+        - $ref: "#/components/parameters/SessionId"
+        - $ref: "#/components/parameters/UserRole"
+        - $ref: "#/components/parameters/UserStatus"
+        - $ref: "#/components/parameters/AuthTimestamp"
+        - $ref: "#/components/parameters/AuthSignature"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [enabled]
+              properties:
+                enabled: { type: boolean }
+      responses:
+        "200": { description: 控制状态已更新并写入审计日志 }
+        "401": { description: 身份断言无效 }
+        "403": { description: 不是配置的管理员 }
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: wjr_session
+      description: 仅 AUTH_MODE=session；需允许的 Origin，签名身份头不适用于此模式。
+    internalBearerAuth:
+      type: http
+      scheme: bearer
+      description: 仅限 BFF 到内部发现服务，禁止发送到浏览器。
+  parameters:
+    UserId:
+      name: X-Unseen-User-Id
+      in: header
+      required: true
+      schema: { type: string }
+    SessionId:
+      name: X-Unseen-Session-Id
+      in: header
+      required: true
+      schema: { type: string }
+    UserRole:
+      name: X-Unseen-User-Role
+      in: header
+      required: true
+      schema: { type: string, enum: [user, reviewer, admin] }
+    UserStatus:
+      name: X-Unseen-User-Status
+      in: header
+      required: true
+      schema: { type: string, const: active }
+    AuthTimestamp:
+      name: X-Unseen-Auth-Timestamp
+      in: header
+      required: true
+      schema: { type: string }
+    AuthSignature:
+      name: X-Unseen-Auth-Signature
+      in: header
+      required: true
+      schema: { type: string }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 16, maxLength: 128 }
+  schemas:
+    PaperEditRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedVersion, subject, quote, context, background]
+      properties:
+        expectedVersion: { type: integer, minimum: 1 }
+        subject: { type: string, minLength: 1, maxLength: 24 }
+        quote: { type: string, minLength: 8, maxLength: 100 }
+        context: { type: string, minLength: 1, maxLength: 30 }
+        background: { type: string, minLength: 8, maxLength: 160 }
+    PaperConfirmRequest:
+      type: object
+      additionalProperties: false
+      required: [expectedVersion]
+      properties:
+        expectedVersion: { type: integer, minimum: 1 }
+        discoverableDays: { type: integer, minimum: 1, maximum: 7, default: 7 }
+        identityDisclosure: { type: string, enum: [anonymous, nickname], default: nickname }
+        contactAllowed: { type: boolean, default: true }
+        target:
+          default: { kind: mailbox_only }
+          oneOf:
+            - type: object
+              additionalProperties: false
+              required: [kind]
+              properties:
+                kind: { type: string, const: mailbox_only }
+            - type: object
+              additionalProperties: false
+              required: [kind, discoveryId, candidateId]
+              properties:
+                kind: { type: string, const: selected_private }
+                discoveryId: { type: string, format: uuid }
+                candidateId: { type: string, minLength: 1, maxLength: 80 }
+    ConversationMessage:
+      type: object
+      additionalProperties: false
+      required: [id, role, content]
+      properties:
+        id: { type: string, maxLength: 80 }
+        role: { type: string, enum: [user, assistant] }
+        content: { type: string, minLength: 1, maxLength: 4000 }
+        generationStatus: { type: string, enum: [complete, pending, failed] }
+    EvaluateRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        fixtureSet:
+          type: string
+          pattern: "^[a-z0-9][a-z0-9-]{0,63}$"
+          default: feedback-across-domains
+        conversation:
+          type: object
+          additionalProperties: false
+          required: [messages]
+          properties:
+            messages:
+              type: array
+              minItems: 1
+              maxItems: 24
+              items: { $ref: "#/components/schemas/ConversationMessage" }
+    EvidenceRef:
+      type: object
+      required: [side, refId, quote]
+      properties:
+        side: { type: string, enum: [user, candidate] }
+        refId: { type: string }
+        quote: { type: string }
+    Match:
+      type: object
+      required:
+        - path
+        - candidateId
+        - sharedRelation
+        - difference
+        - authorDisplayName
+        - sourceType
+        - contentType
+        - sourceUrl
+        - publishedAt
+        - contactable
+        - identityDisclosable
+        - evidenceRefs
+      properties:
+        path: { type: string, enum: [situationClose, structureRelated] }
+        candidateId: { type: string }
+        sharedRelation: { type: string }
+        difference: { type: string }
+        authorDisplayName: { type: string }
+        sourceType: { type: string, enum: [public, authorized_private, synthetic_private] }
+        contentType: { type: string, enum: [question, answer, article, comment, authorized_expression] }
+        sourceUrl: { type: [string, "null"], format: uri }
+        authorProfileUrl: { type: [string, "null"], format: uri }
+        publishedAt: { type: string, format: date-time }
+        timestampKind: { type: string, enum: [published, edited_or_published, sample_created] }
+        interactionFacts:
+          type: object
+          properties:
+            upvotes: { type: [integer, "null"], minimum: 0 }
+            comments: { type: [integer, "null"], minimum: 0 }
+        contactable: { type: boolean }
+        identityDisclosable: { type: boolean }
+        evidenceRefs:
+          type: array
+          items: { $ref: "#/components/schemas/EvidenceRef" }
+    DiscoveryResult:
+      type: object
+      required:
+        - requestId
+        - status
+        - shouldInvite
+        - understanding
+        - matches
+        - inviteCopy
+        - presentationCopy
+        - reasonCode
+        - dataMode
+        - modelMode
+        - meta
+      properties:
+        requestId: { type: string, format: uuid }
+        status: { type: string, enum: [matched, no_match, not_eligible, unavailable] }
+        shouldInvite: { type: boolean }
+        understanding:
+          type: object
+          required: [explicitConcerns, uncertainPoints]
+          properties:
+            explicitConcerns: { type: array, items: { type: string } }
+            uncertainPoints: { type: array, items: { type: string } }
+        matches:
+          type: object
+          required: [situationClose, structureRelated]
+          properties:
+            situationClose: { oneOf: [{ $ref: "#/components/schemas/Match" }, { type: "null" }] }
+            structureRelated: { oneOf: [{ $ref: "#/components/schemas/Match" }, { type: "null" }] }
+        inviteCopy: { type: [string, "null"] }
+        presentationCopy:
+          oneOf:
+            - $ref: "#/components/schemas/PresentationCopy"
+            - type: "null"
+        reasonCode: { type: string }
+        dataMode: { type: string, enum: [fixture, routed] }
+        modelMode: { type: string, enum: [mock, live] }
+        meta:
+          type: object
+          required:
+            - pipelineVersion
+            - promptVersion
+            - matchPolicyVersion
+            - eligiblePrivatePoolSize
+            - matchPolicyTier
+            - durationMs
+            - candidateCount
+          properties:
+            pipelineVersion: { type: string }
+            promptVersion: { type: string }
+            matchPolicyVersion: { type: string }
+            eligiblePrivatePoolSize: { type: [integer, "null"], minimum: 0 }
+            matchPolicyTier: { type: [string, "null"], enum: [scarce, growing, mature, null] }
+            durationMs: { type: number, minimum: 0 }
+            candidateCount: { type: integer, minimum: 0 }
+    PresentationChoiceCopy:
+      type: object
+      additionalProperties: false
+      required: [path, candidateId, bridge, relation]
+      properties:
+        path: { type: string, enum: [situationClose, structureRelated] }
+        candidateId: { type: string }
+        bridge: { type: string }
+        relation: { type: string }
+    PresentationCopy:
+      type: object
+      additionalProperties: false
+      required: [sharedConcern, choices]
+      properties:
+        sharedConcern: { type: string }
+        choices:
+          type: array
+          minItems: 1
+          maxItems: 2
+          items: { $ref: "#/components/schemas/PresentationChoiceCopy" }
