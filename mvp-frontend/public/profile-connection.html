@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="same-origin">
+<title>知乎连接检查</title>
+<style>body{font:18px/1.7 system-ui;max-width:40rem;margin:12vh auto;padding:1.5rem;color:#35424a;background:#f3f2ec}button{font:inherit;padding:.65rem 1.2rem;cursor:pointer}</style>
+<h1>知乎连接检查</h1>
+<p>检查当前登录账号的公开创作和近期收藏是否可以读取。只显示数量，不生成背景，不调用模型。</p>
+<form action="/api/profile/footprints" method="get">
+<input type="hidden" name="requestId" id="request-id">
+<button type="submit">检查知乎连接</button>
+</form>
+<script>document.querySelector('form').addEventListener('submit',()=>{document.querySelector('#request-id').value=crypto.randomUUID()});</script>
+</html>
