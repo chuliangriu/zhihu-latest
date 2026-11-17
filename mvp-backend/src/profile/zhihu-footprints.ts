@@ -1,7 +1,7 @@
 import { createDecipheriv, createHash } from "node:crypto";
 import { isZhihuUrl } from "../guards/candidates.js";
 import type { SupabaseAdapter } from "../sources/supabase-adapter.js";
-import type { Footprint, FootprintSource, ProfileConnectionDiagnostic } from "./contracts.js";
+import type { AccessSecretCheck, Footprint, FootprintSource, ProfileConnectionDiagnostic } from "./contracts.js";
 
 export class ProfileDataError extends Error {
   constructor(public readonly code: string, public readonly connection?: ProfileConnectionDiagnostic) { super(code); }
@@ -24,6 +24,22 @@ export function decryptProfileToken(value: string, secret: string): string {
 export class ZhihuFootprintSource implements FootprintSource {
   constructor(private readonly accounts: Pick<SupabaseAdapter, "oauthAccount">,
     private readonly accessSecret: string, private readonly encryptionKey: string, private readonly fetcher: typeof fetch = fetch) {}
+  // Independent public request: validates the server credential without reading
+  // the developer's personal data or using a rejected OAuth token as a fallback.
+  async checkAccessSecret(signal: AbortSignal): Promise<AccessSecretCheck> {
+    const url = new URL("https://developer.zhihu.com/api/v1/content/zhihu_search");
+    url.searchParams.set("Query", "知乎"); url.searchParams.set("Count", "1");
+    try {
+      const response = await this.fetcher(url, { headers: { Authorization: `Bearer ${this.accessSecret}`,
+        "X-Request-Timestamp": String(Math.floor(Date.now()/1000)), "Content-Type": "application/json" },
+        signal: AbortSignal.any([signal, AbortSignal.timeout(8000)]), redirect: "error" });
+      let payload: any;
+      try { payload = await readBody(response); } catch {}
+      const upstreamCode = typeof payload?.Code === "number" && Number.isSafeInteger(payload.Code) ? payload.Code : undefined;
+      return { status: response.ok && upstreamCode === 0 ? "accepted" : [401,403].includes(response.status) || upstreamCode === 20001 ? "rejected" : "unavailable",
+        httpStatus: response.status, ...(upstreamCode === undefined ? {} : { upstreamCode }) };
+    } catch { return { status: "unavailable" }; }
+  }
   async load(userId: string, signal: AbortSignal, onRequest: () => void): Promise<Footprint[]> {
     if (!this.accessSecret || !this.encryptionKey) throw new ProfileDataError("PROFILE_CONFIG_MISSING");
     const account = await this.accounts.oauthAccount(userId, signal);

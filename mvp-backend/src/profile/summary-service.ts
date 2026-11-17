@@ -52,7 +52,15 @@ export class ProfileSummaryService {
     } catch (error) {
       const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "PROFILE_UNAVAILABLE";
       result.status = "unavailable"; result.reasonCode = code;
-      if (inspectOnly && error instanceof ProfileDataError && error.connection) result.connection = error.connection;
+      if (inspectOnly && error instanceof ProfileDataError && error.connection) {
+        result.connection = { ...error.connection };
+        if (code === "OAUTH_REAUTH_REQUIRED" && ["creation", "collection"].includes(error.connection.stage) && this.source.checkAccessSecret) {
+          const checkStarted = Date.now();
+          try { result.connection.accessSecret = await this.source.checkAccessSecret(signal); }
+          catch { result.connection.accessSecret = { status: "unavailable" }; }
+          trace.stages.push({ name: "zhihu_credential_check", durationMs: Date.now()-checkStarted, zhihuSearchRequests: 1 });
+        }
+      }
       trace.stages.push({ name: "profile_error", durationMs: Date.now()-started, note: code });
     }
     return { result, trace, userDataRequests };

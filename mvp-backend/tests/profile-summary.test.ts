@@ -222,10 +222,18 @@ describe("private connection failure diagnostics", () => {
     ["insufficient scope: private-upstream-secret", "permission_denied"],
     ["private-upstream-secret", "unspecified"]
   ])("exposes only allowlisted fields for %s",async(message,hint)=>{
-    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:20001,Message:message},{status:401}));
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:20001,Message:message},{status:401}))
+      .mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[{Summary:"public result is not user data"}]}}));
     const service=new ProfileSummaryService(new ZhihuFootprintSource(accounts,"access-secret",secret,fetcher),createLlm);
     const detail=await service.inspect(userId);
-    expect(detail.result.connection).toEqual({stage:"creation",httpStatus:401,upstreamCode:20001,hint});
+    expect(detail.result.connection).toEqual({stage:"creation",httpStatus:401,upstreamCode:20001,hint,accessSecret:{status:"accepted",httpStatus:200,upstreamCode:0}});
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    const [publicUrl,publicOptions]=fetcher.mock.calls[1]!;
+    expect(new URL(String(publicUrl)).pathname).toBe("/api/v1/content/zhihu_search");
+    expect(new URL(String(publicUrl)).searchParams.get("Count")).toBe("1");
+    expect(publicOptions?.headers).not.toHaveProperty("X-OAuth-Token");
+    expect(detail.trace.stages.find(x=>x.name==="zhihu_credential_check")?.zhihuSearchRequests).toBe(1);
+    expect(JSON.stringify(detail)).not.toContain("public result is not user data");
     expect(detail.userDataRequests).toBe(1);
     expect(JSON.stringify(detail)).not.toContain("private-upstream-secret");
     expect(JSON.stringify(detail)).not.toContain(oauthToken);
@@ -238,4 +246,13 @@ describe("private connection failure diagnostics", () => {
     expect(detail.result).not.toHaveProperty("connection");
     expect(createLlm).not.toHaveBeenCalled();
   });
+});
+
+it.each([
+  [401,20001,"rejected"], [200,20001,"rejected"], [429,30001,"unavailable"]
+])("separates independent server-credential HTTP %s / Code %s from OAuth failure",async(http,code,status)=>{
+  const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:code,Message:"private message"},{status:http}));
+  const source=new ZhihuFootprintSource({oauthAccount:async()=>null},"server-secret",secret,fetcher);
+  expect(await source.checkAccessSecret(AbortSignal.timeout(1000))).toEqual({status,httpStatus:http,upstreamCode:code});
+  expect(fetcher).toHaveBeenCalledTimes(1);
 });

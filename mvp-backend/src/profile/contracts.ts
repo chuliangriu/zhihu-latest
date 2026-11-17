@@ -7,8 +7,13 @@ export const profileModelSchema = z.object({
   unknown: z.array(z.enum(["年龄", "职业", "学校", "城市", "关系状态", "健康情况"])).max(6)
 }).strict();
 export interface Footprint { id: string; kind: "creation" | "collection"; title: string; summary: string; occurredAt: string; }
-export interface FootprintSource { load(userId: string, signal: AbortSignal, onRequest: () => void): Promise<Footprint[]>; }
+export interface AccessSecretCheck { status: "accepted" | "rejected" | "unavailable"; httpStatus?: number; upstreamCode?: number; }
+export interface FootprintSource {
+  load(userId: string, signal: AbortSignal, onRequest: () => void): Promise<Footprint[]>;
+  checkAccessSecret?(signal: AbortSignal): Promise<AccessSecretCheck>;
+}
 export interface ProfileConnectionDiagnostic {
+  accessSecret?: AccessSecretCheck;
   stage: "account_lookup" | "token_decryption" | "creation" | "collection";
   httpStatus?: number;
   upstreamCode?: number;

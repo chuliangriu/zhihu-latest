@@ -98,7 +98,8 @@ export function createApp(dependencies: AppDependencies) {
         const principal = request.principal, secret = dependencies.config.identity.ipHashSecret, ipHash = request.clientIpHash;
         if (!principal || !secret || !ipHash) { response.status(503).json({ error: { code: "IDENTITY_SERVICE_UNAVAILABLE" } }); return; }
         const begin = await protection.beginDiscovery({ principal, ipHash, userIdHash: hashIdentifier(principal.userId, secret),
-          sessionIdHash: hashIdentifier(principal.sessionId, secret), idempotencyKey: key, endpointId: "profile.summarize" });
+          sessionIdHash: hashIdentifier(principal.sessionId, secret), idempotencyKey: key, endpointId: "profile.summarize",
+          requiresLlm: !route.inspectOnly, zhihuSearchRequestReserve: route.inspectOnly ? 1 : 0 });
         if (!begin.allowed) {
           if (begin.rateResetAt) response.setHeader("Retry-After", Math.max(1, Math.ceil((begin.rateResetAt-Date.now())/1000)));
           response.status(begin.statusCode).json({ error: publicQuotaError(begin.reasonCode) }); return;
