@@ -1,0 +1,106 @@
+/* Homepage study: quiet paper, muted pigment, human-scale details. */
+@font-face { font-family: 'Paper Sans'; src: url('/paper-assets/paper-sans.woff') format('woff'); font-display: swap; }
+body[data-screen="home"] {
+  --ink: #383c3b; --muted: #777973; --accent: #5a7390;
+  --paper: #f5f3ec; --line: #dddcd2;
+  background: var(--paper); color: var(--ink); position: relative;
+  font-family: 'Paper Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+body[data-screen="home"]::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 20;
+  background: url('/paper-assets/grain.svg') repeat; opacity: .14; mix-blend-mode: multiply;
+}
+body[data-screen="home"] #app { overflow: hidden; min-height: 100vh; }
+body[data-screen="home"] header {
+  max-width: 1176px; height: 88px; padding: 0 38px;
+  border-bottom: 1px solid var(--line); justify-content: space-between;
+}
+body[data-screen="home"] header::after {
+  content: '一次尚未发生的相遇'; color: #85877f; font-size: 11px; letter-spacing: .12em;
+}
+body[data-screen="home"] .brand { color: #44515c; font-family: inherit; font-size: 20px; font-weight: 600; letter-spacing: .18em; display: flex; align-items: center; gap: 13px; }
+body[data-screen="home"] .brand::before { content: ''; width: 22px; height: 25px; background: #8095a8; border-radius: 45% 55% 47% 13%; transform: rotate(-9deg); box-shadow: 7px 3px 0 -1px #c7c9b9; }
+.paper-home.home { max-width: 1176px; height: auto; margin: auto; padding: 0 38px; }
+.paper-hero { display: grid; grid-template-columns: 1.3fr 1fr; align-items: center; padding: 58px 0 44px; min-height: 445px; gap: 40px; }
+.paper-kicker { margin: 0 0 27px; color: #737e80; font-size: 11px; letter-spacing: .13em; display: flex; align-items: center; gap: 9px; }
+.paper-kicker span { color: #8b9f9b; font-size: 20px; line-height: 1; }
+.hero-prelude { margin: 0 0 13px; color: #72766e; font-size: 15px; letter-spacing: .06em; }
+.paper-home h1 { font-family: 'Paper Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif; margin: 0; max-width: none; color: #373e3d; font-size: clamp(30px, 3.65vw, 49px); font-weight: 500; letter-spacing: -.045em; line-height: 1.43; }
+.paper-home h1 span { display: inline; color: #607c96; }
+.hero-description { margin: 22px 0; font-size: 13px; color: #71756f; line-height: 1.95; letter-spacing: .04em; }
+.explore-link { display: inline-flex; gap: 28px; align-items: center; color: #4b626f; font-size: 12px; text-decoration: none; padding: 4px 0 7px; border-bottom: 1px solid #b1bdbd; }
+.explore-link span { font-size: 17px; transition: transform .2s; }
+.explore-link:hover span { transform: translateY(3px); }
+.hero-illustration { position: relative; width: 345px; margin: 10px auto 0; text-align: center; }
+.mascot-window { width: 286px; height: 374px; overflow: hidden; margin: 0 auto; transform: rotate(-3deg); clip-path: polygon(1% 1%, 49% 0, 99% 2%, 100% 51%, 98% 99%, 48% 100%, 0 98%, 1% 50%); }
+.mascot-window img { display: block; width: 926px; max-width: none; height: auto; transform: translate(-24px, -89px); }
+.pencil-note { display: block; position: relative; z-index: 1; margin-bottom: 11px; color: #798a94; font-size: 13px; letter-spacing: .06em; transform: rotate(-6deg); }
+.mascot-caption { display: block; margin-top: 17px; color: #848779; font-size: 10px; letter-spacing: .08em; }
+.story-section { padding-top: 25px; border-top: 1px solid var(--line); scroll-margin-top: 24px; }
+.story-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+.section-index { color: #838778; font-size: 10px; letter-spacing: .14em; margin: 0 0 9px; }
+.story-heading h2 { font-size: 19px; font-weight: 500; letter-spacing: .025em; margin: 0; }
+.story-heading > p { margin: 0 0 2px; color: #7d8076; font-size: 11px; }
+.paper-home.home .people-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 25px 0 0; }
+.paper-home .person-card { position: relative; display: block; min-height: 0; padding: 26px 30px 22px; background: #e8ece9; border: 1px solid #dce1db; border-radius: 5px 9px 6px 8px; text-align: left; box-shadow: none; transition: transform .22s, background .22s; }
+.paper-home .person-card::before { content: none; }
+.paper-home .person-card.story-1 { background: #ece8de; border-color: #e1ddd3; border-radius: 9px 5px 8px 6px; }
+.paper-home .person-card:hover { transform: translateY(-3px); background: #e2e8e5; border-color: #bcc9c9; box-shadow: none; }
+.paper-home .person-card.story-1:hover { background: #e8e3d8; border-color: #cfc8b8; }
+.story-person { display: flex; align-items: center; gap: 16px; }
+.story-avatar { width: 66px; height: 66px; flex-shrink: 0; border-radius: 50%; overflow: hidden; position: relative; mix-blend-mode: multiply; }
+.paper-home .avatar-img { position: absolute; left: -12px; top: -29px; width: 90px; height: 96px; margin: 0; border-radius: 0; filter: brightness(1.07); }
+.story-person h3 { margin: 0 0 6px; font: 26px Georgia, serif; color: #414743; }
+.paper-home .person-role { font: 10px 'Paper Sans', sans-serif; letter-spacing: .01em; color: #777d75; margin: 0; }
+.story-number { margin-left: auto; align-self: flex-start; font: italic 28px Georgia, serif; color: #b0b8b0; }
+.story-copy { padding-top: 20px; }
+.story-label { font-size: 10px; color: #72877f; letter-spacing: .035em; }
+.story-1 .story-label { color: #8b8069; }
+.paper-home .person-background { margin: 9px 0 8px; font-size: 15px; line-height: 1.8; }
+.paper-home .person-detail { font-size: 11px; line-height: 1.8; min-height: 0; color: #7d8177; margin: 0; }
+.paper-home .person-card .primary { display: flex; align-items: center; justify-content: space-between; width: 100%; border: 0; border-top: 1px solid #cfd6cc; border-radius: 0; padding: 16px 0 0; margin-top: 24px; color: #536e7b; background: transparent; font: 12px 'Paper Sans', sans-serif; box-shadow: none; }
+.paper-home .story-1 .primary { border-color: #d7d1c5; }
+.paper-home .primary span { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: #d8e0dc; color: #667b85; font: 18px sans-serif; transition: transform .2s; }
+.paper-home .story-1 .primary span { background: #e0dacd; }
+.paper-home .primary:hover span { transform: translate(2px, -2px); }
+.home-footer { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 30px 0 28px; color: #909187; }
+.home-footer p { font-size: 11px; margin: 0; letter-spacing: .04em; }
+.home-footer span { font-size: 10px; }
+body[data-screen="home"] :is(button, a):focus-visible { outline: 2px solid #647e96; outline-offset: 6px; }
+@media (max-width: 760px) {
+  body[data-screen="home"] header { height: 72px; margin: 0 24px; padding: 0; }
+  body[data-screen="home"] header::after { font-size: 9px; letter-spacing: 0; }
+  body[data-screen="home"] .brand { font-size: 17px; gap: 10px; }
+  .paper-home.home { padding: 0 24px; }
+  .paper-hero { grid-template-columns: 1fr; padding: 35px 0 30px; gap: 10px; }
+  .paper-kicker { margin-bottom: 22px; }
+  .paper-home h1 { font-size: clamp(28px, 6.8vw, 42px); }
+  .hero-description { font-size: 12px; margin: 17px 0; }
+  .hero-illustration { width: 100%; max-width: 300px; margin-top: 22px; }
+  .mascot-window { width: 209px; height: 272px; }
+  .mascot-window img { width: 675px; transform: translate(-17px, -64px); }
+  .pencil-note { font-size: 11px; margin-bottom: 11px; }
+  .mascot-caption { font-size: 9px; }
+  .story-heading { display: block; }
+  .story-heading h2 { font-size: 18px; }
+  .story-heading > p { margin-top: 11px; font-size: 10px; }
+  .paper-home.home .people-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
+  .paper-home .person-card { padding: 23px; }
+  .home-footer { display: block; padding: 26px 0; }
+  .home-footer span { display: block; margin-top: 12px; font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) { .paper-home * { transition: none !important; } }
+
+/* Home uses the reference's natural document flow, independently of the
+   fixed-height demo scenes. These resets undo shared app defaults only. */
+html:has(body[data-screen="home"]) { height: auto; overflow: auto; }
+body[data-screen="home"] { height: auto; overflow: visible; font-size: 15px; line-height: normal; }
+body[data-screen="home"] #app { display: block; width: auto; height: auto; min-height: 100vh; }
+body[data-screen="home"] #app > header { width: auto; margin: auto; height: 88px; padding: 0 38px; gap: 12px; flex: none; }
+body[data-screen="home"] #app > main.home { display: block; flex: none; min-height: 0; height: auto; overflow: visible; }
+body[data-screen="home"] .people-grid { display: grid; justify-content: center; }
+body[data-screen="home"] .avatar-img { mix-blend-mode: normal; }
+body[data-screen="home"] .primary:hover { transform: none; }
+@media (max-width: 760px) {
+  body[data-screen="home"] #app > header { height: 72px; margin: 0 24px; padding: 0; }
+}

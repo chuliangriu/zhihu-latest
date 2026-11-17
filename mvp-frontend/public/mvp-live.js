@@ -1,0 +1,206 @@
+import { createEntryController } from './mvp-entry.js';
+import { createApi, discoveryView, safeZhihuUrl } from './mvp-api.js';
+import { decodeSession } from './mvp-auth.js';
+
+const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什么、你为什么在意、现在卡在哪里，都可以慢慢说，不用一次讲完。等我真的听懂了，才有可能从看山们的信箱里，替你带回一张相关的纸 🦊';
+
+export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
+  const base = createEntryController({ render, schedule, cancel });
+  const state = base.getState();
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, paper: null, activePapers: [] });
+  state.chatNotice = '';
+  const paint = () => render(state);
+  const candidate = () => state.user.candidates[state.selected];
+  const canRespond = () => candidate() && (candidate().contact || candidate().synthetic);
+  let controller;
+  function fail(error) {
+    const code = error?.code || error?.message || 'SERVICE_UNAVAILABLE';
+    const modelFailures = {
+      LLM_OUTPUT_INVALID: '看山这次没把纸条整理好。你的聊天和选择都还在，可以点“重新整理纸条”再试；还没有投入信箱。',
+      LLM_TIMEOUT: '整理纸条暂时超时了。你的聊天和选择都还在，可以点“重新整理纸条”再试；还没有投入信箱。',
+      LLM_UPSTREAM_BUSY: '模型服务暂时繁忙，请稍后点“重新整理纸条”。还没有投入信箱。',
+      LLM_UNAVAILABLE: '模型服务暂时没有连通，请稍后点“重新整理纸条”。还没有投入信箱。',
+      PAPER_FACTS_UNGROUNDED: '这次整理带入了你没有说过的细节，纸条没有保存。请点“重新整理纸条”再试。'
+    };
+    if (state.screen === 'consent' && modelFailures[code]) { state.error = modelFailures[code]; return; }
+    const protectionFailures = {
+      SHORT_RATE_LIMITED: '操作太快了，请在稍后再试。',
+      CONCURRENCY_LIMITED: '上一项任务仍在处理，请等待完成后再试。',
+      DAILY_QUOTA_EXCEEDED: '今日体验额度已用完，请明天再试。',
+      GLOBAL_BUDGET_EXCEEDED: '今日服务资源已用完，暂时不能继续生成。',
+      LLM_DISABLED: '真实模型调用暂时关闭。',
+      BUDGET_SERVICE_UNAVAILABLE: '安全计量服务暂时不可用；本次请求没有提交给模型，请稍后重试。',
+      SERVICE_BUDGET_UNAVAILABLE: '安全计量服务暂时不可用；本次请求没有提交给模型，请稍后重试。',
+      MONITORING_SERVICE_UNAVAILABLE: '安全计量服务暂时不可用；本次请求没有提交给模型，请稍后重试。',
+      LLM_UPSTREAM_BUSY: '模型供应商暂时繁忙，请稍后重试。',
+      LLM_TIMEOUT: '模型回复超时，请稍后重试。',
+      LLM_TIMEOUT_OR_ABORTED: '模型请求被中断或超时，请稍后重试。',
+      REQUEST_CANCELLED: '本次回复已停止，可以继续聊天。',
+      IDEMPOTENCY_REPLAY: '相同请求已在处理或刚提交，请不要重复发送。'
+    };
+    if (protectionFailures[code]) { state.error = protectionFailures[code]; return; }
+    state.error = error?.name === 'AbortError' ? '已停止本次回答，可以继续聊。' :
+      /NOT_LOGGED|UNAUTHENTICATED/.test(code) ? '登录状态已失效，请回到首页重新进入。' :
+      /INJECTION|REJECTED/.test(code) ? '这段内容暂时无法处理，请调整后再试。' :
+      `这次没有完成，请重试。${code ? `（${code}）` : ''}`;
+  }
+  async function start() {
+    state.screen = 'login'; state.busy = true; state.error = ''; paint();
+    try {
+      const session = await api.json('/api/auth-me', undefined, 'GET');
+      const decoded = decodeSession(session);
+      if (decoded.status !== 'authenticated') throw new Error('SESSION_INVALID');
+      Object.assign(state.user, decoded.identity); state.sessionReady = true; state.authRequired = false;
+      state.localDevelopment = session.localDevelopment === true;
+      state.chatNotice = '';
+      if (!state.localDevelopment && !state.user.profileReady) {
+        try {
+          const profile = await api.json('/api/profile/summary', { useAuthorizedFootprints: true });
+          if (profile.status === 'ready' && profile.profile) Object.assign(state.user, { role: profile.profile.role,
+            impression: profile.profile.impression, recentFocus: profile.profile.recentFocus, profileReady: true });
+        } catch { /* Existing recovery entry remains available. */ }
+      }
+    } catch (error) {
+      if (/NOT_LOGGED|UNAUTHENTICATED/.test(error?.message || '')) {
+        state.authRequired = true;
+        state.error = '';
+      } else fail(error);
+    }
+    finally { state.busy = false; paint(); }
+  }
+  async function send() {
+    const text = state.chatDraft.trim(); if (!text || state.busy || !state.sessionReady) return;
+    base.stop(); state.error = ''; state.busy = true; state.phase = 'reply'; state.selected = null; state.paper = null;
+    state.user.chat = [...state.user.chat, ...state.user.discoveryChat, { role: 'user', text }]; state.user.discoveryChat = [];
+    state.privateDraft = ''; state.publicDraft = ''; state.privateMessages = []; state.publicReplies = [];
+    const answer = { role: 'agent', text: '' }; state.user.chat.push(answer);
+    state.stage = state.user.chat.length; state.chatDraft = ''; state.typewriterStage = null;
+    state.chatNotice = '看山正在回应，你也可以继续输入。';
+    controller = new AbortController(); paint();
+    try {
+      const done = await api.chat(state.conversationId, text, chunk => { answer.text += chunk; paint(); }, controller.signal, completed => {
+        state.conversationId = completed.conversationId;
+        state.chatNotice = '你可以接着说，我在看看有没有相关的表达。'; paint();
+      });
+      state.conversationId = done.conversationId;
+      if (done.discovery?.eligible && !state.queuedChat) {
+        state.phase = 'discovery';
+        state.chatNotice = '我再找找有没有相关的表达。你可以接着说，不用等我。'; paint();
+        try {
+          const result = await api.json(`/api/conversations/${done.conversationId}/discovery`, {
+            assistantMessageId: done.assistantMessageId, topicKey: done.discovery.topicKey
+          }, 'POST', controller.signal);
+          state.discoveryId = result.discoveryId;
+          const display = discoveryView(result, state.user.name);
+          state.user.candidates = display.candidates; state.user.discoveryChat = display.messages;
+          if (!display.messages.length) state.chatNotice = result.status === 'not_eligible' ? '我们先接着聊聊刚才的事。' : '这次暂时没有找到有具体关联的表达。我们可以接着聊。';
+          else state.chatNotice = '';
+        } catch {
+          // Discovery is an optional follow-up. The streamed chat answer has
+          // already completed and must remain usable if a JSON-only matching
+          // stage rejects a provider response.
+          state.chatNotice = '这次没能整理出相关的纸条，但刚才的聊天已经完成。你可以继续说。';
+        }
+      } else state.chatNotice = '';
+    } catch (error) { fail(error); }
+    finally {
+      state.busy = false; state.phase = null; controller = null;
+      if (state.queuedChat) {
+        // Serialize requests to respect the backend's per-user concurrency
+        // limit. Do not drop a submitted message or duplicate a cost request.
+        const next = state.queuedChat; state.queuedChat = '';
+        const composing = state.chatDraft; state.chatDraft = next;
+        const pending = send(); state.chatDraft = composing; paint();
+        await pending;
+      } else base.resume();
+    }
+  }
+  async function draft() {
+    state.busy = true; state.error = ''; paint();
+    try {
+      const paper = await api.json('/api/papers/drafts', { conversationId: state.conversationId,
+        confirmedProfile: state.user.profileReady ? { background: state.user.impression.slice(0, 2).map(x => x.slice(0,160)), recentFocus: state.user.recentFocus.slice(0,180) } : null });
+      state.paper = paper; state.user.sharePaper = paper; state.paperOrigin = '由看山根据刚才的对话整理'; state.screen = 'share';
+    } catch (error) { fail(error); }
+    finally { state.busy = false; paint(); }
+  }
+  async function deposit() {
+    if (!state.paper) return;
+    const target = candidate(); state.busy = true; state.error = ''; paint();
+    try {
+      const result = await api.json(`/api/papers/${state.paper.id}/confirm`, { expectedVersion: state.paper.version,
+        discoverableDays: 7, identityDisclosure: 'nickname', contactAllowed: true,
+        target: target?.sourceType === 'authorized_private' ? { kind: 'selected_private', discoveryId: state.discoveryId, candidateId: target.candidateId } : target?.sourceType === 'synthetic_private' ? { kind: 'synthetic_demo', discoveryId: state.discoveryId, candidateId: target.candidateId } : { kind: 'mailbox_only' } });
+      state.paper = result.paper; state.user.sharePaper = result.paper; state.delivery = result.delivery;
+      if (!result.delivery && target?.sourceType === 'authorized_private' && !/^[0-9a-f-]{36}$/i.test(target.candidateId)) {
+        target.sourceType = 'synthetic_private'; target.synthetic = true;
+      }
+      state.activePapers = [...state.activePapers.filter(p => p.id !== result.paper.id), result.paper];
+      state.screen = 'deposit'; paint();
+      state.timer = schedule(() => { state.timer = null; state.screen = 'delivered'; state.busy = false; paint(); }, 8400);
+    } catch (error) { state.busy = false; fail(error); paint(); }
+  }
+  async function handoff() {
+    if (!(state.privateDraft.trim() || state.publicDraft.trim())) return;
+    if (candidate()?.synthetic) {
+      state.privateMessages.push(state.privateDraft.trim()); state.privateDraft = ''; paint(); return;
+    }
+    state.busy = true; state.error = ''; paint();
+    try {
+      const result = await api.json('/api/handoffs', { discoveryId: state.discoveryId, candidateId: candidate().candidateId });
+      const url = safeZhihuUrl(result.redirectUrl); if (!url || result.textTransferred !== false) throw new Error('HANDOFF_INVALID');
+      navigate(url);
+    } catch (error) { fail(error); }
+    finally { state.busy = false; paint(); }
+  }
+  return { initialize: base.initialize, input(field, value) {
+    if (field.startsWith('paper-') && state.paperEdit) state.paperEdit[field.slice(6)] = value;
+    else base.input(field, value);
+  }, getState: base.getState,
+    async action(action, id) {
+      if (action === 'cancel-reply') { controller?.abort(); return; }
+      if (action === 'send-chat' && state.busy && state.phase && !state.queuedChat && state.chatDraft.trim()) {
+        state.queuedChat = state.chatDraft.trim(); state.chatDraft = ''; paint(); return;
+      }
+      if (state.busy) return;
+      if (action === 'save-profile' && !state.nameDraft.trim()) state.nameDraft = state.user.name;
+      if (action === 'start') return start();
+      if (action === 'enter-chat') {
+        if (!state.sessionReady) return start();
+        state.sampleScenario = null;
+        if (state.conversationId === null && state.user.chat.length === 0 && state.user.discoveryChat.length === 0) {
+          state.user.chat.push({ role: 'agent', text: NEW_CONVERSATION_GREETING });
+        }
+        state.screen = 'chat'; state.chatOpen = true; state.stage = state.user.chat.length + state.user.discoveryChat.length; paint(); return;
+      }
+      if (action === 'send-chat') return send();
+      if (action === 'confirm-consent') {
+        if (state.screen === 'consent' && canRespond()) return draft();
+        return;
+      }
+      if (action === 'deposit') {
+        if (state.screen === 'share' && canRespond()) return deposit();
+        return;
+      }
+      if (action === 'edit-paper') { state.paperEdit = { subject: state.paper.subject, quote: state.paper.quote, context: state.paper.context, background: state.paper.background }; paint(); return; }
+      if (action === 'cancel-paper-edit') { state.paperEdit = null; paint(); return; }
+      if (action === 'save-paper-edit') {
+        state.busy = true; state.error = ''; paint();
+        try { state.paper = await api.json(`/api/papers/${state.paper.id}`, { expectedVersion: state.paper.version, ...state.paperEdit }, 'PATCH'); state.user.sharePaper = state.paper; state.paperEdit = null; }
+        catch (error) { fail(error); }
+        finally { state.busy = false; paint(); }
+        return;
+      }
+      if (action === 'send-private' || action === 'send-public') return handoff();
+      if (action === 'withdraw-paper' && (id || state.paper?.id)) {
+        state.busy = true; state.error = ''; paint();
+        try { const paper = await api.json(`/api/papers/${id || state.paper.id}/withdraw`, {}); state.activePapers = state.activePapers.filter(p => p.id !== paper.id); if (state.paper?.id === paper.id) state.paper = paper; state.screen = 'chat'; state.chatNotice = '你的纸条已收回。'; } catch (error) { fail(error); }
+        finally { state.busy = false; paint(); } return;
+      }
+      if (action === 'write' && canRespond()) { state.user.sharePaper.subject ||= '刚才聊到的事'; state.screen = 'consent'; paint(); return; }
+      if (action === 'back' && state.screen === 'card' && candidate()?.synthetic) { state.selected = null; state.screen = 'chat'; paint(); return; }
+      if (action === 'switch-sample' || action === 'skip-sample' || action === 'replay-chat') return;
+      base.action(action, id);
+    }
+  };
+}

@@ -1,0 +1,1555 @@
+{
+  "version": 1,
+  "cards": [
+    {
+      "candidateId": "synthetic-10",
+      "authorId": "fictional-10",
+      "authorDisplayName": "Noah",
+      "domain": "creative_hobby",
+      "text": "Noah 毕业后做内容运营，夜里一直在写一部长篇小说。他会反复修改大纲和章节，但作品很少得到读者回应。\n\n最近一条线：小说已经投入很久，他仍然喜欢这个故事，却越来越难判断继续写下去有没有意义。\n\n他说：我不是不想写了，只是一直没有人看见时，我不知道还要靠什么判断要不要继续。",
+      "source": {
+        "sourceId": "synthetic-paper-10",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--250653020824814017",
+        "sourceUrl": "https://www.zhihu.com/question/563520003/answer/2078964710205028098?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "Noah 毕业后做内容运营，夜里一直在写一部长篇小说。",
+        "他会反复修改大纲和章节，但作品很少得到读者回应。"
+      ],
+      "recentFocus": "小说已经投入很久，他仍然喜欢这个故事，却越来越难判断继续写下去有没有意义。"
+    },
+    {
+      "candidateId": "synthetic-11",
+      "authorId": "fictional-11",
+      "authorDisplayName": "Iris",
+      "domain": "space_use",
+      "text": "Iris 在读建筑学，平时会记录校园和家里那些看起来完整、实际上很少有人停留的空间。她关注的不是摆设是否漂亮，而是人为什么愿意留下。\n\n最近一条线：家里的客厅换了新家具，但家人依然各自回房，她开始怀疑设计能不能真的改变共同生活。\n\n她说：东西都摆好了，可如果大家还是不愿意坐下来，这个空间到底完成了吗？",
+      "source": {
+        "sourceId": "synthetic-paper-11",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--7682967646815011142",
+        "sourceUrl": "https://www.zhihu.com/question/1929360971404670679/answer/2080952298159842562?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "Iris 在读建筑学，平时会记录校园和家里那些看起来完整、实际上很少有人停留的空间。",
+        "她关注的不是摆设是否漂亮，而是人为什么愿意留下。"
+      ],
+      "recentFocus": "家里的客厅换了新家具，但家人依然各自回房，她开始怀疑设计能不能真的改变共同生活。"
+    },
+    {
+      "candidateId": "synthetic-12",
+      "authorId": "fictional-12",
+      "authorDisplayName": "Owen",
+      "domain": "side_project",
+      "text": "Owen 和邻居一起维护一个社区天气提醒小程序，负责整理居民提交的积水、停电和道路信息。他喜欢解决具体问题，也在意信息是否真的抵达需要的人。\n\n最近一条线：提交信息的人越来越多，真正订阅提醒的人却没有增加，他不知道该继续加功能还是先把入口做简单。\n\n他说：我们一直在收集更多消息，可我最担心的是，需要它的人根本没有看到。",
+      "source": {
+        "sourceId": "synthetic-paper-12",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-4249018766197266942",
+        "sourceUrl": "https://www.zhihu.com/question/1922620983694558659/answer/2079704848648368715?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "Owen 和邻居一起维护一个社区天气提醒小程序，负责整理居民提交的积水、停电和道路信息。",
+        "他喜欢解决具体问题，也在意信息是否真的抵达需要的人。"
+      ],
+      "recentFocus": "提交信息的人越来越多，真正订阅提醒的人却没有增加，他不知道该继续加功能还是先把入口做简单。"
+    },
+    {
+      "candidateId": "synthetic-13",
+      "authorId": "fictional-13",
+      "authorDisplayName": "Nina",
+      "domain": "family_labor",
+      "text": "Nina 经常替家人处理挂号、缴费和行程安排。她熟悉每个人的时间，也习惯在临时变化时先把空缺补上，很少有人专门确认她是否方便。\n\n最近一条线：家里的安排越来越依赖她，她愿意帮忙，却担心自己一旦没有及时回应，所有事情都会停下来。\n\n她说：我想继续照顾大家，但也希望偶尔有人先问一句，我今天有没有时间。",
+      "source": {
+        "sourceId": "synthetic-paper-13",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--3854316146364966958",
+        "sourceUrl": "https://www.zhihu.com/question/1926199656796386492/answer/2077851014695335148?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "Nina 经常替家人处理挂号、缴费和行程安排。",
+        "她熟悉每个人的时间，也习惯在临时变化时先把空缺补上，很少有人专门确认她是否方便。"
+      ],
+      "recentFocus": "家里的安排越来越依赖她，她愿意帮忙，却担心自己一旦没有及时回应，所有事情都会停下来。"
+    },
+    {
+      "candidateId": "synthetic-14",
+      "authorId": "fictional-14",
+      "authorDisplayName": "Theo",
+      "domain": "research",
+      "text": "Theo 在学校记录公共空间的实际使用情况，会在不同时间观察长椅、走廊和活动区域。他保留那些没有人停留的时段，因为空白也是材料。\n\n最近一条线：老师希望他尽快提出明确结论，但记录里的差异还没有形成稳定规律，他不知道该继续观察还是先收束问题。\n\n他说：我不是没有发现，只是现在下结论，会把那些不整齐的部分全都丢掉。",
+      "source": {
+        "sourceId": "synthetic-paper-14",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--3323613048107387659",
+        "sourceUrl": "https://www.zhihu.com/question/2069774907647456226/answer/2073335148075132719?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "Theo 在学校记录公共空间的实际使用情况，会在不同时间观察长椅、走廊和活动区域。",
+        "他保留那些没有人停留的时段，因为空白也是材料。"
+      ],
+      "recentFocus": "老师希望他尽快提出明确结论，但记录里的差异还没有形成稳定规律，他不知道该继续观察还是先收束问题。"
+    },
+    {
+      "candidateId": "synthetic-15",
+      "authorId": "fictional-15",
+      "authorDisplayName": "Maya",
+      "domain": "workplace",
+      "text": "在小型物流公司负责流程协调，习惯把交接表和异常记录整理得很细。她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。\n\n最近最明显的一条线：最近她接手了几项没人明确负责的工作，事情虽然顺利完成，却越来越难确认自己的边界在哪里。\n\n他说：我可以把缺口补上，但总不能每次都靠我记得所有人的遗漏。",
+      "source": {
+        "sourceId": "synthetic-paper-15",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-3131590049102603479",
+        "sourceUrl": "https://www.zhihu.com/question/1922620983694558659/answer/2076075564130215399?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在小型物流公司负责流程协调，习惯把交接表和异常记录整理得很细。",
+        "她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。"
+      ],
+      "recentFocus": "最近她接手了几项没人明确负责的工作，事情虽然顺利完成，却越来越难确认自己的边界在哪里。"
+    },
+    {
+      "candidateId": "synthetic-16",
+      "authorId": "fictional-16",
+      "authorDisplayName": "Evan",
+      "domain": "workplace",
+      "text": "在餐饮门店做店长助理，白天处理排班和顾客反馈，晚上还要盘点。她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。\n\n最近最明显的一条线：新制度上线后指标变多，团队都很忙，她想提出问题却怕被理解成在推卸责任。\n\n他说：我不是不愿意承担，只是每个数字都要解释的时候，我不知道该先保住哪一件事。",
+      "source": {
+        "sourceId": "synthetic-paper-16",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-444598536938801804",
+        "sourceUrl": "https://www.zhihu.com/question/9764271900/answer/2077711349849838320?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在餐饮门店做店长助理，白天处理排班和顾客反馈，晚上还要盘点。",
+        "她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。"
+      ],
+      "recentFocus": "新制度上线后指标变多，团队都很忙，她想提出问题却怕被理解成在推卸责任。"
+    },
+    {
+      "candidateId": "synthetic-17",
+      "authorId": "fictional-17",
+      "authorDisplayName": "Lena",
+      "domain": "workplace",
+      "text": "在咨询公司做资料分析，擅长把杂乱信息整理成表格。她很少在会议里抢着发言。她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。\n\n最近最明显的一条线：她准备的分析多次被采用，但最后汇报时常常由别人讲，她不知道该不该主动争取署名。\n\n他说：我知道那份表是我做的，可到了台上，我又觉得说出来像是在邀功。",
+      "source": {
+        "sourceId": "synthetic-paper-17",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-2683442863681125743",
+        "sourceUrl": "https://www.zhihu.com/question/2016445118127829722/answer/2077701443344192174?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在咨询公司做资料分析，擅长把杂乱信息整理成表格。",
+        "她很少在会议里抢着发言。她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。"
+      ],
+      "recentFocus": "她准备的分析多次被采用，但最后汇报时常常由别人讲，她不知道该不该主动争取署名。"
+    },
+    {
+      "candidateId": "synthetic-18",
+      "authorId": "fictional-18",
+      "authorDisplayName": "Hugo",
+      "domain": "workplace",
+      "text": "在学校行政部门做项目助理，负责对接老师、供应商和学生。她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。\n\n最近最明显的一条线：项目临近截止时，各方都来找她确认进度，她发现自己一直在传话，却没有人告诉她真正的决定。\n\n他说：所有人都问我有没有更新，可我连谁能拍板都还没弄清楚。",
+      "source": {
+        "sourceId": "synthetic-paper-18",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--7026697149178550251",
+        "sourceUrl": "https://www.zhihu.com/question/2077071681114337777/answer/2077199618098599059?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在学校行政部门做项目助理，负责对接老师、供应商和学生。",
+        "她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。"
+      ],
+      "recentFocus": "项目临近截止时，各方都来找她确认进度，她发现自己一直在传话，却没有人告诉她真正的决定。"
+    },
+    {
+      "candidateId": "synthetic-19",
+      "authorId": "fictional-19",
+      "authorDisplayName": "Clara",
+      "domain": "workplace",
+      "text": "从事售后维修调度，工作节奏快，习惯先处理最着急的电话。她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。\n\n最近最明显的一条线：最近投诉变多，她把每天的空档都用来补工单，却发现系统里的积压数字没有下降。\n\n他说：我一直在救火，但下班前回头看，火好像一点也没有变少。",
+      "source": {
+        "sourceId": "synthetic-paper-19",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--397876255864994660",
+        "sourceUrl": "https://www.zhihu.com/question/1926199656796386492/answer/2031675737665708319?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "从事售后维修调度，工作节奏快，习惯先处理最着急的电话。",
+        "她对流程和细节很敏感，遇到临时变化通常先把事情接住，再慢慢想清楚这是不是自己应该承担的部分。她不太习惯在事情结束后谈自己的贡献。"
+      ],
+      "recentFocus": "最近投诉变多，她把每天的空档都用来补工单，却发现系统里的积压数字没有下降。"
+    },
+    {
+      "candidateId": "synthetic-20",
+      "authorId": "fictional-20",
+      "authorDisplayName": "Milo",
+      "domain": "learning",
+      "text": "准备转行学习数据可视化，白天上班，晚上跟着课程练习。她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。\n\n最近最明显的一条线：她收藏了很多教程，却总在选择下一个项目时停住，担心做出的东西太简单。\n\n他说：我不是没有时间，我是不知道哪个练习才算真正往前走。",
+      "source": {
+        "sourceId": "synthetic-paper-20",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--4582716469655045395",
+        "sourceUrl": "https://zhuanlan.zhihu.com/p/2071328763980394881?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "准备转行学习数据可视化，白天上班，晚上跟着课程练习。",
+        "她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。"
+      ],
+      "recentFocus": "她收藏了很多教程，却总在选择下一个项目时停住，担心做出的东西太简单。"
+    },
+    {
+      "candidateId": "synthetic-21",
+      "authorId": "fictional-21",
+      "authorDisplayName": "Ada",
+      "domain": "learning",
+      "text": "在读大三，准备申请交换项目，同时参加学校的合唱团。她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。\n\n最近最明显的一条线：申请材料和排练挤在一起，她每天都很忙，却觉得两边都只做到了一半。\n\n他说：我每件事都在赶，可没有一件事让我觉得自己真的完成了。",
+      "source": {
+        "sourceId": "synthetic-paper-21",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--4774014509674501558",
+        "sourceUrl": "https://www.zhihu.com/question/2002336479398101830/answer/2002653511150744100?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在读大三，准备申请交换项目，同时参加学校的合唱团。",
+        "她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。"
+      ],
+      "recentFocus": "申请材料和排练挤在一起，她每天都很忙，却觉得两边都只做到了一半。"
+    },
+    {
+      "candidateId": "synthetic-22",
+      "authorId": "fictional-22",
+      "authorDisplayName": "Leo",
+      "domain": "learning",
+      "text": "自学日语，喜欢看原版杂志，也会把新词写在卡片上。她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。\n\n最近最明显的一条线：最近看文章时仍然要查很多词，她开始怀疑过去几个月的积累是不是没有效果。\n\n他说：我明明每天都在学，可真正遇到一整段话时，还是像站在门外。",
+      "source": {
+        "sourceId": "synthetic-paper-22",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--5912585169199630707",
+        "sourceUrl": "https://www.zhihu.com/question/663620787/answer/2069737770185241181?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "自学日语，喜欢看原版杂志，也会把新词写在卡片上。",
+        "她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。"
+      ],
+      "recentFocus": "最近看文章时仍然要查很多词，她开始怀疑过去几个月的积累是不是没有效果。"
+    },
+    {
+      "candidateId": "synthetic-23",
+      "authorId": "fictional-23",
+      "authorDisplayName": "June",
+      "domain": "learning",
+      "text": "准备职业资格考试，和同事约好每周互相讲题。她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。\n\n最近最明显的一条线：同事临时加班后经常取消讨论，她只好独自刷题，效率下降却不想责怪对方。\n\n他说：我需要有人一起坚持，但我又不想把自己的进度变成别人的负担。",
+      "source": {
+        "sourceId": "synthetic-paper-23",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-7796515266980581511",
+        "sourceUrl": "https://www.zhihu.com/question/2074128701793617890/answer/2074866113142439984?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "准备职业资格考试，和同事约好每周互相讲题。",
+        "她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。"
+      ],
+      "recentFocus": "同事临时加班后经常取消讨论，她只好独自刷题，效率下降却不想责怪对方。"
+    },
+    {
+      "candidateId": "synthetic-24",
+      "authorId": "fictional-24",
+      "authorDisplayName": "Felix",
+      "domain": "learning",
+      "text": "在社区夜校学木工，平时做家具修复。她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。\n\n最近最明显的一条线：老师给了很多自由练习的空间，她反而不知道怎样判断作品是否达到了要求。\n\n他说：没人说我做错了，可也没人告诉我已经做得够好了。",
+      "source": {
+        "sourceId": "synthetic-paper-24",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--1670427877226290841",
+        "sourceUrl": "https://www.zhihu.com/question/9736908529/answer/92449105279?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在社区夜校学木工，平时做家具修复。",
+        "她会给自己列出具体的练习和记录，但完成之后仍常常需要一个外部信号，才能判断这段时间的积累是否真的改变了什么。"
+      ],
+      "recentFocus": "老师给了很多自由练习的空间，她反而不知道怎样判断作品是否达到了要求。"
+    },
+    {
+      "candidateId": "synthetic-25",
+      "authorId": "fictional-25",
+      "authorDisplayName": "Lily",
+      "domain": "relationships",
+      "text": "和大学同学保持异地联系，平时靠语音和分享照片见面。她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。\n\n最近最明显的一条线：两人的工作时间错开后，聊天越来越像交作业，她想靠近一点又怕给对方压力。\n\n他说：我想知道你最近过得怎么样，但每次问出口都怕变成一种催促。",
+      "source": {
+        "sourceId": "synthetic-paper-25",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--4675882898746351143",
+        "sourceUrl": "https://www.zhihu.com/question/2076251392516298401/answer/2076769124793970772?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和大学同学保持异地联系，平时靠语音和分享照片见面。",
+        "她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。"
+      ],
+      "recentFocus": "两人的工作时间错开后，聊天越来越像交作业，她想靠近一点又怕给对方压力。"
+    },
+    {
+      "candidateId": "synthetic-26",
+      "authorId": "fictional-26",
+      "authorDisplayName": "Arlo",
+      "domain": "relationships",
+      "text": "刚搬到新城市，和邻居偶尔在电梯里打招呼。她喜欢做饭，却很少邀请别人来家里。她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。\n\n最近最明显的一条线：她报名了社区活动又临时退出，担心自己去了之后没有可以自然聊天的人。\n\n他说：我不是不想认识新朋友，只是每次走到门口，都不知道该用什么理由留下。",
+      "source": {
+        "sourceId": "synthetic-paper-26",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-1763834402330497797",
+        "sourceUrl": "https://zhuanlan.zhihu.com/p/2073088119348401276?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "刚搬到新城市，和邻居偶尔在电梯里打招呼。",
+        "她喜欢做饭，却很少邀请别人来家里。她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。"
+      ],
+      "recentFocus": "她报名了社区活动又临时退出，担心自己去了之后没有可以自然聊天的人。"
+    },
+    {
+      "candidateId": "synthetic-27",
+      "authorId": "fictional-27",
+      "authorDisplayName": "Mina",
+      "domain": "relationships",
+      "text": "和姐姐一起照顾家里的宠物，平时住在不同城区。她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。\n\n最近最明显的一条线：宠物生病后两人对治疗方式意见不同，谁也不想让对方觉得自己不够负责。\n\n他说：我们都在担心它，可每次谈到钱怎么花，就像是在互相证明谁更在乎。",
+      "source": {
+        "sourceId": "synthetic-paper-27",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-8799953649321400611",
+        "sourceUrl": "https://www.zhihu.com/question/663620787/answer/2036335749352666871?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和姐姐一起照顾家里的宠物，平时住在不同城区。",
+        "她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。"
+      ],
+      "recentFocus": "宠物生病后两人对治疗方式意见不同，谁也不想让对方觉得自己不够负责。"
+    },
+    {
+      "candidateId": "synthetic-28",
+      "authorId": "fictional-28",
+      "authorDisplayName": "Eli",
+      "domain": "relationships",
+      "text": "在朋友的婚礼策划中负责联系宾客，平时很少做组织者。她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。\n\n最近最明显的一条线：临近婚礼，大家的期待不一样，她害怕遗漏任何人的感受，反而迟迟不能确定方案。\n\n他说：我想让所有人都满意，结果每个决定都像是在让谁失望。",
+      "source": {
+        "sourceId": "synthetic-paper-28",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--5269054319962556329",
+        "sourceUrl": "https://zhuanlan.zhihu.com/p/2015552683734487104?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在朋友的婚礼策划中负责联系宾客，平时很少做组织者。",
+        "她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。"
+      ],
+      "recentFocus": "临近婚礼，大家的期待不一样，她害怕遗漏任何人的感受，反而迟迟不能确定方案。"
+    },
+    {
+      "candidateId": "synthetic-29",
+      "authorId": "fictional-29",
+      "authorDisplayName": "Sora",
+      "domain": "relationships",
+      "text": "和伴侣共同租房，喜欢把家里收拾得有秩序。她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。\n\n最近最明显的一条线：两人对家务标准不同，争执总从一件小事开始，她不想计较又常常默默累积不满。\n\n他说：我可以多做一点，但我不想连“看见这些事”也要自己提醒。",
+      "source": {
+        "sourceId": "synthetic-paper-29",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-372163792743262378",
+        "sourceUrl": "https://zhuanlan.zhihu.com/p/2072241203635138687?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和伴侣共同租房，喜欢把家里收拾得有秩序。",
+        "她在关系里习惯先考虑对方的感受，很多想说的话会先放在心里推演几遍。她并不缺少在意，只是不确定怎样表达才不会让彼此更累。"
+      ],
+      "recentFocus": "两人对家务标准不同，争执总从一件小事开始，她不想计较又常常默默累积不满。"
+    },
+    {
+      "candidateId": "synthetic-30",
+      "authorId": "fictional-30",
+      "authorDisplayName": "Remy",
+      "domain": "family_labor",
+      "text": "和父母住在同一座城市，周末常帮忙处理线上缴费和预约。她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。\n\n最近最明显的一条线：父母越来越依赖她操作手机，她一边耐心解释，一边担心自己变成唯一的联系人。\n\n他说：我愿意帮忙，但有时候也想让他们先自己试一次。",
+      "source": {
+        "sourceId": "synthetic-paper-30",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-5376861835363529652",
+        "sourceUrl": "https://www.zhihu.com/question/2011357835536131639/answer/2074191887452447521?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和父母住在同一座城市，周末常帮忙处理线上缴费和预约。",
+        "她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。"
+      ],
+      "recentFocus": "父母越来越依赖她操作手机，她一边耐心解释，一边担心自己变成唯一的联系人。"
+    },
+    {
+      "candidateId": "synthetic-31",
+      "authorId": "fictional-31",
+      "authorDisplayName": "Cora",
+      "domain": "family_labor",
+      "text": "在家照顾刚上小学的弟弟，自己还在准备研究生考试。她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。\n\n最近最明显的一条线：家里人都说只是帮一阵子，她的学习时间却每天被零散地切开，很难重新进入状态。\n\n他说：我知道他需要我，可我的计划也不是随时都能暂停的。",
+      "source": {
+        "sourceId": "synthetic-paper-31",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--5927910673735019447",
+        "sourceUrl": "https://www.zhihu.com/question/2076724918780282190/answer/2078770749746181823?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在家照顾刚上小学的弟弟，自己还在准备研究生考试。",
+        "她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。"
+      ],
+      "recentFocus": "家里人都说只是帮一阵子，她的学习时间却每天被零散地切开，很难重新进入状态。"
+    },
+    {
+      "candidateId": "synthetic-32",
+      "authorId": "fictional-32",
+      "authorDisplayName": "Jude",
+      "domain": "family_labor",
+      "text": "和伴侣轮流照料生病的长辈，平时做远程设计工作。她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。\n\n最近最明显的一条线：医疗安排和工作会议经常冲突，她不愿把照护说成负担，却明显感到体力在下降。\n\n他说：我不想把家人当成日程表里的冲突项，但我的一天确实只有这么长。",
+      "source": {
+        "sourceId": "synthetic-paper-32",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--9196476878371906942",
+        "sourceUrl": "https://www.zhihu.com/question/2080228074457772215/answer/2080293150426391796?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和伴侣轮流照料生病的长辈，平时做远程设计工作。",
+        "她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。"
+      ],
+      "recentFocus": "医疗安排和工作会议经常冲突，她不愿把照护说成负担，却明显感到体力在下降。"
+    },
+    {
+      "candidateId": "synthetic-33",
+      "authorId": "fictional-33",
+      "authorDisplayName": "Wren",
+      "domain": "family_labor",
+      "text": "家里经营一家小店，她负责线上订单和账目，晚上才有自己的时间。她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。\n\n最近最明显的一条线：生意不稳定时家人会临时改变决定，她想提出流程，却担心听起来像在责怪长辈。\n\n他说：我只是想让事情有个记录，可他们觉得一家人不需要这些。",
+      "source": {
+        "sourceId": "synthetic-paper-33",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--1426111101607958119",
+        "sourceUrl": "https://www.zhihu.com/question/664796685/answer/2078074069413639937?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "家里经营一家小店，她负责线上订单和账目，晚上才有自己的时间。",
+        "她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。"
+      ],
+      "recentFocus": "生意不稳定时家人会临时改变决定，她想提出流程，却担心听起来像在责怪长辈。"
+    },
+    {
+      "candidateId": "synthetic-34",
+      "authorId": "fictional-34",
+      "authorDisplayName": "Finn",
+      "domain": "family_labor",
+      "text": "在外地工作，每月固定给家里打电话和寄生活用品。她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。\n\n最近最明显的一条线：家里遇到小问题总先瞒着她，等她知道时已经需要马上处理，她既愧疚又无从下手。\n\n他说：我不在现场的时候，关心好像总是慢半拍。",
+      "source": {
+        "sourceId": "synthetic-paper-34",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--7635929192392366650",
+        "sourceUrl": "https://www.zhihu.com/question/2076724918780282190/answer/2077924863264683891?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在外地工作，每月固定给家里打电话和寄生活用品。",
+        "她已经熟悉了许多琐碎的安排，也知道家里人依赖的是她随时能接手的可靠感。只是这种可靠很少被单独说出来，往往只有在出问题时才会被想起。"
+      ],
+      "recentFocus": "家里遇到小问题总先瞒着她，等她知道时已经需要马上处理，她既愧疚又无从下手。"
+    },
+    {
+      "candidateId": "synthetic-35",
+      "authorId": "fictional-35",
+      "authorDisplayName": "Esme",
+      "domain": "city_life",
+      "text": "刚从县城搬到大城市，在共享办公空间做自由翻译。她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。\n\n最近最明显的一条线：她认识了很多点头之交，却很少有能一起吃饭的人，晚上回到出租屋后仍觉得城市与自己无关。\n\n他说：我每天都在经过很多人，可没有一个地方真的在等我。",
+      "source": {
+        "sourceId": "synthetic-paper-35",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--8342036135877207527",
+        "sourceUrl": "https://www.zhihu.com/question/350846282/answer/1991153204633822951?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "刚从县城搬到大城市，在共享办公空间做自由翻译。",
+        "她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。"
+      ],
+      "recentFocus": "她认识了很多点头之交，却很少有能一起吃饭的人，晚上回到出租屋后仍觉得城市与自己无关。"
+    },
+    {
+      "candidateId": "synthetic-36",
+      "authorId": "fictional-36",
+      "authorDisplayName": "Luca",
+      "domain": "city_life",
+      "text": "在城市里骑车通勤，喜欢记录沿途的小市场和修车摊。她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。\n\n最近最明显的一条线：路线改造后熟悉的摊位消失，她想重新寻找，却总被工作和天气打断。\n\n他说：我记得那些地方，可不知道它们现在还会不会记得有人来过。",
+      "source": {
+        "sourceId": "synthetic-paper-36",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--7713368243805055881",
+        "sourceUrl": "https://www.zhihu.com/question/37563758/answer/2081860387931165017?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在城市里骑车通勤，喜欢记录沿途的小市场和修车摊。",
+        "她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。"
+      ],
+      "recentFocus": "路线改造后熟悉的摊位消失，她想重新寻找，却总被工作和天气打断。"
+    },
+    {
+      "candidateId": "synthetic-37",
+      "authorId": "fictional-37",
+      "authorDisplayName": "Vera",
+      "domain": "city_life",
+      "text": "在社区服务中心做窗口工作，熟悉附近居民的生活习惯。她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。\n\n最近最明显的一条线：她下班后常遇到熟人求助，拒绝会内疚，答应又很难真正休息。\n\n他说：我喜欢这里的人，但不想让“认识我”变成随时可以找到我的理由。",
+      "source": {
+        "sourceId": "synthetic-paper-37",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-1997100668004845649",
+        "sourceUrl": "https://www.zhihu.com/question/567029656/answer/2076784046198338100?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在社区服务中心做窗口工作，熟悉附近居民的生活习惯。",
+        "她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。"
+      ],
+      "recentFocus": "她下班后常遇到熟人求助，拒绝会内疚，答应又很难真正休息。"
+    },
+    {
+      "candidateId": "synthetic-38",
+      "authorId": "fictional-38",
+      "authorDisplayName": "Otis",
+      "domain": "city_life",
+      "text": "和朋友合租在老城区，周末喜欢逛菜市场。她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。\n\n最近最明显的一条线：朋友陆续搬走后，她还留在原来的房子里，熟悉的生活方式变成了一个人的习惯。\n\n他说：房间还是原来的房间，只是再也没人问今晚要不要一起买菜。",
+      "source": {
+        "sourceId": "synthetic-paper-38",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--4576656942245889672",
+        "sourceUrl": "https://www.zhihu.com/question/2069334166882219576/answer/2070299597705049249?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和朋友合租在老城区，周末喜欢逛菜市场。",
+        "她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。"
+      ],
+      "recentFocus": "朋友陆续搬走后，她还留在原来的房子里，熟悉的生活方式变成了一个人的习惯。"
+    },
+    {
+      "candidateId": "synthetic-39",
+      "authorId": "fictional-39",
+      "authorDisplayName": "Rhea",
+      "domain": "city_life",
+      "text": "在城市公园做植物养护，平时会给游客介绍树木。她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。\n\n最近最明显的一条线：公园改造后工作内容变成维护打卡装置，她怀念以前慢慢观察季节变化的日子。\n\n他说：我每天都在照顾这些树，却越来越少有时间真正看它们怎么长。",
+      "source": {
+        "sourceId": "synthetic-paper-39",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--8103401015757184048",
+        "sourceUrl": "https://www.zhihu.com/question/665208883/answer/2039768757812335743?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在城市公园做植物养护，平时会给游客介绍树木。",
+        "她逐渐记住了城市里一些微小而稳定的路线、店铺和声音，也在练习把自己的生活放进这座城市，而不是只把它当作每天经过的背景。"
+      ],
+      "recentFocus": "公园改造后工作内容变成维护打卡装置，她怀念以前慢慢观察季节变化的日子。"
+    },
+    {
+      "candidateId": "synthetic-40",
+      "authorId": "fictional-40",
+      "authorDisplayName": "Bram",
+      "domain": "space_use",
+      "text": "在旧厂房里的共享工作室做模型，和几位陌生创作者共用长桌。她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。\n\n最近最明显的一条线：空间规定越来越多，她理解管理需要秩序，却发现自己最需要的安静被一点点压缩。\n\n他说：我想要的不是一间属于自己的房间，只是做事时不用一直解释声音从哪里来。",
+      "source": {
+        "sourceId": "synthetic-paper-40",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-4743545835541193989",
+        "sourceUrl": "https://www.zhihu.com/question/2074423654897692818/answer/2075970300404148081?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在旧厂房里的共享工作室做模型，和几位陌生创作者共用长桌。",
+        "她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。"
+      ],
+      "recentFocus": "空间规定越来越多，她理解管理需要秩序，却发现自己最需要的安静被一点点压缩。"
+    },
+    {
+      "candidateId": "synthetic-41",
+      "authorId": "fictional-41",
+      "authorDisplayName": "Tess",
+      "domain": "space_use",
+      "text": "住在小户型里，靠窗位置同时是书桌、餐桌和晾衣区。她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。\n\n最近最明显的一条线：她买了新的折叠家具，却仍然没有真正空出来的地方，生活像一直在临时布置。\n\n他说：我每天都在收拾空间，可收拾完还是找不到可以坐下来的一小时。",
+      "source": {
+        "sourceId": "synthetic-paper-41",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--1051113759332255135",
+        "sourceUrl": "https://www.zhihu.com/question/15472381770/answer/2079459210644006224?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "住在小户型里，靠窗位置同时是书桌、餐桌和晾衣区。",
+        "她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。"
+      ],
+      "recentFocus": "她买了新的折叠家具，却仍然没有真正空出来的地方，生活像一直在临时布置。"
+    },
+    {
+      "candidateId": "synthetic-42",
+      "authorId": "fictional-42",
+      "authorDisplayName": "Kai",
+      "domain": "space_use",
+      "text": "在社区活动室组织桌游夜，负责排桌和收拾材料。她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。\n\n最近最明显的一条线：参加人数忽多忽少，她不知道是活动内容不合适，还是大家只是需要一个不用承诺的去处。\n\n他说：我想把桌子摆好，可真正难的是让人愿意再来一次。",
+      "source": {
+        "sourceId": "synthetic-paper-42",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--8666396101753513535",
+        "sourceUrl": "https://www.zhihu.com/question/2074423654897692818/answer/2075627539205207305?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在社区活动室组织桌游夜，负责排桌和收拾材料。",
+        "她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。"
+      ],
+      "recentFocus": "参加人数忽多忽少，她不知道是活动内容不合适，还是大家只是需要一个不用承诺的去处。"
+    },
+    {
+      "candidateId": "synthetic-43",
+      "authorId": "fictional-43",
+      "authorDisplayName": "Alma",
+      "domain": "space_use",
+      "text": "在实验室和别人共用设备，研究材料的微小变化。她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。\n\n最近最明显的一条线：设备预约经常临时调整，她的实验被切成很多段，记录越来越完整，结论却迟迟出不来。\n\n他说：我不是怕重做，我怕每次终于进入状态时，时间又被别人拿走了。",
+      "source": {
+        "sourceId": "synthetic-paper-43",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--2206009365525647396",
+        "sourceUrl": "https://www.zhihu.com/question/1992855984192893462/answer/2078864185484751216?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在实验室和别人共用设备，研究材料的微小变化。",
+        "她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。"
+      ],
+      "recentFocus": "设备预约经常临时调整，她的实验被切成很多段，记录越来越完整，结论却迟迟出不来。"
+    },
+    {
+      "candidateId": "synthetic-44",
+      "authorId": "fictional-44",
+      "authorDisplayName": "Nico",
+      "domain": "space_use",
+      "text": "租了一个小仓库存放旧书和家人的物品，偶尔去整理。她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。\n\n最近最明显的一条线：她舍不得丢掉这些东西，却也不再记得每件物品为什么留下，仓库成了无法打开的过去。\n\n他说：我保留的是物品，还是不敢承认有些日子已经结束？",
+      "source": {
+        "sourceId": "synthetic-paper-44",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-3840792860194128283",
+        "sourceUrl": "https://www.zhihu.com/question/2043847313005835545/answer/2044163843933393536?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "租了一个小仓库存放旧书和家人的物品，偶尔去整理。",
+        "她对空间里的光线、声音和人与人之间的距离很敏感，常常先调整自己的习惯来适应环境。久而久之，她开始分不清是在使用空间，还是一直被空间安排。"
+      ],
+      "recentFocus": "她舍不得丢掉这些东西，却也不再记得每件物品为什么留下，仓库成了无法打开的过去。"
+    },
+    {
+      "candidateId": "synthetic-45",
+      "authorId": "fictional-45",
+      "authorDisplayName": "Ivy",
+      "domain": "research",
+      "text": "在实验室做用户研究，负责访谈记录和编码。她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。\n\n最近最明显的一条线：她收集了很多材料，却发现团队更关心一句结论，而不是那些互相矛盾的细节。\n\n他说：我知道一句话更容易被引用，可那些不整齐的回答才是我真正想保留的。",
+      "source": {
+        "sourceId": "synthetic-paper-45",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--1030047116594027131",
+        "sourceUrl": "https://zhuanlan.zhihu.com/p/2076252319910458250?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在实验室做用户研究，负责访谈记录和编码。",
+        "她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。"
+      ],
+      "recentFocus": "她收集了很多材料，却发现团队更关心一句结论，而不是那些互相矛盾的细节。"
+    },
+    {
+      "candidateId": "synthetic-46",
+      "authorId": "fictional-46",
+      "authorDisplayName": "Rory",
+      "domain": "research",
+      "text": "攻读社会学硕士，研究社区里的照护网络。她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。\n\n最近最明显的一条线：田野进入收尾阶段，她担心自己离开后无法回应受访者的信任，也不确定论文能否回到他们的生活。\n\n他说：我把他们的故事带回学校，可不知道怎样把这份信任原样带回去。",
+      "source": {
+        "sourceId": "synthetic-paper-46",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--6408187169528767288",
+        "sourceUrl": "https://www.zhihu.com/question/4295408408/answer/2071290991475274075?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "攻读社会学硕士，研究社区里的照护网络。",
+        "她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。"
+      ],
+      "recentFocus": "田野进入收尾阶段，她担心自己离开后无法回应受访者的信任，也不确定论文能否回到他们的生活。"
+    },
+    {
+      "candidateId": "synthetic-47",
+      "authorId": "fictional-47",
+      "authorDisplayName": "Mabel",
+      "domain": "research",
+      "text": "在企业研发部门做实验记录，习惯为每次失败保留数据。她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。\n\n最近最明显的一条线：项目组只展示成功结果，她的失败记录被认为会拖慢进度，她开始犹豫哪些内容值得继续保存。\n\n他说：如果失败从报告里消失，下一次我们怎么知道为什么会重来？",
+      "source": {
+        "sourceId": "synthetic-paper-47",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--1681351628952875091",
+        "sourceUrl": "https://www.zhihu.com/question/2074423654897692818/answer/2076226720617833052?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在企业研发部门做实验记录，习惯为每次失败保留数据。",
+        "她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。"
+      ],
+      "recentFocus": "项目组只展示成功结果，她的失败记录被认为会拖慢进度，她开始犹豫哪些内容值得继续保存。"
+    },
+    {
+      "candidateId": "synthetic-48",
+      "authorId": "fictional-48",
+      "authorDisplayName": "Dean",
+      "domain": "research",
+      "text": "准备毕业论文，研究地方戏曲的传承方式。她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。\n\n最近最明显的一条线：资料比预想中分散，老师希望她尽快收窄问题，她却担心过早确定会错过真正重要的线索。\n\n他说：我知道论文需要一个边界，但我还没找到该把哪一部分留在边界外。",
+      "source": {
+        "sourceId": "synthetic-paper-48",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-1394193294282810729",
+        "sourceUrl": "https://www.zhihu.com/question/1975998560559461127/answer/2076831802388493655?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "准备毕业论文，研究地方戏曲的传承方式。",
+        "她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。"
+      ],
+      "recentFocus": "资料比预想中分散，老师希望她尽快收窄问题，她却担心过早确定会错过真正重要的线索。"
+    },
+    {
+      "candidateId": "synthetic-49",
+      "authorId": "fictional-49",
+      "authorDisplayName": "Anya",
+      "domain": "research",
+      "text": "在医院做公共卫生项目的数据整理，平时和不同科室沟通。她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。\n\n最近最明显的一条线：各部门对同一个指标有不同解释，她花了很多时间统一口径，却担心最后只剩下一张漂亮的表。\n\n他说：我想让数字能被理解，可一旦被简化，就好像少了某些人的声音。",
+      "source": {
+        "sourceId": "synthetic-paper-49",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-5938165940679014015",
+        "sourceUrl": "https://www.zhihu.com/question/1929360971404670679/answer/1959002992570250029?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在医院做公共卫生项目的数据整理，平时和不同科室沟通。",
+        "她愿意花时间保留不确定和相互矛盾的材料，相信结论不应该比过程更早出现。可在需要交付的时候，这种耐心也会变成一种难以解释的迟疑。"
+      ],
+      "recentFocus": "各部门对同一个指标有不同解释，她花了很多时间统一口径，却担心最后只剩下一张漂亮的表。"
+    },
+    {
+      "candidateId": "synthetic-50",
+      "authorId": "fictional-50",
+      "authorDisplayName": "Ezra",
+      "domain": "caregiving",
+      "text": "在康复中心做陪伴员，负责带老人参加简单活动。她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。\n\n最近最明显的一条线：有些老人反复拒绝参与，她不想强迫，却也担心自己只是把“陪伴”做成了打卡。\n\n他说：我可以每天坐在这里，但我不知道怎样让这段时间不只是被填满。",
+      "source": {
+        "sourceId": "synthetic-paper-50",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--1959017545101168590",
+        "sourceUrl": "https://www.zhihu.com/question/10451221793/answer/2032119911267442821?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在康复中心做陪伴员，负责带老人参加简单活动。",
+        "她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。"
+      ],
+      "recentFocus": "有些老人反复拒绝参与，她不想强迫，却也担心自己只是把“陪伴”做成了打卡。"
+    },
+    {
+      "candidateId": "synthetic-51",
+      "authorId": "fictional-51",
+      "authorDisplayName": "Pia",
+      "domain": "caregiving",
+      "text": "在家照顾术后恢复的亲人，晚上会记录服药和体温。她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。\n\n最近最明显的一条线：恢复进度比预期慢，亲人开始急躁，她努力保持平静，却很少有地方放下自己的担心。\n\n他说：我每天都在说会好起来，可有时候我也需要有人允许我害怕。",
+      "source": {
+        "sourceId": "synthetic-paper-51",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-4881240266681095839",
+        "sourceUrl": "https://www.zhihu.com/question/2026622833426482228/answer/2028383366387447471?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在家照顾术后恢复的亲人，晚上会记录服药和体温。",
+        "她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。"
+      ],
+      "recentFocus": "恢复进度比预期慢，亲人开始急躁，她努力保持平静，却很少有地方放下自己的担心。"
+    },
+    {
+      "candidateId": "synthetic-52",
+      "authorId": "fictional-52",
+      "authorDisplayName": "Seth",
+      "domain": "caregiving",
+      "text": "在宠物医院做前台，常接到焦急的电话。她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。\n\n最近最明显的一条线：她能清楚解释流程，却无法替每个家庭承担等待结果的那几小时。\n\n他说：我知道该怎么回答问题，可听见电话那头沉默时，还是会跟着难受。",
+      "source": {
+        "sourceId": "synthetic-paper-52",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--242848282257680419",
+        "sourceUrl": "https://www.zhihu.com/question/2048237444219376127/answer/2072979381702734832?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在宠物医院做前台，常接到焦急的电话。",
+        "她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。"
+      ],
+      "recentFocus": "她能清楚解释流程，却无法替每个家庭承担等待结果的那几小时。"
+    },
+    {
+      "candidateId": "synthetic-53",
+      "authorId": "fictional-53",
+      "authorDisplayName": "Nora",
+      "domain": "caregiving",
+      "text": "和几位邻居轮流照看独居老人，负责排班和买菜。她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。\n\n最近最明显的一条线：志愿者来来去去，她总要重新确认谁能接班，渐渐把这件事变成了自己的固定责任。\n\n他说：大家都说一起做，可最后总是我在确认明天有没有人来。",
+      "source": {
+        "sourceId": "synthetic-paper-53",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--4622048297726443500",
+        "sourceUrl": "https://www.zhihu.com/question/1947656157503128403/answer/2079872659878327239?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和几位邻居轮流照看独居老人，负责排班和买菜。",
+        "她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。"
+      ],
+      "recentFocus": "志愿者来来去去，她总要重新确认谁能接班，渐渐把这件事变成了自己的固定责任。"
+    },
+    {
+      "candidateId": "synthetic-54",
+      "authorId": "fictional-54",
+      "authorDisplayName": "Gus",
+      "domain": "caregiving",
+      "text": "在学校做心理热线的行政支持，不直接提供咨询。她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。\n\n最近最明显的一条线：她每天处理转介和预约，听见很多求助却不能越过职责给出答案，常把未完成的情绪带回家。\n\n他说：我知道应该把电话交给专业的人，可挂断以后，那句话还会留在我这里。",
+      "source": {
+        "sourceId": "synthetic-paper-54",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-11T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--3971804513369843160",
+        "sourceUrl": "https://www.zhihu.com/question/2077530636974348173/answer/2077617021257369281?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在学校做心理热线的行政支持，不直接提供咨询。",
+        "她做事细致，记得药物、时间和对方不愿明说的变化。她不把自己看成某种拯救者，只是希望陪伴能够具体地落在每天的细节里。"
+      ],
+      "recentFocus": "她每天处理转介和预约，听见很多求助却不能越过职责给出答案，常把未完成的情绪带回家。"
+    },
+    {
+      "candidateId": "synthetic-55",
+      "authorId": "fictional-55",
+      "authorDisplayName": "Elle",
+      "domain": "side_project",
+      "text": "下班后和朋友做一款记录家庭菜谱的小程序，负责整理内容。她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。\n\n最近最明显的一条线：功能不断增加，最初想解决的“找不到家里那道菜”反而还没有被做好。\n\n他说：我们一直在加东西，可我最想要的那个简单入口还没出现。",
+      "source": {
+        "sourceId": "synthetic-paper-55",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-10T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--3492293606206395764",
+        "sourceUrl": "https://www.zhihu.com/question/2042134526630126321/answer/2080991598020768934?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "下班后和朋友做一款记录家庭菜谱的小程序，负责整理内容。",
+        "她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。"
+      ],
+      "recentFocus": "功能不断增加，最初想解决的“找不到家里那道菜”反而还没有被做好。"
+    },
+    {
+      "candidateId": "synthetic-56",
+      "authorId": "fictional-56",
+      "authorDisplayName": "Ian",
+      "domain": "side_project",
+      "text": "在周末经营一个二手书摊，平时做客服工作。她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。\n\n最近最明显的一条线：摊位收入不稳定，她想扩大规模又怕副业变成另一个需要打卡的工作。\n\n他说：我喜欢和人聊书，但一旦开始计算每天要卖多少本，聊天就变了味。",
+      "source": {
+        "sourceId": "synthetic-paper-56",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-09T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--8337514728249746988",
+        "sourceUrl": "https://www.zhihu.com/question/2069717667351736562/answer/2070905376330064618?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "在周末经营一个二手书摊，平时做客服工作。",
+        "她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。"
+      ],
+      "recentFocus": "摊位收入不稳定，她想扩大规模又怕副业变成另一个需要打卡的工作。"
+    },
+    {
+      "candidateId": "synthetic-57",
+      "authorId": "fictional-57",
+      "authorDisplayName": "Zoe",
+      "domain": "side_project",
+      "text": "和朋友合办播客，负责剪辑和上传。她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。\n\n最近最明显的一条线：节目有人收听却很少留言，他们不知道该把精力放在内容、宣传还是继续保持原来的节奏。\n\n他说：我能看到播放数字，却不知道数字背后有没有一个人真的听完了。",
+      "source": {
+        "sourceId": "synthetic-paper-57",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-08T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--3704777223708728604",
+        "sourceUrl": "https://www.zhihu.com/question/2058105998682886680/answer/2067943523190576207?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和朋友合办播客，负责剪辑和上传。",
+        "她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。"
+      ],
+      "recentFocus": "节目有人收听却很少留言，他们不知道该把精力放在内容、宣传还是继续保持原来的节奏。"
+    },
+    {
+      "candidateId": "synthetic-58",
+      "authorId": "fictional-58",
+      "authorDisplayName": "Moss",
+      "domain": "side_project",
+      "text": "做一个帮助邻里交换工具的小项目，负责线下联系。她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。\n\n最近最明显的一条线：大家都说有需要，真正约时间交换时却常常临时取消，她开始怀疑是不是把信任想得太容易。\n\n他说：我以为把东西带到楼下就算开始了，后来才发现大家还需要一个愿意出现的理由。",
+      "source": {
+        "sourceId": "synthetic-paper-58",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-13T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source-4461605829360956973",
+        "sourceUrl": "https://zhuanlan.zhihu.com/p/2028962676764591041?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "做一个帮助邻里交换工具的小项目，负责线下联系。",
+        "她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。"
+      ],
+      "recentFocus": "大家都说有需要，真正约时间交换时却常常临时取消，她开始怀疑是不是把信任想得太容易。"
+    },
+    {
+      "candidateId": "synthetic-59",
+      "authorId": "fictional-59",
+      "authorDisplayName": "Kira",
+      "domain": "side_project",
+      "text": "和同学维护一个公开资料整理站，负责校对和分类。她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。\n\n最近最明显的一条线：资料越积越多，分类规则却越来越复杂，她担心新来的人看不懂，也担心删掉内容会让贡献者失望。\n\n他说：我想让别人更容易找到信息，却把入口做得越来越像迷宫。",
+      "source": {
+        "sourceId": "synthetic-paper-59",
+        "sourceType": "synthetic_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "publishedAt": "2026-09-12T23:13:20.980Z",
+        "verified": false
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      },
+      "adaptation": {
+        "sourceId": "zhihu-source--7745581100723203051",
+        "sourceUrl": "https://www.zhihu.com/question/5703257394/answer/2007922712987857145?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
+        "notice": "非真人；仅主题启发，经历与文字均为虚构，不代表原作者"
+      },
+      "profileBackground": [
+        "和同学维护一个公开资料整理站，负责校对和分类。",
+        "她享受从零开始搭出一个小东西的过程，也会认真听取使用者的反馈。真正让她犹豫的，是项目渐渐需要更多维护后，最初那点轻松感正在变少。"
+      ],
+      "recentFocus": "资料越积越多，分类规则却越来越复杂，她担心新来的人看不懂，也担心删掉内容会让贡献者失望。"
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "same-topic-rewrite",
+  "description": "同一离职问题的近义改写不能充当跨领域发现。",
+  "trustedContext": { "allowDiscovery": true, "safetyPassed": true },
+  "request": {
+    "conversation": {
+      "messages": [
+        { "id": "u-job-1", "role": "user", "content": "我知道这份工作不适合我，但还是不敢辞职。" },
+        {
+          "id": "a-job-1",
+          "role": "assistant",
+          "content": "可以先把你担心失去的收入、身份和下一步选择分别写下来，再判断真正拦住你的是什么。",
+          "generationStatus": "complete"
+        }
+      ]
+    }
+  },
+  "candidates": [
+    {
+      "candidateId": "same-job-question",
+      "authorId": "author-job-2",
+      "authorDisplayName": "Cedar",
+      "domain": "workplace",
+      "text": "这份工作不适合我，我也想离职，但一直没有勇气主动提出来。",
+      "source": {
+        "sourceId": "public-job-2",
+        "sourceType": "public",
+        "contentType": "question",
+        "url": "https://example.invalid/fixtures/same-job-question",
+        "ageDays": 1,
+        "verified": true
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      }
+    }
+  ],
+  "mockOutputs": {
+    "intent": {
+      "shouldSearch": true,
+      "reasonCodes": ["personal_context", "answer_turn_complete"],
+      "primaryDomain": "workplace",
+      "explicitConcerns": ["认为当前工作不适合自己，但尚未辞职"],
+      "uncertainPoints": ["不敢辞职所对应的具体损失尚不明确"],
+      "searchDirections": ["不同领域里知道应该离开却承担不起变化的人"],
+      "refusalReason": null
+    },
+    "candidateAnalysis": {
+      "matches": [],
+      "inviteCopy": null,
+      "rejectionReasons": ["唯一候选只是同一离职问题的近义改写，没有需要解释的新关联。"]
+    }
+  },
+  "expected": { "status": "no_match", "structureRelatedCandidateId": null }
+}

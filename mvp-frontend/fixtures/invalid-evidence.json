@@ -1,0 +1,69 @@
+{
+  "id": "invalid-evidence",
+  "description": "模型引用了原文中不存在的句子，结果必须被拒绝。",
+  "trustedContext": { "allowDiscovery": true, "safetyPassed": true },
+  "request": {
+    "conversation": {
+      "messages": [
+        { "id": "u-invalid-1", "role": "user", "content": "我做陶艺半年了，最近总在想还要不要继续。" },
+        {
+          "id": "a-invalid-1",
+          "role": "assistant",
+          "content": "可以回看最初吸引你的部分，以及现在让你停下来的具体变化。",
+          "generationStatus": "complete"
+        }
+      ]
+    }
+  },
+  "candidates": [
+    {
+      "candidateId": "work-scale",
+      "authorId": "author-scale",
+      "authorDisplayName": "Juniper",
+      "domain": "workplace",
+      "text": "这份项目做了半年，我还没有收到一次清楚的反馈。",
+      "source": {
+        "sourceId": "public-scale-1",
+        "sourceType": "public",
+        "contentType": "comment",
+        "url": "https://example.invalid/fixtures/work-scale",
+        "ageDays": 1,
+        "verified": true
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      }
+    }
+  ],
+  "mockOutputs": {
+    "intent": {
+      "shouldSearch": true,
+      "reasonCodes": ["personal_context", "answer_turn_complete"],
+      "primaryDomain": "creative_hobby",
+      "explicitConcerns": ["学习陶艺半年后正在考虑是否继续"],
+      "uncertainPoints": ["动摇的具体原因未知"],
+      "searchDirections": ["不同领域中投入半年后重新判断是否继续的人"],
+      "refusalReason": null
+    },
+    "candidateAnalysis": {
+      "matches": [
+        {
+          "path": "structureRelated",
+          "candidateId": "work-scale",
+          "sharedRelation": "你们都在长期投入之后重新寻找是否继续的尺度。",
+          "difference": "一边是个人兴趣，一边是工作项目，责任关系不同。",
+          "evidence": [
+            { "side": "user", "refId": "u-invalid-1", "quote": "我害怕半年全部白费" },
+            { "side": "candidate", "refId": "public-scale-1", "quote": "项目做了半年" }
+          ]
+        }
+      ],
+      "inviteCopy": "我想到一个可能与你有关的人。",
+      "rejectionReasons": []
+    }
+  },
+  "expected": { "status": "no_match", "structureRelatedCandidateId": null }
+}

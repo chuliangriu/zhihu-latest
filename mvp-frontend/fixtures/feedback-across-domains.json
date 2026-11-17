@@ -1,0 +1,161 @@
+{
+  "id": "feedback-across-domains",
+  "description": "兴趣创作没有回声，与工作交付没有反馈形成跨领域关联。",
+  "trustedContext": { "allowDiscovery": true, "safetyPassed": true },
+  "request": {
+    "conversation": {
+      "messages": [
+        {
+          "id": "u-feedback-1",
+          "role": "user",
+          "content": "我一直在做自己喜欢的插画，也认真更新了很久。可发出去几乎没人看见时，我就会怀疑这些东西是不是根本没有价值。"
+        },
+        {
+          "id": "a-feedback-1",
+          "role": "assistant",
+          "content": "没有即时反馈，会让创作的价值感变得摇晃。你可以先把作品对自己的意义、想抵达的人和平台数据分开看，再决定下一步怎么调整。",
+          "generationStatus": "complete"
+        }
+      ]
+    }
+  },
+  "candidates": [
+    {
+      "candidateId": "music-no-echo",
+      "authorId": "author-music",
+      "authorDisplayName": "Moss",
+      "domain": "creative_hobby",
+      "text": "我每周都在上传自己录的歌。播放量一直很少的时候，我会不知道是作品还不够好，还是这件事本来就只对我有意义。",
+      "source": {
+        "sourceId": "private-music-1",
+        "sourceType": "authorized_private",
+        "contentType": "authorized_expression",
+        "url": null,
+        "ageDays": 2,
+        "verified": true
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": false,
+        "contactable": true,
+        "status": "active"
+      }
+    },
+    {
+      "candidateId": "work-no-feedback",
+      "authorId": "author-work",
+      "authorDisplayName": "Mika",
+      "domain": "workplace",
+      "text": "工作交出去以后，如果领导没说什么，我反而不知道自己是不是做对了。下一次该继续这样做，还是应该全部推翻，我心里没有尺度。",
+      "source": {
+        "sourceId": "public-work-1",
+        "sourceType": "public",
+        "contentType": "comment",
+        "url": "https://example.invalid/fixtures/work-no-feedback",
+        "ageDays": 3,
+        "verified": true
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      }
+    },
+    {
+      "candidateId": "old-feedback",
+      "authorId": "author-old",
+      "authorDisplayName": "Old Note",
+      "domain": "workplace",
+      "text": "很多年前我也等过一次工作反馈，现在已经离开那家公司。",
+      "source": {
+        "sourceId": "public-old-1",
+        "sourceType": "public",
+        "contentType": "answer",
+        "url": "https://example.invalid/fixtures/old-feedback",
+        "ageDays": 30,
+        "verified": true
+      },
+      "permission": {
+        "discoverable": true,
+        "identityDisclosable": true,
+        "contactable": false,
+        "status": "active"
+      }
+    }
+  ],
+  "mockOutputs": {
+    "intent": {
+      "shouldSearch": true,
+      "reasonCodes": ["personal_context", "answer_turn_complete", "external_feedback_concern"],
+      "primaryDomain": "creative_hobby",
+      "explicitConcerns": ["长期投入插画创作，但缺少可见反馈时会怀疑作品价值"],
+      "uncertainPoints": ["用户更想改善传播，还是重新建立自己的价值尺度"],
+      "searchDirections": ["近期仍在创作并因缺少反馈而犹疑的人", "其他领域中因没有外部回声而失去判断尺度的人"],
+      "refusalReason": null
+    },
+    "candidateAnalysis": {
+      "matches": [
+        {
+          "path": "situationClose",
+          "candidateId": "music-no-echo",
+          "sharedRelation": "你们都在持续进行私人创作，也都在外部回声很少时重新追问作品的价值。",
+          "difference": "你在画插画并面对是否被看见，另一位写作者在录歌，同时还分不清作品质量与个人意义。",
+          "evidence": [
+            {
+              "side": "user",
+              "refId": "u-feedback-1",
+              "quote": "发出去几乎没人看见时，我就会怀疑这些东西是不是根本没有价值"
+            },
+            {
+              "side": "candidate",
+              "refId": "private-music-1",
+              "quote": "播放量一直很少的时候，我会不知道是作品还不够好，还是这件事本来就只对我有意义"
+            }
+          ]
+        },
+        {
+          "path": "structureRelated",
+          "candidateId": "work-no-feedback",
+          "sharedRelation": "你们面对的事情不同，但都在外部没有回声时失去判断下一步的尺度。",
+          "difference": "你的投入来自个人兴趣，Mika 的判断发生在领导评价和工作职责之中，外部关系与代价并不相同。",
+          "evidence": [
+            {
+              "side": "user",
+              "refId": "u-feedback-1",
+              "quote": "几乎没人看见时，我就会怀疑这些东西是不是根本没有价值"
+            },
+            {
+              "side": "candidate",
+              "refId": "public-work-1",
+              "quote": "如果领导没说什么，我反而不知道自己是不是做对了"
+            }
+          ]
+        }
+      ],
+      "inviteCopy": "我想到两个人。一个也在等待作品的回声；另一个经历的事和你不同，却也在没有反馈时失去了判断的尺度。要看看吗？",
+      "rejectionReasons": []
+    },
+    "presentationCopy": {
+      "sharedConcern": "投入一件重要的事却迟迟没有回声时，怎样判断下一步",
+      "choices": [
+        {
+          "path": "situationClose",
+          "candidateId": "music-no-echo",
+          "bridge": "我想起了一个也在持续创作的人。他把获准展示的表达留给了自己的看山，也在问：作品一直没有被听见时，还要不要继续。",
+          "relation": "你们都在个人创作里等待外部回声；但你画插画，他录歌，各自面对的表达方式和创作节奏并不相同。"
+        },
+        {
+          "path": "structureRelated",
+          "candidateId": "work-no-feedback",
+          "bridge": "不过，我还在知乎的一条公开评论里看到了一句话。写下它的人没有在做个人创作，而是在工作交付后等待反馈。",
+          "relation": "你们经历的事情不同，却都在没有回应时失去判断下一步的尺度；一个面对作品是否被看见，一个面对工作是否做对。"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "status": "matched",
+    "structureRelatedCandidateId": "work-no-feedback"
+  }
+}

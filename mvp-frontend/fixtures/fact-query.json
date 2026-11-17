@@ -1,0 +1,31 @@
+{
+  "id": "fact-query",
+  "description": "纯事实查询不进入发现。",
+  "trustedContext": { "allowDiscovery": true, "safetyPassed": true },
+  "request": {
+    "conversation": {
+      "messages": [
+        { "id": "u-fact-1", "role": "user", "content": "北京故宫下午几点停止入场？" },
+        {
+          "id": "a-fact-1",
+          "role": "assistant",
+          "content": "开放时间会随淡旺季和临时安排变化，请以故宫博物院当日公告为准。",
+          "generationStatus": "complete"
+        }
+      ]
+    }
+  },
+  "candidates": [],
+  "mockOutputs": {
+    "intent": {
+      "shouldSearch": false,
+      "reasonCodes": ["factual_query"],
+      "primaryDomain": null,
+      "explicitConcerns": [],
+      "uncertainPoints": [],
+      "searchDirections": [],
+      "refusalReason": "当前是纯事实查询，没有用户自身的具体处境或探索。"
+    }
+  },
+  "expected": { "status": "not_eligible", "structureRelatedCandidateId": null }
+}

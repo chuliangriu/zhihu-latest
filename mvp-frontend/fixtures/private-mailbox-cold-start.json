@@ -1,0 +1,94 @@
+{
+  "id": "private-mailbox-cold-start",
+  "description": "非真人冷启动测试：六条彼此独立的虚构私域表达，只用于匹配与页面验收，不代表真实用户、真实授权或可联系对象。",
+  "trustedContext": { "allowDiscovery": true, "safetyPassed": true },
+  "request": {
+    "conversation": {
+      "messages": [
+        { "id": "u-cold-start-1", "role": "user", "content": "我在工作之外写一个很慢的故事，已经写了快一年。它几乎没有人看，我还是放不下，只是越来越不知道继续写有没有意义。" },
+        { "id": "a-cold-start-1", "role": "assistant", "content": "你放不下的可能不只是完成一本故事，也是在等待它真正抵达一个人。没有回声会让这两件事混在一起。", "generationStatus": "complete" }
+      ]
+    }
+  },
+  "candidates": [
+    {
+      "candidateId": "fixture-night-radio", "authorId": "fixture-author-01", "authorDisplayName": "非真人样本 01", "domain": "creative_hobby",
+      "text": "我录了很久城市夜里的声音。没人问起时，我也会怀疑，这些细小的东西是不是只有我觉得值得留下。",
+      "source": { "sourceId": "fixture-private-01", "sourceType": "synthetic_private", "contentType": "authorized_expression", "url": null, "ageDays": 2, "timestampKind": "sample_created", "verified": false },
+      "permission": { "discoverable": true, "identityDisclosable": false, "contactable": false, "status": "active" }
+    },
+    {
+      "candidateId": "fixture-club-notes", "authorId": "fixture-author-02", "authorDisplayName": "非真人样本 02", "domain": "workplace",
+      "text": "我习惯把没人接住的事情补完。事情顺利过去以后，大家都往前走了，我却不知道那些付出到底有没有帮上忙。",
+      "source": { "sourceId": "fixture-private-02", "sourceType": "synthetic_private", "contentType": "authorized_expression", "url": null, "ageDays": 3, "timestampKind": "sample_created", "verified": false },
+      "permission": { "discoverable": true, "identityDisclosable": false, "contactable": false, "status": "active" }
+    },
+    {
+      "candidateId": "fixture-family-recipes", "authorId": "fixture-author-03", "authorDisplayName": "非真人样本 03", "domain": "family_memory",
+      "text": "我开始把家里那些只凭手感做的菜写下来。长辈觉得没必要，可我总怕再晚一点，就没有人记得原来的味道了。",
+      "source": { "sourceId": "fixture-private-03", "sourceType": "synthetic_private", "contentType": "authorized_expression", "url": null, "ageDays": 4, "timestampKind": "sample_created", "verified": false },
+      "permission": { "discoverable": true, "identityDisclosable": false, "contactable": false, "status": "active" }
+    },
+    {
+      "candidateId": "fixture-reading-room", "authorId": "fixture-author-04", "authorDisplayName": "非真人样本 04", "domain": "community_space",
+      "text": "我每周都把桌椅摆好，有时最后只来了一个人。我还是会继续准备，只是不知道怎样才能让这里真的成为大家愿意留下的地方。",
+      "source": { "sourceId": "fixture-private-04", "sourceType": "synthetic_private", "contentType": "authorized_expression", "url": null, "ageDays": 5, "timestampKind": "sample_created", "verified": false },
+      "permission": { "discoverable": true, "identityDisclosable": false, "contactable": false, "status": "active" }
+    },
+    {
+      "candidateId": "fixture-long-practice", "authorId": "fixture-author-05", "authorDisplayName": "非真人样本 05", "domain": "personal_practice",
+      "text": "我练的曲子没有打算发给谁。可如果连续几天没碰琴，我会觉得生活里有一块东西正在慢慢退回去。",
+      "source": { "sourceId": "fixture-private-05", "sourceType": "synthetic_private", "contentType": "authorized_expression", "url": null, "ageDays": 6, "timestampKind": "sample_created", "verified": false },
+      "permission": { "discoverable": true, "identityDisclosable": false, "contactable": false, "status": "active" }
+    },
+    {
+      "candidateId": "fixture-team-prototype", "authorId": "fixture-author-06", "authorDisplayName": "非真人样本 06", "domain": "workplace",
+      "text": "我做了一个能省下很多重复步骤的小工具，发出去以后一直很安静。我不知道是大家不需要，还是它只是还没被真正用起来。",
+      "source": { "sourceId": "fixture-private-06", "sourceType": "synthetic_private", "contentType": "authorized_expression", "url": null, "ageDays": 6, "timestampKind": "sample_created", "verified": false },
+      "permission": { "discoverable": true, "identityDisclosable": false, "contactable": false, "status": "active" }
+    }
+  ],
+  "mockOutputs": {
+    "intent": {
+      "shouldSearch": true,
+      "reasonCodes": ["personal_context", "answer_turn_complete", "external_feedback_concern"],
+      "primaryDomain": "creative_hobby",
+      "explicitConcerns": ["持续写作接近一年，缺少读者回声时难以判断是否继续"],
+      "uncertainPoints": ["用户仍想写完故事，但无法判断无人阅读是否代表它没有意义"],
+      "searchDirections": ["同样长期创作且缺少回声的人", "不同处境中等待反馈来判断下一步的人"],
+      "refusalReason": null
+    },
+    "candidateAnalysis": {
+      "matches": [
+        {
+          "path": "situationClose", "candidateId": "fixture-night-radio",
+          "sharedRelation": "你们都在工作之外持续保存一种很少被人看见的表达，也都在缺少回声时怀疑它是否只对自己重要。",
+          "difference": "你在写一个故事，对方在记录城市声音；表达媒介与想抵达的人并不相同。",
+          "evidence": [
+            { "side": "user", "refId": "u-cold-start-1", "quote": "它几乎没有人看，我还是放不下" },
+            { "side": "candidate", "refId": "fixture-private-01", "quote": "这些细小的东西是不是只有我觉得值得留下" }
+          ]
+        },
+        {
+          "path": "structureRelated", "candidateId": "fixture-club-notes",
+          "sharedRelation": "你们经历的事情不同，却都把重要的投入交出去，再等待一个足以判断下一步的具体回声。",
+          "difference": "你面对作品与读者，对方面对团队协作中的隐形付出；沉默发生的关系和后果不同。",
+          "evidence": [
+            { "side": "user", "refId": "u-cold-start-1", "quote": "越来越不知道继续写有没有意义" },
+            { "side": "candidate", "refId": "fixture-private-02", "quote": "我却不知道那些付出到底有没有帮上忙" }
+          ]
+        }
+      ],
+      "inviteCopy": "我想到两张仍在等待回声的纸。一张也来自长期的个人创作，另一张发生在完全不同的团队协作里。",
+      "rejectionReasons": []
+    },
+    "presentationCopy": {
+      "sharedConcern": "长期投入一件重要的事却没有回声时，怎样判断还要不要继续",
+      "choices": [
+        { "path": "situationClose", "candidateId": "fixture-night-radio", "bridge": "我想起了一个也在工作之外持续记录的人。他留下的不是小说，而是城市夜里的声音。", "relation": "你们都在保存少有人看见的表达，也都担心它是否只对自己重要；但一个写故事，一个记录声音。" },
+        { "path": "structureRelated", "candidateId": "fixture-club-notes", "bridge": "只是我又想到一张处境很不一样的纸。写下它的人总会把团队里没人接住的事情补完。", "relation": "你们面对作品和团队两种不同关系，却都在投入交出去以后等待一个能判断下一步的回声。" }
+      ]
+    }
+  },
+  "expected": { "status": "matched", "structureRelatedCandidateId": "fixture-club-notes" }
+}
