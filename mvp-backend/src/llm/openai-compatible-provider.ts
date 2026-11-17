@@ -10,7 +10,7 @@ import {
 } from "./provider.js";
 
 interface ChatCompletionPayload {
-  choices?: Array<{ message?: { content?: unknown } }>;
+  choices?: Array<{ message?: { content?: unknown }; finish_reason?: string | null }>;
   usage?: {
     prompt_tokens?: number;
     completion_tokens?: number;
@@ -72,7 +72,8 @@ export class OpenAiCompatibleProvider implements LlmProvider {
           method: "POST",
           headers: { Authorization: `Bearer ${this.config.apiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({ model: this.config.model,messages: [{ role: "system", content: input.systemPrompt }, ...input.messages],
-            temperature: 0.35,max_tokens: this.config.maxOutputTokens,stream: true }),
+            temperature: 0.35,max_tokens: this.config.maxOutputTokens,
+            ...(this.config.reasoningEffort ? { reasoning_effort: this.config.reasoningEffort } : {}),stream: true }),
           signal,redirect: "error"
         });
         if(!current.ok)throw new LlmProviderError(`LLM_HTTP_${current.status}`,`LLM provider returned HTTP ${current.status}`);
@@ -95,6 +96,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
       let buffer = "";
       let finalUsage: LlmUsage = { inputTokens: null, outputTokens: null, requests: attempts, retries: attempts-1 };
       let emitted = 0;
+      let outputLimitReached = false;
       let completed = false;
       let usageResolved = false;
       const finishUsage = () => {
@@ -118,6 +120,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
             try { event = JSON.parse(data); } catch { throw new LlmProviderError("LLM_STREAM_INVALID", "LLM stream event was invalid JSON"); }
             if(event.error)throw new LlmProviderError("LLM_STREAM_ERROR","LLM provider ended the stream with an error");
             if (event.usage) finalUsage = { ...readUsage(event), requests: attempts, retries: attempts-1 };
+            if (event.choices?.[0]?.finish_reason === "length") outputLimitReached = true;
             const text = event.choices?.[0]?.delta?.content;
             if (typeof text === "string" && text) {
               emitted += Buffer.byteLength(text, "utf8");
@@ -126,6 +129,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
             }
           }
         }
+        if (outputLimitReached) throw new LlmProviderError("LLM_OUTPUT_LIMIT_REACHED", "LLM exhausted the output budget before completing the response");
         if (emitted === 0) throw new LlmProviderError("LLM_EMPTY_RESPONSE", "LLM stream did not contain assistant text");
         finishUsage();
       } catch (error) {
@@ -167,6 +171,7 @@ export class OpenAiCompatibleProvider implements LlmProvider {
         response_format: { type: "json_object" },
         temperature: 0.2,
         max_tokens: this.config.maxOutputTokens,
+        ...(this.config.reasoningEffort ? { reasoning_effort: this.config.reasoningEffort } : {}),
         stream: false
       }),
       signal,
@@ -191,6 +196,9 @@ export class OpenAiCompatibleProvider implements LlmProvider {
       throw new LlmProviderError("LLM_RESPONSE_NOT_JSON", "LLM response body was not JSON");
     }
 
+    if (payload.choices?.[0]?.finish_reason === "length") {
+      throw new LlmProviderError("LLM_OUTPUT_LIMIT_REACHED", "LLM exhausted the output budget before completing the response");
+    }
     const content = readAssistantContent(payload);
     if (!content) {
       throw new LlmProviderError("LLM_EMPTY_RESPONSE", "LLM response did not contain assistant text");

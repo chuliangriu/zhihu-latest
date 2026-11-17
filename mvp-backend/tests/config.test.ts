@@ -33,3 +33,19 @@ describe("public deployment guard", () => {
     expect(() => loadConfig({ LLM_BASE_URL: "https://attacker.example/v1" })).toThrow(/LLM_ALLOWED_HOSTS/);
   });
 });
+
+
+describe("GLM reasoning defaults", () => {
+  it("uses a larger bounded output budget and low reasoning for GLM-5.3", () => {
+    const llm = loadConfig({ LLM_MODEL: "glm-5.3" }).llm;
+    expect(llm.maxOutputTokens).toBe(4096);
+    expect(llm.reasoningEffort).toBe("low");
+    expect(loadConfig({}).llm.maxOutputTokens).toBe(1500);
+    expect(loadConfig({}).llm.reasoningEffort).toBeUndefined();
+  });
+  it("honors explicit operator overrides", () => {
+    const llm = loadConfig({ LLM_MODEL: "glm-5.3", LLM_MAX_OUTPUT_TOKENS: "2048", LLM_REASONING_EFFORT: "high" }).llm;
+    expect(llm.maxOutputTokens).toBe(2048);
+    expect(llm.reasoningEffort).toBe("high");
+  });
+});

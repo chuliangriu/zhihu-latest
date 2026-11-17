@@ -132,7 +132,7 @@ function publicErrorCode(error:unknown){if(error instanceof LlmProviderError)ret
 function publicLlmFailure(error:LlmProviderError){
   if(error.code==="LLM_ABORTED")return{status:503,code:"REQUEST_CANCELLED"};
   if(error.code==="LLM_TIMEOUT_OR_ABORTED")return{status:504,code:"LLM_TIMEOUT"};
-  if(["LLM_SCHEMA_INVALID","LLM_OUTPUT_NOT_JSON","LLM_RESPONSE_NOT_JSON","LLM_EMPTY_RESPONSE","LLM_RESPONSE_TOO_LARGE","LLM_STREAM_INVALID","LLM_STREAM_ERROR"].includes(error.code))return{status:502,code:"LLM_OUTPUT_INVALID"};
+  if(["LLM_OUTPUT_LIMIT_REACHED","LLM_SCHEMA_INVALID","LLM_OUTPUT_NOT_JSON","LLM_RESPONSE_NOT_JSON","LLM_EMPTY_RESPONSE","LLM_RESPONSE_TOO_LARGE","LLM_STREAM_INVALID","LLM_STREAM_ERROR"].includes(error.code))return{status:502,code:"LLM_OUTPUT_INVALID"};
   if(error.code==="LLM_HTTP_429")return{status:503,code:"LLM_UPSTREAM_BUSY"};
   return{status:503,code:"LLM_UNAVAILABLE"};
 }

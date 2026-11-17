@@ -39,7 +39,8 @@ const configSchema = z
     LLM_MODEL: z.string().optional(),
     LLM_TIMEOUT_MS: z.coerce.number().int().min(500).max(60_000).default(12_000),
     LLM_MAX_RETRIES: z.coerce.number().int().min(0).max(2).default(1),
-    LLM_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(64).max(4_096).default(1_500),
+    LLM_MAX_OUTPUT_TOKENS: z.coerce.number().int().min(64).max(4_096).optional(),
+    LLM_REASONING_EFFORT: z.enum(["low", "high", "max"]).optional(),
     LLM_INPUT_TOKEN_RESERVE: z.coerce.number().int().min(1_000).max(100_000).default(24_000),
     LLM_INPUT_COST_PER_MILLION_USD: z.coerce.number().min(0).max(1_000).default(0),
     LLM_OUTPUT_COST_PER_MILLION_USD: z.coerce.number().min(0).max(1_000).default(0),
@@ -102,7 +103,9 @@ const configSchema = z
       model: value.LLM_MODEL,
       timeoutMs: value.LLM_TIMEOUT_MS,
       maxRetries: value.LLM_MAX_RETRIES,
-      maxOutputTokens: value.LLM_MAX_OUTPUT_TOKENS,
+      maxOutputTokens: value.LLM_MAX_OUTPUT_TOKENS ?? (value.LLM_MODEL?.toLowerCase() === "glm-5.3" ? 4_096 : 1_500),
+      ...(value.LLM_REASONING_EFFORT || value.LLM_MODEL?.toLowerCase() === "glm-5.3"
+        ? { reasoningEffort: value.LLM_REASONING_EFFORT ?? "low" as const } : {}),
       inputTokenReserve: value.LLM_INPUT_TOKEN_RESERVE,
       inputCostPerMillionUsd: value.LLM_INPUT_COST_PER_MILLION_USD,
       outputCostPerMillionUsd: value.LLM_OUTPUT_COST_PER_MILLION_USD

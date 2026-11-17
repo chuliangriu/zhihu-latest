@@ -99,3 +99,35 @@ describe("live LLM adapter", () => {
     ).rejects.toMatchObject({ code: "LLM_SCHEMA_INVALID" });
   });
 });
+
+
+describe("reasoning model compatibility", () => {
+  const glm = loadConfig({ LLM_MODEL: "glm-5.3", LLM_API_KEY: "server-only-test-key", LLM_MAX_RETRIES: "0" }).llm;
+  it("sends low reasoning and the configured budget for both JSON and SSE", async () => {
+    const output = { shouldSearch: false, reasonCodes: ["factual_query"], primaryDomain: null, explicitConcerns: [], uncertainPoints: [], searchDirections: [], refusalReason: "事实查询" };
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(Response.json({ choices: [{ message: { content: JSON.stringify(output) }, finish_reason: "stop" }] }))
+      .mockResolvedValueOnce(new Response('data: {"choices":[{"delta":{"content":"你好"},"finish_reason":null}]}\n\ndata: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\ndata: [DONE]\n\n'));
+    vi.stubGlobal("fetch", fetchMock);
+    const provider = new OpenAiCompatibleProvider(glm);
+    await provider.completeJson({ task: "discovery_intent", systemPrompt: "Return JSON", payload: {}, schema: discoveryIntentOutputSchema, signal: new AbortController().signal });
+    const stream = await provider.streamText({ task: "normal_reply", systemPrompt: "Answer", messages: [{ role: "user", content: "你好" }], signal: new AbortController().signal });
+    let text = ""; for await (const part of stream.chunks) text += part;
+    expect(text).toBe("你好");
+    for (const call of fetchMock.mock.calls) expect(JSON.parse(call[1].body)).toMatchObject({ model: "glm-5.3", reasoning_effort: "low", max_tokens: 4096 });
+  });
+  it.each([{ reasoning_content: "thinking" }, { content: "partial answer" }])("rejects a length-limited stream rather than reporting success or an empty response", async (delta) => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(`data: ${JSON.stringify({ choices: [{ delta, finish_reason: null }] })}\n\ndata: {"choices":[{"delta":{},"finish_reason":"length"}]}\n\ndata: [DONE]\n\n`));
+    vi.stubGlobal("fetch", fetchMock);
+    const stream = await new OpenAiCompatibleProvider(glm).streamText({ task: "normal_reply", systemPrompt: "Answer", messages: [{ role: "user", content: "test" }], signal: new AbortController().signal });
+    await expect((async () => { for await (const _part of stream.chunks) {} })()).rejects.toMatchObject({ code: "LLM_OUTPUT_LIMIT_REACHED" });
+    await expect(stream.usage).resolves.toBeDefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+  it("rejects even parseable JSON when the provider reports truncation", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({ choices: [{ message: { content: "{}" }, finish_reason: "length" }] }));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(new OpenAiCompatibleProvider(glm).completeJson({ task: "discovery_intent", systemPrompt: "JSON", payload: {}, schema: discoveryIntentOutputSchema, signal: new AbortController().signal })).rejects.toMatchObject({ code: "LLM_OUTPUT_LIMIT_REACHED" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
