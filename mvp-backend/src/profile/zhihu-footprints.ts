@@ -1,9 +1,11 @@
 import { createDecipheriv, createHash } from "node:crypto";
 import { isZhihuUrl } from "../guards/candidates.js";
 import type { SupabaseAdapter } from "../sources/supabase-adapter.js";
-import type { Footprint, FootprintSource } from "./contracts.js";
+import type { Footprint, FootprintSource, ProfileConnectionDiagnostic } from "./contracts.js";
 
-export class ProfileDataError extends Error { constructor(public readonly code: string) { super(code); } }
+export class ProfileDataError extends Error {
+  constructor(public readonly code: string, public readonly connection?: ProfileConnectionDiagnostic) { super(code); }
+}
 export function decryptProfileToken(value: string, secret: string): string {
   try {
     if (secret.length < 32) throw new Error();
@@ -25,8 +27,10 @@ export class ZhihuFootprintSource implements FootprintSource {
   async load(userId: string, signal: AbortSignal, onRequest: () => void): Promise<Footprint[]> {
     if (!this.accessSecret || !this.encryptionKey) throw new ProfileDataError("PROFILE_CONFIG_MISSING");
     const account = await this.accounts.oauthAccount(userId, signal);
-    if (!account) throw new ProfileDataError("OAUTH_REAUTH_REQUIRED");
-    const token = decryptProfileToken(account.access_token, this.encryptionKey);
+    if (!account) throw new ProfileDataError("OAUTH_REAUTH_REQUIRED", { stage: "account_lookup" });
+    let token: string;
+    try { token = decryptProfileToken(account.access_token, this.encryptionKey); }
+    catch { throw new ProfileDataError("OAUTH_TOKEN_UNAVAILABLE", { stage: "token_decryption" }); }
     const records: Footprint[] = [];
     const now = Date.now();
     const seen = new Set<string>();
@@ -42,11 +46,16 @@ export class ZhihuFootprintSource implements FootprintSource {
         response = await this.fetcher(url, { headers: { Authorization: `Bearer ${this.accessSecret}`,
           "X-OAuth-Token": token, "X-Request-Timestamp": String(Math.floor(now/1000)), "Content-Type": "application/json" },
           signal: AbortSignal.any([signal, AbortSignal.timeout(8000)]), redirect: "error" });
-      } catch { throw new ProfileDataError("ZHIHU_USER_DATA_UNAVAILABLE"); }
-      if (!response.ok) throw new ProfileDataError([401,403].includes(response.status) ? "OAUTH_REAUTH_REQUIRED" : response.status === 429 ? "ZHIHU_RATE_LIMITED" : "ZHIHU_USER_DATA_UNAVAILABLE");
-      const payload = await readBody(response);
-      if (payload.Code !== 0) throw new ProfileDataError(payload.Code === 20001 ? "OAUTH_REAUTH_REQUIRED" : [30001,30002].includes(payload.Code) ? "ZHIHU_RATE_LIMITED" : "ZHIHU_USER_DATA_UNAVAILABLE");
-      if (!Array.isArray(payload.Data?.Items)) throw new ProfileDataError("ZHIHU_RESPONSE_INVALID");
+      } catch { throw new ProfileDataError("ZHIHU_USER_DATA_UNAVAILABLE", { stage: kind }); }
+      let payload: any;
+      try { payload = await readBody(response); }
+      catch { if (response.ok) throw new ProfileDataError("ZHIHU_RESPONSE_INVALID", { stage: kind, httpStatus: response.status }); }
+      const connection: ProfileConnectionDiagnostic = { stage: kind, httpStatus: response.status,
+        ...(typeof payload?.Code === "number" && Number.isSafeInteger(payload.Code) ? { upstreamCode: payload.Code } : {}),
+        hint: upstreamHint(payload?.Message) };
+      if (!response.ok) throw new ProfileDataError([401,403].includes(response.status) ? "OAUTH_REAUTH_REQUIRED" : response.status === 429 ? "ZHIHU_RATE_LIMITED" : "ZHIHU_USER_DATA_UNAVAILABLE", connection);
+      if (payload?.Code !== 0) throw new ProfileDataError(payload?.Code === 20001 ? "OAUTH_REAUTH_REQUIRED" : [30001,30002].includes(payload?.Code) ? "ZHIHU_RATE_LIMITED" : "ZHIHU_USER_DATA_UNAVAILABLE", connection);
+      if (!Array.isArray(payload.Data?.Items)) throw new ProfileDataError("ZHIHU_RESPONSE_INVALID", connection);
       for (const item of payload.Data.Items.slice(0,8)) {
         const timestamp = kind === "creation" ? item.CreatedAt : item.FavTime;
         if (!Number.isFinite(timestamp) || timestamp * 1000 < now - 90 * 86400000 || timestamp * 1000 > now + 60000 || !isZhihuUrl(item.Url)) continue;
@@ -68,4 +77,14 @@ async function readBody(response: Response): Promise<any> {
       if (length > 524288) { await reader.cancel(); throw new Error(); } chunks.push(next.value); }
     return JSON.parse(Buffer.concat(chunks).toString("utf8"));
   } catch { throw new ProfileDataError("ZHIHU_RESPONSE_INVALID"); }
+}
+
+// Reduce upstream text to a fixed hint; never echo messages, bodies, credentials or URLs.
+function upstreamHint(value: unknown): NonNullable<ProfileConnectionDiagnostic["hint"]> {
+  if (typeof value !== "string") return "unspecified";
+  if (/(?:app(?:lication)?[ _-]?(?:id)?|应用).{0,50}(?:mismatch|not match|不匹配|不一致)/iu.test(value)) return "application_mismatch";
+  if (/(?:access[ _-]?(?:secret|key)).{0,50}(?:invalid|expired|incorrect|无效|失效|错误)/iu.test(value)) return "access_secret_rejected";
+  if (/(?:oauth|token|令牌).{0,50}(?:invalid|expired|revoked|无效|失效|过期|撤销)/iu.test(value)) return "oauth_rejected";
+  if (/permission denied|insufficient scope|权限不足|无权限|未授权/iu.test(value)) return "permission_denied";
+  return "unspecified";
 }

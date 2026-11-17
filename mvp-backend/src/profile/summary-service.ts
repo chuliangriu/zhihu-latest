@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { ProfileDataError } from "./zhihu-footprints.js";
 import type { LlmProvider } from "../llm/provider.js";
 import type { PipelineTrace } from "../pipeline/discovery-pipeline.js";
 import { containsForbiddenModelArtifact, scanConversationForPromptInjection } from "../security/prompt-injection.js";
@@ -51,6 +52,7 @@ export class ProfileSummaryService {
     } catch (error) {
       const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "PROFILE_UNAVAILABLE";
       result.status = "unavailable"; result.reasonCode = code;
+      if (inspectOnly && error instanceof ProfileDataError && error.connection) result.connection = error.connection;
       trace.stages.push({ name: "profile_error", durationMs: Date.now()-started, note: code });
     }
     return { result, trace, userDataRequests };

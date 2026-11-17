@@ -8,7 +8,14 @@ export const profileModelSchema = z.object({
 }).strict();
 export interface Footprint { id: string; kind: "creation" | "collection"; title: string; summary: string; occurredAt: string; }
 export interface FootprintSource { load(userId: string, signal: AbortSignal, onRequest: () => void): Promise<Footprint[]>; }
+export interface ProfileConnectionDiagnostic {
+  stage: "account_lookup" | "token_decryption" | "creation" | "collection";
+  httpStatus?: number;
+  upstreamCode?: number;
+  hint?: "application_mismatch" | "oauth_rejected" | "access_secret_rejected" | "permission_denied" | "unspecified";
+}
 export interface ProfileSummary {
+  connection?: ProfileConnectionDiagnostic;
   status: "ready" | "needs_input" | "unavailable";
   reasonCode: string;
   profile: { role: string; impression: string[]; recentFocus: string; markdown: string; requiresConfirmation: true } | null;

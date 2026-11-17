@@ -202,3 +202,40 @@ describe("footprint inspection without a model", () => {
     expect(success?.llm.requests).toBe(0);
   });
 });
+
+describe("private connection failure diagnostics", () => {
+  const accounts={oauthAccount:async()=>({user_id:userId,access_token:encrypted(),token_storage_version:"encrypted_v1" as const,expires_at:new Date(Date.now()+86400000).toISOString()})};
+  const createLlm=vi.fn(()=>{throw new Error("model must not run");});
+  it("distinguishes account lookup and token decryption from an upstream failure",async()=>{
+    const fetcher=vi.fn<typeof fetch>();
+    const missing=await new ProfileSummaryService(new ZhihuFootprintSource({oauthAccount:async()=>null},"access-secret",secret,fetcher),createLlm).inspect(userId);
+    expect(missing.result.connection).toEqual({stage:"account_lookup"});
+    const tampered=await new ProfileSummaryService(new ZhihuFootprintSource(accounts,"access-secret","wrong-secret-with-at-least-32-characters",fetcher),createLlm).inspect(userId);
+    expect(tampered.result.connection).toEqual({stage:"token_decryption"});
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(createLlm).not.toHaveBeenCalled();
+  });
+  it.each([
+    ["OAuth token invalid: private-upstream-secret", "oauth_rejected"],
+    ["OAuth app_id mismatch: private-upstream-secret", "application_mismatch"],
+    ["Access Secret invalid: private-upstream-secret", "access_secret_rejected"],
+    ["insufficient scope: private-upstream-secret", "permission_denied"],
+    ["private-upstream-secret", "unspecified"]
+  ])("exposes only allowlisted fields for %s",async(message,hint)=>{
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:20001,Message:message},{status:401}));
+    const service=new ProfileSummaryService(new ZhihuFootprintSource(accounts,"access-secret",secret,fetcher),createLlm);
+    const detail=await service.inspect(userId);
+    expect(detail.result.connection).toEqual({stage:"creation",httpStatus:401,upstreamCode:20001,hint});
+    expect(detail.userDataRequests).toBe(1);
+    expect(JSON.stringify(detail)).not.toContain("private-upstream-secret");
+    expect(JSON.stringify(detail)).not.toContain(oauthToken);
+    expect(createLlm).not.toHaveBeenCalled();
+  });
+  it("keeps diagnostics out of the product summary response",async()=>{
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:20001,Message:"OAuth token invalid"}));
+    const detail=await new ProfileSummaryService(new ZhihuFootprintSource(accounts,"access-secret",secret,fetcher),createLlm).generate(userId);
+    expect(detail.result.reasonCode).toBe("OAUTH_REAUTH_REQUIRED");
+    expect(detail.result).not.toHaveProperty("connection");
+    expect(createLlm).not.toHaveBeenCalled();
+  });
+});
