@@ -212,7 +212,12 @@ function profileImport(state) {
 function renderEntry(state) {
   const views = createDemoViews(state, () => viewUser(state));
   if (state.screen === 'home') return `<header><button class="brand" data-action="reset">未见之人</button></header>${home(state)}`;
-  if (state.screen === 'login') return views.header() + views.login() + `<button class="profile-recovery" data-action="open-profile">${state.user.profileReady ? '修改背景' : '资料未同步'}</button>` + (state.profileOpen ? profileImport(state) : '');
+  if (state.screen === 'login') {
+    const syncNotice = state.live && state.profileNotice ? `<section class="profile-sync-status" aria-label="背景同步状态"><p role="status">${esc(state.profileNotice)}</p>${state.profileNeedsLogin
+      ? '<a href="/api/zhihu-login">重新登录知乎</a>'
+      : '<button data-action="retry-profile">重新同步背景</button>'}</section>` : '';
+    return views.header() + views.login() + syncNotice + `<button class="profile-recovery" data-action="open-profile">${state.user.profileReady ? '修改背景' : '资料未同步'}</button>` + (state.profileOpen ? profileImport(state) : '');
+  }
   const selected = flowUser(state).candidates[state.selected];
   if (state.screen === 'chat') return views.chat();
   const overlay = { card: () => views.candidateOverlay(selected), consent: () => views.consentOverlay(selected), share: views.sharePaperOverlay,

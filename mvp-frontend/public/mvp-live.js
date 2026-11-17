@@ -7,7 +7,7 @@ const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什
 export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
   const base = createEntryController({ render, schedule, cancel });
   const state = base.getState();
-  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, paper: null, activePapers: [] });
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, paper: null, activePapers: [] });
   state.chatNotice = '';
   const paint = () => render(state);
   const candidate = () => state.user.candidates[state.selected];
@@ -44,6 +44,41 @@ export function createLiveController({ render, api = createApi(), navigate = url
       /INJECTION|REJECTED/.test(code) ? '这段内容暂时无法处理，请调整后再试。' :
       `这次没有完成，请重试。${code ? `（${code}）` : ''}`;
   }
+  function profileFailure(code, coverage) {
+    state.profileIssueCode = code;
+    state.profileNeedsLogin = /^(OAUTH_REAUTH_REQUIRED|OAUTH_TOKEN_UNAVAILABLE|NOT_LOGGED_IN|UNAUTHENTICATED)$/.test(code);
+    const messages = {
+      PROFILE_NOT_CONNECTED: '背景同步服务暂未启用。你可以先补充背景，或直接开始聊天。',
+      OAUTH_REAUTH_REQUIRED: '知乎授权已失效，请重新登录后同步背景。',
+      OAUTH_TOKEN_UNAVAILABLE: '暂时无法读取知乎授权，请重新登录后再试。',
+      NOT_LOGGED_IN: '登录状态已失效，请重新登录后同步背景。',
+      UNAUTHENTICATED: '登录状态已失效，请重新登录后同步背景。',
+      ZHIHU_RATE_LIMITED: '知乎服务暂时繁忙，请稍后重新同步背景。',
+      insufficient_footprints: '近期可用的公开创作和收藏不足以整理背景。你可以先补充自己的近期背景。',
+      profile_evidence_rejected: '现有足迹还不足以可靠地介绍你。你可以先补充自己的近期背景。',
+      SHORT_RATE_LIMITED: '同步太频繁了，请稍后再试。',
+      DAILY_QUOTA_EXCEEDED: '今天的背景同步额度已用完，可以先手动补充背景。',
+    };
+    const read = (coverage?.creations || 0) + (coverage?.collections || 0) > 0;
+    state.profileNotice = messages[code] || (read
+      ? '已读取你的知乎足迹，但暂时无法整理背景。可以稍后重新同步，或先手动补充。'
+      : '这次没能同步背景。可以重新同步，或先手动补充背景。');
+  }
+  async function syncProfile() {
+    state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false;
+    try {
+      const profile = await api.json('/api/profile/summary', { useAuthorizedFootprints: true });
+      if (profile.status === 'ready' && profile.profile) {
+        Object.assign(state.user, { role: profile.profile.role, impression: profile.profile.impression,
+          recentFocus: profile.profile.recentFocus, profileReady: true });
+      } else profileFailure(profile.reasonCode || 'PROFILE_UNAVAILABLE', profile.coverage);
+    } catch (error) { profileFailure(error?.code || error?.message || 'PROFILE_UNAVAILABLE', error?.coverage); }
+  }
+  async function retryProfile() {
+    if (!state.sessionReady || state.localDevelopment || state.user.profileReady) return;
+    state.busy = true; paint();
+    try { await syncProfile(); } finally { state.busy = false; paint(); }
+  }
   async function start() {
     state.screen = 'login'; state.busy = true; state.error = ''; paint();
     try {
@@ -54,11 +89,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       state.localDevelopment = session.localDevelopment === true;
       state.chatNotice = '';
       if (!state.localDevelopment && !state.user.profileReady) {
-        try {
-          const profile = await api.json('/api/profile/summary', { useAuthorizedFootprints: true });
-          if (profile.status === 'ready' && profile.profile) Object.assign(state.user, { role: profile.profile.role,
-            impression: profile.profile.impression, recentFocus: profile.profile.recentFocus, profileReady: true });
-        } catch { /* Existing recovery entry remains available. */ }
+        await syncProfile();
       }
     } catch (error) {
       if (/NOT_LOGGED|UNAUTHENTICATED/.test(error?.message || '')) {
@@ -165,6 +196,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (state.busy) return;
       if (action === 'save-profile' && !state.nameDraft.trim()) state.nameDraft = state.user.name;
       if (action === 'start') return start();
+      if (action === 'retry-profile') return retryProfile();
       if (action === 'enter-chat') {
         if (!state.sessionReady) return start();
         state.sampleScenario = null;
@@ -201,6 +233,9 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (action === 'back' && state.screen === 'card' && candidate()?.synthetic) { state.selected = null; state.screen = 'chat'; paint(); return; }
       if (action === 'switch-sample' || action === 'skip-sample' || action === 'replay-chat') return;
       base.action(action, id);
+      if (action === 'save-profile' && state.user.profileReady) {
+        state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false; paint();
+      }
     }
   };
 }
