@@ -8,7 +8,7 @@ const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什
 export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
   const base = createEntryController({ render, schedule, cancel });
   const state = base.getState();
-  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [] });
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [] });
   state.chatNotice = '';
   const paint = () => render(state);
   const candidate = () => state.user.candidates[state.selected];
@@ -105,7 +105,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       sessionReady: false, localDevelopment: false, selected: null, paper: null, paperEdit: null, activePapers: [],
       chatDraft: '', queuedChat: '', privateDraft: '', privateMessages: [], publicDraft: '', publicReplies: [],
       profileDraft: '', nameDraft: '', roleDraft: '', profileOpen: false, profileError: '',
-      profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
+      accountNotice: '', profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
       stage: 0, typewriterStage: null, typedChars: 0, chatNotice: '' });
   }
   async function logout() {
@@ -125,6 +125,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (state.user.id !== decoded.identity.id) clearAccount();
       Object.assign(state.user, decoded.identity); state.sessionReady = true; state.authRequired = false;
       state.localDevelopment = session.localDevelopment === true;
+      if (session.accountNotice === 'history_unlinked') state.accountNotice = '已登录。旧账号的历史暂未关联，原记录仍保留。';
       state.chatNotice = '';
       if (!state.localDevelopment && !state.user.profileReady) {
         await syncProfile();

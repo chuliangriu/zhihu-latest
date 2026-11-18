@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import {
   OAUTH_STATE_COOKIE,
+  ACCOUNT_NOTICE_COOKIE,
+  setCookie,
   clearCookie,
   createSession,
   readCookie,
@@ -63,8 +65,8 @@ export default async function handler(request, response) {
     }
     const identity = await resolveZhihuIdentity(tokenData);
     console.info(JSON.stringify({ type: 'oauth_identity', stable: !identity.externalId.startsWith('oauth_') }));
-    const legacyUserId = await verifiedLegacyUser(request, identity, tokenData);
-    const savedUser = await saveUserAndAccount(identity, tokenData, legacyUserId);
+    const linkage = await verifiedLegacyUser(request, identity, tokenData);
+    const savedUser = await saveUserAndAccount(identity, tokenData, linkage.userId);
     if (!savedUser.ok) {
       return response.status(502).send(`知乎授权成功，但保存登录信息失败：${savedUser.error}`);
     }
@@ -75,17 +77,23 @@ export default async function handler(request, response) {
       return response.status(502).send('创建登录会话失败，请稍后重新登录。');
     }
 
+    if (linkage.historyUnlinked) setCookie(response, ACCOUNT_NOTICE_COOKIE, 'history_unlinked', 600);
+    else clearCookie(response, ACCOUNT_NOTICE_COOKIE);
+    console.info(JSON.stringify({ type: 'oauth_account_link', status: linkage.historyUnlinked ? 'unlinked' : 'resolved',
+      ...(linkage.reason ? { reason: linkage.reason } : {}) }));
+
     await supabaseRequest('audit_events', {
       method: 'POST', headers: { Prefer: 'return=minimal' },
       body: { actor_user_id: savedUser.userId, event_type: 'oauth_login', resource_type: 'user',
-        metadata: { stable_identity: !identity.externalId.startsWith('oauth_') } },
+        metadata: { stable_identity: !identity.externalId.startsWith('oauth_'), history_unlinked: linkage.historyUnlinked,
+          ...(linkage.reason ? { linkage_reason: linkage.reason } : {}) } },
     }).catch(() => { console.warn('OAuth audit write unavailable'); });
 
     return response.redirect(302, new URL('/?login=success', getSiteUrl(request)).toString());
   } catch (error) {
-    if (error?.code === 'ACCOUNT_LINK_REQUIRED') {
-      response.setHeader('X-OAuth-Error', 'ACCOUNT_LINK_REQUIRED');
-      return response.status(409).send('已获得知乎授权，但暂时无法确认它与原账号的对应关系。本次没有切换账号或合并历史，请联系项目维护者核验。');
+    if (error?.code === 'ACCOUNT_UPDATE_RETRY') {
+      response.setHeader('X-OAuth-Error', 'ACCOUNT_UPDATE_RETRY');
+      return response.status(503).send('知乎授权已成功，但本站账号更新暂未完成，请稍后从登录按钮重试。');
     }
     response.setHeader('X-OAuth-Error', 'OAUTH_CONNECTION_FAILED');
     return response.status(502).send('知乎登录暂未完成，请稍后从登录按钮重新开始。');
@@ -129,6 +137,7 @@ async function resolveZhihuIdentity(tokenData) {
 
 // A browser session alone is not proof that two OAuth grants belong to the same Zhihu account.
 // Keep the existing UUID only after matching stable IDs, or the exact current OAuth token.
+// Failure to link history must not reject a valid new login; use a separate account with a notice.
 async function verifiedLegacyUser(request, identity, tokenData) {
   const current = await requireUser(request);
   const tokenKey = `oauth_${createHash('sha256').update(tokenData.access_token).digest('hex')}`;
@@ -136,31 +145,32 @@ async function verifiedLegacyUser(request, identity, tokenData) {
   if (!exact.ok) throw new Error('ACCOUNT_LOOKUP_FAILED');
   let legacyId = Array.isArray(exact.data) ? exact.data[0]?.id : null;
   if (current && current.identityKey !== identity.externalId && !legacyId) {
-    if (identity.externalId.startsWith('oauth_')) throw accountLinkRequired();
+    if (identity.externalId.startsWith('oauth_')) return unlinked('new_identity_unavailable');
     if (current.identityKey?.startsWith('oauth_')) {
       const accounts = await supabaseRequest(`zhihu_accounts?user_id=eq.${encodeURIComponent(current.user.id)}&select=user_id,access_token,token_type,token_storage_version,expires_at&limit=1`);
       const old = accounts.ok && Array.isArray(accounts.data) ? accounts.data[0] : null;
-      if (!old || old.user_id !== current.user.id || old.token_storage_version !== 'encrypted_v1' || (!Number.isFinite(Date.parse(old.expires_at)) || Date.parse(old.expires_at) <= Date.now())) throw accountLinkRequired();
+      if (!old || old.user_id !== current.user.id || old.token_storage_version !== 'encrypted_v1' || (!Number.isFinite(Date.parse(old.expires_at)) || Date.parse(old.expires_at) <= Date.now())) return unlinked('prior_authorization_unavailable');
       let prior;
       try {
         const { decryptToken } = await import('../server/token-crypto.mjs');
         prior = await resolveZhihuIdentity({ access_token: decryptToken(old.access_token), token_type: old.token_type });
-      } catch { throw accountLinkRequired(); }
-      if (prior.externalId.startsWith('oauth_')) throw accountLinkRequired();
+      } catch { return unlinked('prior_identity_unavailable'); }
+      if (prior.externalId.startsWith('oauth_')) return unlinked('prior_identity_unavailable');
       if (prior.externalId === identity.externalId) legacyId = current.user.id;
     }
   }
-  if (!legacyId || identity.externalId === tokenKey) return null;
+  if (!legacyId || identity.externalId === tokenKey) return { userId: null, historyUnlinked: false };
   const existing = await supabaseRequest(`users?zhihu_user_id=eq.${encodeURIComponent(identity.externalId)}&select=id&limit=1`);
   if (!existing.ok) throw new Error('ACCOUNT_LOOKUP_FAILED');
-  if (existing.data?.[0] && existing.data[0].id !== legacyId) throw accountLinkRequired();
+  if (existing.data?.[0] && existing.data[0].id !== legacyId) return unlinked('existing_identity_conflict');
   const moved = await supabaseRequest(`users?id=eq.${encodeURIComponent(legacyId)}&zhihu_user_id=like.oauth_*`, {
     method: 'PATCH', headers: { Prefer: 'return=representation' }, body: { zhihu_user_id: identity.externalId }
   });
-  if (!moved.ok || moved.data?.[0]?.id !== legacyId) throw accountLinkRequired();
-  return legacyId;
+  if (!moved.ok || moved.data?.[0]?.id !== legacyId) throw accountUpdateRetry();
+  return { userId: legacyId, historyUnlinked: false };
 }
-function accountLinkRequired() { return Object.assign(new Error('ACCOUNT_LINK_REQUIRED'), { code: 'ACCOUNT_LINK_REQUIRED' }); }
+function unlinked(reason) { return { userId: null, historyUnlinked: true, reason }; }
+function accountUpdateRetry() { return Object.assign(new Error('ACCOUNT_UPDATE_RETRY'), { code: 'ACCOUNT_UPDATE_RETRY' }); }
 
 async function saveUserAndAccount(identity, tokenData, legacyUserId) {
   const userResponse = await supabaseRequest('users?on_conflict=zhihu_user_id', {
@@ -179,7 +189,7 @@ async function saveUserAndAccount(identity, tokenData, legacyUserId) {
   }
 
   const userId = userResponse.data[0].id;
-  if (legacyUserId && userId !== legacyUserId) throw accountLinkRequired();
+  if (legacyUserId && userId !== legacyUserId) throw accountUpdateRetry();
   const accountResponse = await supabaseRequest('zhihu_accounts?on_conflict=user_id', {
     method: 'POST',
     headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },

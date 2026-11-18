@@ -42,3 +42,8 @@ test('database outage is unavailable rather than a logged-out identity',async t=
  harness(t);globalThis.fetch=async()=>new Response(null,{status:503});const res=response();await me(req(),res);
  assert.equal(res.statusCode,503);assert.equal(res.body.error,'SESSION_STORE_UNAVAILABLE');assert.equal(res.getHeader('cache-control'),'no-store');
 });
+test('an authenticated account receives and clears a one-time unlinked-history notice',async t=>{
+ harness(t);const request=req();request.headers.cookie+='; wjr_account_notice=history_unlinked';const res=response();await me(request,res);
+ assert.equal(res.statusCode,200);assert.equal(res.body.accountNotice,'history_unlinked');assert.equal(res.body.user.id,uid);
+ assert.match(res.getHeader('set-cookie')[0],/wjr_account_notice=;.*HttpOnly.*Secure.*Max-Age=0/);
+});

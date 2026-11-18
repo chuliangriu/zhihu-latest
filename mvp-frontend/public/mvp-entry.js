@@ -213,7 +213,8 @@ function renderEntry(state) {
     const syncNotice = state.live && state.profileNotice ? `<section class="profile-sync-status" aria-label="背景同步状态"><p role="status">${esc(state.profileNotice)}</p>${state.profileNeedsLogin
       ? '<a href="/api/zhihu-login">重新登录知乎</a>'
       : `<button data-action="retry-profile"${state.profileRetryAt > Date.now() ? ' disabled' : ''}>${state.profileRetryAt > Date.now() ? '请等待后再试' : state.profileQuotaBlocked ? '检查额度并重试' : '重新同步背景'}</button>`}</section>` : '';
-    return views.header() + views.login() + syncNotice + `<button class="profile-recovery" data-action="open-profile">${state.user.profileReady ? '修改背景' : '资料未同步'}</button>` + (state.profileOpen ? profileImport(state) : '');
+    const accountNotice = state.live && state.accountNotice ? `<p class="profile-sync-status" role="status">${esc(state.accountNotice)}</p>` : '';
+    return views.header() + views.login() + accountNotice + syncNotice + `<button class="profile-recovery" data-action="open-profile">${state.user.profileReady ? '修改背景' : '资料未同步'}</button>` + (state.profileOpen ? profileImport(state) : '');
   }
   const selected = flowUser(state).candidates[state.selected];
   if (state.screen === 'chat') return views.chat();

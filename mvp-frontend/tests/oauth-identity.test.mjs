@@ -10,7 +10,7 @@ const sessionToken='a'.repeat(43);
 const legacy=token=>'oauth_'+createHash('sha256').update(token).digest('hex');
 const expiry=()=>new Date(Date.now()+86400000).toISOString();
 function response(){const headers=new Map();return{statusCode:200,setHeader(k,v){headers.set(k.toLowerCase(),v);},getHeader(k){return headers.get(k.toLowerCase());},status(c){this.statusCode=c;return this;},send(b){this.body=b;return this;},redirect(c,url){this.statusCode=c;this.location=url;return this;}};}
-function harness(t,{userPayload={code:20000,data:{id:'stable-account',name:'同名用户'}},token='new-test-token',expires=3600,currentKey=null,priorPayload,existing=[]}={}){
+function harness(t,{userPayload={code:20000,data:{id:'stable-account',name:'同名用户'}},token='new-test-token',expires=3600,currentKey=null,priorPayload,priorExpires=expiry(),existing=[]}={}){
  for(const [k,v] of Object.entries({ZHIHU_APP_ID:'test-app',ZHIHU_APP_KEY:'test-key',ZHIHU_REDIRECT_URI:'https://app.example/api/zhihu-callback',SITE_URL:'https://app.example',SUPABASE_URL:'https://test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'sb_secret_synthetic',TOKEN_ENCRYPTION_KEY:'synthetic-test-encryption-key-at-least-32'})){
   const old=process.env[k];process.env[k]=v;t.after(()=>{if(old===undefined)delete process.env[k];else process.env[k]=old;});
  }
@@ -38,7 +38,7 @@ function harness(t,{userPayload={code:20000,data:{id:'stable-account',name:'同�
    return new Response(null,{status:201});
   }
   if(table==='app_sessions')return Response.json(currentKey?[{id:sessionId,user_id:oldId,expires_at:expiry(),revoked_at:null}]:[]);
-  if(table==='zhihu_accounts')return Response.json([{user_id:oldId,access_token:encryptToken(priorToken),token_type:'Bearer',token_storage_version:'encrypted_v1',expires_at:expiry()}]);
+  if(table==='zhihu_accounts')return Response.json([{user_id:oldId,access_token:encryptToken(priorToken),token_type:'Bearer',token_storage_version:'encrypted_v1',expires_at:priorExpires}]);
   if(table==='users')return Response.json(users.filter(x=>
    (!url.searchParams.has('id')||'eq.'+x.id===url.searchParams.get('id'))&&
    (!url.searchParams.has('zhihu_user_id')||'eq.'+x.zhihu_user_id===url.searchParams.get('zhihu_user_id'))));
@@ -72,15 +72,37 @@ test('a different stable Zhihu identity creates a separate user even with the sa
  assert.equal((await h.run()).statusCode,302);assert.equal(h.users.length,2);assert.equal(h.users[0].zhihu_user_id,legacy('prior-test-token'));
  assert.equal(h.writes.find(x=>x.table==='app_sessions').body.user_id,newId);
 });
-test('a legacy session alone cannot link grants when the previous stable identity is unavailable',async t=>{
+test('unverifiable legacy history does not reject a valid new login or merge old data',async t=>{
  const h=harness(t,{currentKey:legacy('prior-test-token'),priorPayload:{code:20004,data:{id:'stable-account'}}});
- const res=await h.run();assert.equal(res.statusCode,409);assert.equal(res.getHeader('x-oauth-error'),'ACCOUNT_LINK_REQUIRED');
- assert.equal(h.writes.length,0);assert.equal(h.users[0].zhihu_user_id,legacy('prior-test-token'));
- assert.doesNotMatch(res.getHeader('set-cookie').join(';'),/wjr_session=/);
+ const res=await h.run();assert.equal(res.statusCode,302);
+ assert.equal(h.users.length,2);assert.equal(h.users.find(x=>x.id===oldId).zhihu_user_id,legacy('prior-test-token'));
+ assert.equal(h.writes.filter(x=>x.table==='users'&&x.method==='PATCH').length,0);
+ assert.equal(h.writes.find(x=>x.table==='zhihu_accounts').body.user_id,newId);
+ assert.equal(h.writes.find(x=>x.table==='app_sessions').body.user_id,newId);
+ assert.match(res.getHeader('set-cookie').join(';'),/wjr_account_notice=history_unlinked/);
 });
-test('two existing UUIDs are never merged automatically',async t=>{
+test('conflicting existing UUIDs stay separate while the newly authorized account can log in',async t=>{
  const h=harness(t,{currentKey:legacy('prior-test-token'),existing:[{id:newId,zhihu_user_id:'stable-account'}]});
- assert.equal((await h.run()).statusCode,409);assert.equal(h.writes.length,0);assert.equal(h.users.length,2);
+ const res=await h.run();assert.equal(res.statusCode,302);assert.equal(h.users.length,2);
+ assert.equal(h.users.find(x=>x.id===oldId).zhihu_user_id,legacy('prior-test-token'));
+ assert.equal(h.writes.filter(x=>x.table==='users'&&x.method==='PATCH').length,0);
+ assert.equal(h.writes.find(x=>x.table==='app_sessions').body.user_id,newId);
+ assert.match(res.getHeader('set-cookie').join(';'),/wjr_account_notice=history_unlinked/);
+});
+test('a newly authorized token without a stable ID can log in separately from the prior account',async t=>{
+ const h=harness(t,{currentKey:legacy('prior-test-token'),userPayload:{code:20004}});
+ const res=await h.run();assert.equal(res.statusCode,302);assert.equal(h.users.length,2);
+ assert.equal(h.users.find(x=>x.id===oldId).zhihu_user_id,legacy('prior-test-token'));
+ assert.equal(h.users.find(x=>x.id===newId).zhihu_user_id,legacy('new-test-token'));
+ assert.equal(h.writes.filter(x=>x.table==='users'&&x.method==='PATCH').length,0);
+ assert.match(res.getHeader('set-cookie').join(';'),/wjr_account_notice=history_unlinked/);
+});
+test('expired old authorization does not block a valid new grant or overwrite the old account',async t=>{
+ const h=harness(t,{currentKey:legacy('prior-test-token'),priorExpires:'2000-01-01T00:00:00Z'});
+ const res=await h.run();assert.equal(res.statusCode,302);assert.equal(h.users.length,2);
+ assert.equal(h.writes.filter(x=>x.table==='users'&&x.method==='PATCH').length,0);
+ assert.equal(h.requests.filter(x=>x.path==='/user').length,1);
+ assert.match(res.getHeader('set-cookie').join(';'),/wjr_account_notice=history_unlinked/);
 });
 test('error codes and arbitrary string data are never accepted as stable user IDs',async t=>{
  for(const userPayload of [{code:20004,data:{id:'do-not-trust'}},{code:20000,data:'do-not-trust'},{code:20000,data:[{id:'do-not-trust'}]}]){

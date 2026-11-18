@@ -1,4 +1,4 @@
-import { SESSION_COOKIE, clearCookie, revokeSession, preventAuthCaching } from '../server/auth.mjs';
+import { SESSION_COOKIE, ACCOUNT_NOTICE_COOKIE, clearCookie, revokeSession, preventAuthCaching } from '../server/auth.mjs';
 
 export default async function handler(request, response) {
   preventAuthCaching(response);
@@ -12,6 +12,7 @@ export default async function handler(request, response) {
   try {
     await revokeSession(request);
     clearCookie(response, SESSION_COOKIE);
+    clearCookie(response, ACCOUNT_NOTICE_COOKIE);
     return response.status(200).json({ success: true });
   } catch {
     return response.status(503).json({ success: false, error: 'SESSION_REVOCATION_FAILED' });

@@ -3,6 +3,7 @@ import { supabaseRequest } from './supabase.mjs';
 
 export const SESSION_COOKIE = 'wjr_session';
 export const OAUTH_STATE_COOKIE = 'wjr_oauth_state';
+export const ACCOUNT_NOTICE_COOKIE = 'wjr_account_notice';
 const SESSION_SECONDS = 7 * 24 * 60 * 60;
 
 export function randomToken() {

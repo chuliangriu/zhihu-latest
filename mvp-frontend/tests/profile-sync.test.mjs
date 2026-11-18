@@ -122,3 +122,8 @@ test('temporary session-store outage preserves private page state for retry',asy
  await c.action('start');c.getState().privateDraft='keep-for-retry';outage=true;await c.action('start');
  assert.equal(c.getState().sessionReady,true);assert.equal(c.getState().user.profileReady,true);assert.equal(c.getState().privateDraft,'keep-for-retry');assert.equal(c.getState().authRequired,false);
 });
+test('unlinked history is disclosed while the new account still completes background synchronization',async()=>{
+ const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/auth-me')return{...session,accountNotice:'history_unlinked'};return ready;}}});
+ await c.action('start');assert.equal(c.getState().sessionReady,true);assert.equal(c.getState().user.profileReady,true);
+ assert.match(entryView(c.getState()),/已登录。旧账号的历史暂未关联，原记录仍保留/);
+});
