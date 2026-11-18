@@ -32,3 +32,16 @@ test('a single structure-related match is presented as the first choice',()=>{
   const choice=view.messages.flatMap(m=>m.blocks??[]).find(b=>b.type==='choice');
   assert.equal(choice.text,'选择一');
 });
+
+test('assigned inventory dates show as ordinary dates while the reading card retains the original source URL',()=>{
+  const publicMatch={...match('public'),timestampKind:'inventory_assigned'};
+  const view=discoveryView({matches:{situationClose:publicMatch}},'用户');
+  assert.equal(view.candidates.A.sourceUrl,publicMatch.sourceUrl);
+  assert.doesNotMatch(view.candidates.A.time,/演示|样本|非原文/);
+  const controller=createEntryController({render:()=>{}}),state=controller.getState();
+  Object.assign(state,{live:true,screen:'chat'});state.user.candidates=view.candidates;
+  controller.action('view','A');const html=entryView(state);
+  assert.match(html,/来自知乎公开表达/);
+  assert.match(html,/href="https:\/\/www.zhihu.com\/answer\/123"/);
+  assert.doesNotMatch(html,/演示时间|非原文发布时间/);
+});

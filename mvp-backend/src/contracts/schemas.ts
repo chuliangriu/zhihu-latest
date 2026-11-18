@@ -45,7 +45,7 @@ export const candidateExpressionSchema = z
         contentType: z.enum(["question", "answer", "article", "comment", "authorized_expression"]),
         url: z.string().url().nullable(),
         publishedAt: z.string().datetime(),
-        timestampKind: z.enum(["published", "edited_or_published", "sample_created"]).optional(),
+        timestampKind: z.enum(["published", "edited_or_published", "sample_created", "inventory_assigned"]).optional(),
         interactionFacts: z.object({ upvotes: z.number().int().nonnegative().nullable(), comments: z.number().int().nonnegative().nullable() }).strict().optional(),
         verified: z.boolean()
       })
@@ -134,7 +134,7 @@ export const matchResultSchema = matchDraftSchema
     sourceUrl: z.string().url().nullable(),
     authorProfileUrl: z.string().url().nullable(),
     publishedAt: z.string().datetime(),
-    timestampKind: z.enum(["published", "edited_or_published", "sample_created"]).optional(),
+    timestampKind: z.enum(["published", "edited_or_published", "sample_created", "inventory_assigned"]).optional(),
     interactionFacts: z.object({ upvotes: z.number().int().nonnegative().nullable(), comments: z.number().int().nonnegative().nullable() }).strict().optional(),
     contactable: z.boolean(),
     identityDisclosable: z.boolean(),

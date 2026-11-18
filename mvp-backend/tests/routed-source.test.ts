@@ -55,10 +55,10 @@ describe("ordered source routing", () => {
     expect((await s.search(input,signal))[0]?.source.timestampKind).toBe("sample_created");
     expect(await source([],1,0,[c],[]).source.search(input,signal)).toEqual([]);
   });
-  it("backup demo dates retain real public text and source, never create private consent",async()=>{
+  it("inventory-assigned dates retain real public text and source independently of the demo flag",async()=>{
     const strict=await loadSeedCandidates(()=>now);const demo=await loadSeedCandidates(()=>now,true);
     expect(demo.publicCandidates.length).toBe(strict.publicCandidates.length);
-    expect(demo.publicCandidates[0]).toMatchObject({text:strict.publicCandidates[0]!.text,permission:{contactable:false},source:{url:strict.publicCandidates[0]!.source.url,timestampKind:"sample_created"}});
+    expect(demo.publicCandidates[0]).toMatchObject({text:strict.publicCandidates[0]!.text,permission:{contactable:false},source:{url:strict.publicCandidates[0]!.source.url,timestampKind:"inventory_assigned"}});
   });
   it("counts only real authorized cards and never consults the legacy random options", async () => {
     const s=source([make("authorized_private")]);

@@ -24,7 +24,7 @@ export function filterDisplayableCandidates(
       candidate.permission.status === "active" &&
       Number.isFinite(publishedAt) &&
       (!requirePublishedPublicTime || candidate.source.sourceType !== "public" ||
-        ((candidate.source.timestampKind === "published" || (allowPublicDemoTime && candidate.source.timestampKind === "sample_created")) && publishedAt <= nowMs)) &&
+        ((candidate.source.timestampKind === "published" || candidate.source.timestampKind === "inventory_assigned" || (allowPublicDemoTime && candidate.source.timestampKind === "sample_created")) && publishedAt <= nowMs)) &&
       publishedAt >= (candidate.source.sourceType === "public" ? nowMs - publicRecentDays * 86_400_000 : earliest) &&
       publishedAt <= nowMs + 60_000 &&
       !seenAuthors.has(candidate.authorId);

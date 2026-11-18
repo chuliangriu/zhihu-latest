@@ -112,14 +112,15 @@ export async function loadSeedCandidates(now: () => number = Date.now, allowPubl
   if(allowPublicDemoTime){try{demoTimes=JSON.parse(await readFile(new URL("../../data/public-demo-times.json",import.meta.url),"utf8"));}catch(error){if((error as NodeJS.ErrnoException).code!=="ENOENT")throw error;}}
   for (const r of corpus.records) {
     if (!r || r.usage !== "public_candidate" || typeof r.id!=="string" || typeof r.text!=="string" || !isZhihuUrl(r.url)) continue;
-    const explicit=r.publicationTimeVerified===true&&typeof r.publishedAt==="string"?Date.parse(r.publishedAt):NaN;
-    const hasPublished=Number.isFinite(explicit);
-    const demo=!hasPublished&&allowPublicDemoTime;
-    if(!hasPublished&&!demo&&!Number.isFinite(r.editTime))continue;
+    const explicit=typeof r.publishedAt==="string"?Date.parse(r.publishedAt):NaN;
+    const hasPublished=r.publicationTimeVerified===true&&Number.isFinite(explicit);
+    const assigned=r.inventoryTimeAssigned===true&&Number.isFinite(explicit);
+    const demo=!hasPublished&&!assigned&&allowPublicDemoTime;
+    if(!hasPublished&&!assigned&&!demo&&!Number.isFinite(r.editTime))continue;
     const candidate = candidateExpressionSchema.safeParse({ candidateId: r.id, authorId: `zhihu:${r.authorKey}`.slice(0,80),
       authorDisplayName: r.authorName || "知乎用户", domain: r.domain, text: r.text.slice(0,4000),
       source: { sourceId: r.id, sourceType: "public", contentType: r.contentType, url: r.url,
-        publishedAt: hasPublished?new Date(explicit).toISOString():demo?demoPublicDate(r.id,now(),demoTimes.items?.find(x=>x.sourceId===r.id)?.displayDaysAgo):new Date(r.editTime * 1000).toISOString(), timestampKind: hasPublished?"published":demo?"sample_created":"edited_or_published", verified: true,
+        publishedAt: hasPublished||assigned?new Date(explicit).toISOString():demo?demoPublicDate(r.id,now(),demoTimes.items?.find(x=>x.sourceId===r.id)?.displayDaysAgo):new Date(r.editTime * 1000).toISOString(), timestampKind: hasPublished?"published":assigned?"inventory_assigned":demo?"sample_created":"edited_or_published", verified: true,
         interactionFacts: { upvotes: r.voteUpCount??null, comments: r.commentCount??null } },
       permission: { discoverable: true, identityDisclosable: true, contactable: false, status: "active" } });
     if (candidate.success) publicCandidates.push(candidate.data);

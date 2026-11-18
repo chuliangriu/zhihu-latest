@@ -5,7 +5,7 @@ import { MockLlmProvider } from "../src/llm/mock-provider.js";
 import { runDiscoveryPipeline } from "../src/pipeline/discovery-pipeline.js";
 import { StaticCandidateSource } from "../src/sources/candidate-source.js";
 
-it("runs all three nodes with real public evidence", async () => {
+it.each(["published","inventory_assigned"] as const)("runs all three nodes with real public evidence and %s dates", async timeKind => {
   const kind: "public" | "synthetic_private" = "public";
   const fixture = await new FixtureRepository().load("feedback-across-domains");
   const candidate = structuredClone(fixture.candidates.find(c => kind === "public" ? c.source.sourceType === "public" : c.source.sourceType === "authorized_private")!);
@@ -13,7 +13,7 @@ it("runs all three nodes with real public evidence", async () => {
   candidate.source.url = kind === "public" ? "https://www.zhihu.com/answer/123" : null;
   candidate.permission.contactable = false;
   candidate.source.publishedAt = new Date(Date.now() - (kind === "public" ? 10 : 1) * 86400000).toISOString();
-  candidate.source.timestampKind = kind === "public" ? "published" : "sample_created";
+  candidate.source.timestampKind = timeKind;
   candidate.source.verified = kind === "public";
   const outputs = fixture.fixture.mockOutputs;
   const intent = { ...outputs.intent, searchDirections: [candidate.text] };

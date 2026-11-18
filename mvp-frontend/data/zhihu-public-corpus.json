@@ -15,12 +15,13 @@
       "sourceId": "zhihu-source--250653020824814017",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/563520003/answer/2078964710205028098?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-03T13:56:52.000Z",
-      "ageDays": 11,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-2d59be307689ea799b80",
@@ -31,12 +32,13 @@
       "sourceId": "zhihu-source--7682967646815011142",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1929360971404670679/answer/2080952298159842562?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-09T02:57:01.000Z",
-      "ageDays": 5,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-6f59fab5a791aabc4fbf",
@@ -47,12 +49,13 @@
       "sourceId": "zhihu-source-4249018766197266942",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1922620983694558659/answer/2079704848648368715?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-05T14:57:54.000Z",
-      "ageDays": 9,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-087a669d2ef57736421a",
@@ -63,12 +66,13 @@
       "sourceId": "zhihu-source--3854316146364966958",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1926199656796386492/answer/2077851014695335148?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-31T12:11:26.000Z",
-      "ageDays": 14,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-27ca456cbe1e0efde362",
@@ -79,12 +83,13 @@
       "sourceId": "zhihu-source--3323613048107387659",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2069774907647456226/answer/2073335148075132719?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-19T01:07:00.000Z",
-      "ageDays": 26,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-3d9b4dc3a2322f1a9fed",
@@ -95,12 +100,13 @@
       "sourceId": "zhihu-source-3131590049102603479",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1922620983694558659/answer/2076075564130215399?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-26T14:36:26.000Z",
-      "ageDays": 19,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-54bab411c2b4de59ad0c",
@@ -111,12 +117,13 @@
       "sourceId": "zhihu-source-444598536938801804",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/9764271900/answer/2077711349849838320?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-31T05:39:20.000Z",
-      "ageDays": 14,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-b8e16bdcb1326ec72541",
@@ -127,12 +134,13 @@
       "sourceId": "zhihu-source-2683442863681125743",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2016445118127829722/answer/2077701443344192174?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-31T02:33:21.000Z",
-      "ageDays": 14,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-b12517036849ed5646da",
@@ -143,12 +151,13 @@
       "sourceId": "zhihu-source--7026697149178550251",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2077071681114337777/answer/2077199618098599059?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-29T17:03:01.000Z",
-      "ageDays": 15,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-03f55d447a5416d1274a",
@@ -159,12 +168,13 @@
       "sourceId": "zhihu-source--397876255864994660",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1926199656796386492/answer/2031675737665708319?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-04-29T01:31:52.000Z",
-      "ageDays": 138,
+      "publishedAt": "2026-11-08T05:45:43Z",
+      "ageDays": 10,
       "matchedQuery": "创作没人看还要不要继续",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-e97002a426b09ab99e22",
@@ -175,12 +185,13 @@
       "sourceId": "zhihu-source--4582716469655045395",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2071328763980394881?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-13T12:21:14.000Z",
-      "ageDays": 32,
+      "publishedAt": "2026-11-07T05:45:43Z",
+      "ageDays": 11,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-2b873301714e0cb5b004",
@@ -191,12 +202,13 @@
       "sourceId": "zhihu-source--4774014509674501558",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2002336479398101830/answer/2002653511150744100?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-02-05T00:03:24.000Z",
-      "ageDays": 221,
+      "publishedAt": "2026-11-06T05:45:43Z",
+      "ageDays": 12,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-741febd9a2b8728cf619",
@@ -207,12 +219,13 @@
       "sourceId": "zhihu-source--5912585169199630707",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/663620787/answer/2069737770185241181?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-09T02:52:18.000Z",
-      "ageDays": 36,
+      "publishedAt": "2026-11-05T05:45:43Z",
+      "ageDays": 13,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-730bcaf7b890ccd2f492",
@@ -223,12 +236,13 @@
       "sourceId": "zhihu-source-7796515266980581511",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2074128701793617890/answer/2074866113142439984?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-23T06:30:30.000Z",
-      "ageDays": 22,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-d77b68d2f497456b53a5",
@@ -239,12 +253,13 @@
       "sourceId": "zhihu-source--1670427877226290841",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/9736908529/answer/92449105279?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-02-04T08:12:01.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-7f19dcad1a0c9ac48b7f",
@@ -255,12 +270,13 @@
       "sourceId": "zhihu-source--4675882898746351143",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2076251392516298401/answer/2076769124793970772?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-28T12:32:23.000Z",
-      "ageDays": 17,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-efc46162110d39a34e91",
@@ -271,12 +287,13 @@
       "sourceId": "zhihu-source-1763834402330497797",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2073088119348401276?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-18T08:47:40.000Z",
-      "ageDays": 27,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-f20cf2df93a1d60e21e0",
@@ -287,12 +304,13 @@
       "sourceId": "zhihu-source-8799953649321400611",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/663620787/answer/2036335749352666871?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-05-10T01:19:24.000Z",
-      "ageDays": 127,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-3bb2c8e15ef0fb242a1a",
@@ -303,12 +321,13 @@
       "sourceId": "zhihu-source--5269054319962556329",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2015552683734487104?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-03-13T06:20:46.000Z",
-      "ageDays": 185,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-fad97886e332e9af9022",
@@ -319,12 +338,13 @@
       "sourceId": "zhihu-source-372163792743262378",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2072241203635138687?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-16T00:40:04.000Z",
-      "ageDays": 29,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "工作没有反馈怀疑自己做得对不对",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-f92d30a5efafad77a153",
@@ -335,12 +355,13 @@
       "sourceId": "zhihu-source-5376861835363529652",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2011357835536131639/answer/2074191887452447521?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-05T14:20:20.000Z",
-      "ageDays": 9,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-9893aba69c8286e92b46",
@@ -351,12 +372,13 @@
       "sourceId": "zhihu-source--5927910673735019447",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2076724918780282190/answer/2078770749746181823?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-03T01:06:08.000Z",
-      "ageDays": 11,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-26453b4c9cb8d5239476",
@@ -367,12 +389,13 @@
       "sourceId": "zhihu-source--9196476878371906942",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2080228074457772215/answer/2080293150426391796?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-07T06:09:12.000Z",
-      "ageDays": 7,
+      "publishedAt": "2026-11-08T05:45:43Z",
+      "ageDays": 10,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-04a23e1fcde1cdd89e14",
@@ -383,12 +406,13 @@
       "sourceId": "zhihu-source--1426111101607958119",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/664796685/answer/2078074069413639937?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-01T03:07:55.000Z",
-      "ageDays": 13,
+      "publishedAt": "2026-11-07T05:45:43Z",
+      "ageDays": 11,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-7bf880da9bdd89f77e71",
@@ -399,12 +423,13 @@
       "sourceId": "zhihu-source--7635929192392366650",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2076724918780282190/answer/2077924863264683891?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-31T17:04:53.000Z",
-      "ageDays": 13,
+      "publishedAt": "2026-11-06T05:45:43Z",
+      "ageDays": 12,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-b887084720db5cbbdb8d",
@@ -415,12 +440,13 @@
       "sourceId": "zhihu-source--8342036135877207527",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/350846282/answer/1991153204633822951?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-01-04T06:25:17.000Z",
-      "ageDays": 253,
+      "publishedAt": "2026-11-05T05:45:43Z",
+      "ageDays": 13,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-5e05db6979a0d07d8c6d",
@@ -431,12 +457,13 @@
       "sourceId": "zhihu-source--7713368243805055881",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/37563758/answer/2081860387931165017?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-12T06:03:30.000Z",
-      "ageDays": 2,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-17948366532c5dfa5afe",
@@ -447,12 +474,13 @@
       "sourceId": "zhihu-source-1997100668004845649",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/567029656/answer/2076784046198338100?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-28T13:31:41.000Z",
-      "ageDays": 17,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-85b48f08532c2381274c",
@@ -463,12 +491,13 @@
       "sourceId": "zhihu-source--4576656942245889672",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2069334166882219576/answer/2070299597705049249?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-10T16:09:45.000Z",
-      "ageDays": 34,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-74675cf54e8004ba4b00",
@@ -479,12 +508,13 @@
       "sourceId": "zhihu-source--8103401015757184048",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/665208883/answer/2039768757812335743?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-05-18T10:06:08.000Z",
-      "ageDays": 119,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "最近一周坚持创作没有回应",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-eb7273989c192b8d2036",
@@ -495,12 +525,13 @@
       "sourceId": "zhihu-source-4743545835541193989",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2074423654897692818/answer/2075970300404148081?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-26T07:38:09.000Z",
-      "ageDays": 19,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-20b2cd14493de1488e99",
@@ -511,12 +542,13 @@
       "sourceId": "zhihu-source--1051113759332255135",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/15472381770/answer/2079459210644006224?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-04T22:41:50.000Z",
-      "ageDays": 9,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-0aeeb65a6a00fe1ae53d",
@@ -527,12 +559,13 @@
       "sourceId": "zhihu-source--8666396101753513535",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2074423654897692818/answer/2075627539205207305?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-25T08:56:08.000Z",
-      "ageDays": 20,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-5598dbb0938fabb0d4c2",
@@ -543,12 +576,13 @@
       "sourceId": "zhihu-source--2206009365525647396",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1992855984192893462/answer/2078864185484751216?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-03T07:17:25.000Z",
-      "ageDays": 11,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-cdb57be96701dc52d51a",
@@ -559,12 +593,13 @@
       "sourceId": "zhihu-source-3840792860194128283",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2043847313005835545/answer/2044163843933393536?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-06-03T06:13:28.000Z",
-      "ageDays": 103,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-496b1f3943837044bb8a",
@@ -575,12 +610,13 @@
       "sourceId": "zhihu-source--1030047116594027131",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2076252319910458250?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-27T02:22:12.000Z",
-      "ageDays": 18,
+      "publishedAt": "2026-11-08T05:45:43Z",
+      "ageDays": 10,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-7f27184b3b83b395d4bd",
@@ -591,12 +627,13 @@
       "sourceId": "zhihu-source--6408187169528767288",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/4295408408/answer/2071290991475274075?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-13T09:44:15.000Z",
-      "ageDays": 32,
+      "publishedAt": "2026-11-07T05:45:43Z",
+      "ageDays": 11,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-a9adf55ab2af27b15c9f",
@@ -607,12 +644,13 @@
       "sourceId": "zhihu-source--1681351628952875091",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2074423654897692818/answer/2076226720617833052?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-27T06:20:14.000Z",
-      "ageDays": 18,
+      "publishedAt": "2026-11-06T05:45:43Z",
+      "ageDays": 12,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-c23a6a0464153f319ad2",
@@ -623,12 +661,13 @@
       "sourceId": "zhihu-source-1394193294282810729",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1975998560559461127/answer/2076831802388493655?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-28T16:41:27.000Z",
-      "ageDays": 16,
+      "publishedAt": "2026-11-05T05:45:43Z",
+      "ageDays": 13,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-5fba9c39c315ec444d07",
@@ -639,12 +678,13 @@
       "sourceId": "zhihu-source-5938165940679014015",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1929360971404670679/answer/1959002992570250029?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-10-07T13:11:49.000Z",
-      "ageDays": 342,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "做自媒体没有流量还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-5343244c0cf2fe98bb58",
@@ -655,12 +695,13 @@
       "sourceId": "zhihu-source--1959017545101168590",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/10451221793/answer/2032119911267442821?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-05-20T05:58:02.000Z",
-      "ageDays": 117,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "画画没人看坚持有意义吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-bc1ddf8524a63a797749",
@@ -671,12 +712,13 @@
       "sourceId": "zhihu-source-4881240266681095839",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2026622833426482228/answer/2028383366387447471?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-04-17T00:04:40.000Z",
-      "ageDays": 150,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "画画没人看坚持有意义吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-e766c8faaa0ce4141a9e",
@@ -687,12 +729,13 @@
       "sourceId": "zhihu-source--242848282257680419",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2048237444219376127/answer/2072979381702734832?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-18T01:33:18.000Z",
-      "ageDays": 27,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "画画没人看坚持有意义吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-6e5f846b4c4636844153",
@@ -703,12 +746,13 @@
       "sourceId": "zhihu-source--4622048297726443500",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1947656157503128403/answer/2079872659878327239?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-06T02:08:18.000Z",
-      "ageDays": 8,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "画画没人看坚持有意义吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-83b7d38d9e1624b92a49",
@@ -719,12 +763,13 @@
       "sourceId": "zhihu-source--3971804513369843160",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2077530636974348173/answer/2077617021257369281?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-31T09:37:48.000Z",
-      "ageDays": 14,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "画画没人看坚持有意义吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-5875cd25bece69bf287f",
@@ -735,12 +780,13 @@
       "sourceId": "zhihu-source--3492293606206395764",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2042134526630126321/answer/2080991598020768934?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-09T04:10:59.000Z",
-      "ageDays": 5,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-d16b6d8134207c2c4ff8",
@@ -751,12 +797,13 @@
       "sourceId": "zhihu-source--8337514728249746988",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2069717667351736562/answer/2070905376330064618?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-12T08:11:57.000Z",
-      "ageDays": 33,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-770821a5cac7d5a07b5e",
@@ -767,12 +814,13 @@
       "sourceId": "zhihu-source--3704777223708728604",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2058105998682886680/answer/2067943523190576207?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-30T09:56:48.000Z",
-      "ageDays": 15,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-a6014c5e4f6b1ed94e0e",
@@ -783,12 +831,13 @@
       "sourceId": "zhihu-source-4461605829360956973",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2028962676764591041?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-04-18T14:30:20.000Z",
-      "ageDays": 149,
+      "publishedAt": "2026-11-08T05:45:43Z",
+      "ageDays": 10,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-ccf5812125704d6a2fed",
@@ -799,12 +848,13 @@
       "sourceId": "zhihu-source--7745581100723203051",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/5703257394/answer/2007922712987857145?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-04-13T10:18:28.000Z",
-      "ageDays": 154,
+      "publishedAt": "2026-11-07T05:45:43Z",
+      "ageDays": 11,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-c3d8bdb6e5d05dd9f849",
@@ -815,12 +865,13 @@
       "sourceId": "zhihu-source-4899761338583721764",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/657863636/answer/1984281389932237517?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-12-16T07:19:09.000Z",
-      "ageDays": 272,
+      "publishedAt": "2026-11-06T05:45:43Z",
+      "ageDays": 12,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-021a7c18c9cda9855135",
@@ -831,12 +882,13 @@
       "sourceId": "zhihu-source-6386799220777804350",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2069717667351736562/answer/2069873424487413193?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-09T11:51:20.000Z",
-      "ageDays": 36,
+      "publishedAt": "2026-11-05T05:45:43Z",
+      "ageDays": 13,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-59f82659cb7bb05dde64",
@@ -847,12 +899,13 @@
       "sourceId": "zhihu-source--3741014851244262849",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2058105998682886680/answer/2079847184862819674?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-06T00:23:30.000Z",
-      "ageDays": 8,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-b96ddb862431c0392a2c",
@@ -863,12 +916,13 @@
       "sourceId": "zhihu-source--1359413825882362125",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2060772698318550904/answer/2063369202019439439?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-07-23T07:59:31.000Z",
-      "ageDays": 53,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "工作一直没有正反馈怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-39cb88f311d1125b96c2",
@@ -879,12 +933,13 @@
       "sourceId": "zhihu-source-3854290576828198061",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/342579123/answer/2075849452670268501?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-25T23:37:56.000Z",
-      "ageDays": 19,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-95bca4a6017380b4fe01",
@@ -895,12 +950,13 @@
       "sourceId": "zhihu-source--5529068669952302034",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1930904054000780046/answer/1976185418652356883?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-11-23T23:08:39.000Z",
-      "ageDays": 294,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-28fcb547005a20ffb8df",
@@ -911,12 +967,13 @@
       "sourceId": "zhihu-source--9037820960257818897",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2064135377510782178/answer/2064647466524358543?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-07-26T01:45:15.000Z",
-      "ageDays": 50,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-ec0bcb075084598d4cb3",
@@ -927,12 +984,13 @@
       "sourceId": "zhihu-source-7952140858133507506",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2057903652782789741/answer/2058173021353932374?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-07-08T04:58:07.000Z",
-      "ageDays": 68,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-3ea1552bad8eb0b0baf9",
@@ -943,12 +1001,13 @@
       "sourceId": "zhihu-source--1289849570302750288",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2066122809730978787/answer/2066856306691019957?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-01T04:02:23.000Z",
-      "ageDays": 44,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-4aef6ade85e88ebcf609",
@@ -959,12 +1018,13 @@
       "sourceId": "zhihu-source--3705517997382814971",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1930904054000780046/answer/1976440889569203256?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-11-24T16:04:00.000Z",
-      "ageDays": 293,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-4484d95ab959d7e3c171",
@@ -975,12 +1035,13 @@
       "sourceId": "zhihu-source--1359995802545785194",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1930904054000780046/answer/1976675391394562664?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-11-25T07:35:38.000Z",
-      "ageDays": 293,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-30d5b75203ac49e1ac67",
@@ -991,12 +1052,13 @@
       "sourceId": "zhihu-source-6509787661636766128",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2057903652782789741/answer/2058806333068129359?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-07-09T22:54:40.000Z",
-      "ageDays": 66,
+      "publishedAt": "2026-11-08T05:45:43Z",
+      "ageDays": 10,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-39aae2e4fa429b4456dc",
@@ -1007,12 +1069,13 @@
       "sourceId": "zhihu-source-8208037633528748953",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1990046831904835132/answer/1991115996195488969?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-01-04T04:02:29.000Z",
-      "ageDays": 253,
+      "publishedAt": "2026-11-07T05:45:43Z",
+      "ageDays": 11,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-cac01e7f79a78c3ee4ee",
@@ -1023,12 +1086,13 @@
       "sourceId": "zhihu-source--5758608672701395155",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2073663098959951622?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-19T22:50:10.000Z",
-      "ageDays": 25,
+      "publishedAt": "2026-11-06T05:45:43Z",
+      "ageDays": 12,
       "matchedQuery": "领导不评价工作不知道方向",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-e29b5822a50825897fd1",
@@ -1039,12 +1103,13 @@
       "sourceId": "zhihu-source--5664795877557717583",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/27484486/answer/2076305231525188488?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-27T05:49:03.000Z",
-      "ageDays": 18,
+      "publishedAt": "2026-11-05T05:45:43Z",
+      "ageDays": 13,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-f922e7bf99c40ff0ffd8",
@@ -1055,12 +1120,13 @@
       "sourceId": "zhihu-source--5824324101222218349",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/559451772/answer/2716203872?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2022-10-15T03:49:07.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-c20761253767a5384875",
@@ -1071,12 +1137,13 @@
       "sourceId": "zhihu-source--6064665238484930140",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/481430127/answer/2918533939?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2023-03-02T12:44:14.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-cd08fca0019c08a24972",
@@ -1087,12 +1154,13 @@
       "sourceId": "zhihu-source--4677789741636985365",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/611857850/answer/2047046880589256546?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-06-07T12:06:48.000Z",
-      "ageDays": 99,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-2d28f984d18cd8bbb30a",
@@ -1103,12 +1171,13 @@
       "sourceId": "zhihu-source--36860937470796614",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2053018971000121209/answer/2053435856808048504?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-06-25T03:14:19.000Z",
-      "ageDays": 81,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-f75566e20e62b0a54a9e",
@@ -1119,12 +1188,13 @@
       "sourceId": "zhihu-source--924696272894730476",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2020632959661740250?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-03-26T14:47:59.000Z",
-      "ageDays": 172,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-602ef1c37cc0fcc046d7",
@@ -1135,12 +1205,13 @@
       "sourceId": "zhihu-source-5307784898847905259",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/1924777102558888392?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-07-05T02:32:14.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-32496cc4f55471d73480",
@@ -1151,12 +1222,13 @@
       "sourceId": "zhihu-source--808697178914789508",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1897744530842814087/answer/1932581895134246470?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2025-07-26T15:23:49.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-21aac03246bef69f6609",
@@ -1167,12 +1239,13 @@
       "sourceId": "zhihu-source--1942504881434273176",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/601944795/answer/3036278752?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2023-05-20T04:12:34.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "努力没有回应还要坚持吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-55f4ae07a6752c08bd1e",
@@ -1183,12 +1256,13 @@
       "sourceId": "zhihu-source-1170286846907020763",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/39857339/answer/2040180863145604489?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-05-19T13:23:42.000Z",
-      "ageDays": 118,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "朋友关系变淡还要不要主动联系",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-527e3ef32f0b8246d94b",
@@ -1199,12 +1273,13 @@
       "sourceId": "zhihu-source--6709308515535783295",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/5187196679?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2024-11-05T12:54:28.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-08T05:45:43Z",
+      "ageDays": 10,
       "matchedQuery": "和父母沟通总是吵架怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-5f1fa937d9df4e64342c",
@@ -1215,12 +1290,13 @@
       "sourceId": "zhihu-source--4440779901649197872",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2081543427586638204/answer/2082142123923658258?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-12T08:31:31.000Z",
-      "ageDays": 2,
+      "publishedAt": "2026-11-07T05:45:43Z",
+      "ageDays": 11,
       "matchedQuery": "学习坚持很久却没有进步怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-c406181be9f5ebc8f3db",
@@ -1231,12 +1307,13 @@
       "sourceId": "zhihu-source-6591821682957593909",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2073919307520664687/answer/2077721636946691284?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-31T03:37:20.000Z",
-      "ageDays": 14,
+      "publishedAt": "2026-11-06T05:45:43Z",
+      "ageDays": 12,
       "matchedQuery": "副业坚持没有结果还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-5c1ebeb3f1c645054eb1",
@@ -1247,12 +1324,13 @@
       "sourceId": "zhihu-source-7720027041865922596",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2074434311294555741?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-22T02:01:02.000Z",
-      "ageDays": 23,
+      "publishedAt": "2026-11-05T05:45:43Z",
+      "ageDays": 13,
       "matchedQuery": "一个人住总觉得房间不像家",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-0c6b02e15cc5b0034df3",
@@ -1263,12 +1341,13 @@
       "sourceId": "zhihu-source-8192139036276247206",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1974441507302940791/answer/2079723478907877167?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-05T16:11:56.000Z",
-      "ageDays": 9,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "做研究找不到方向怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-65a0d88fec0660e2195c",
@@ -1279,12 +1358,13 @@
       "sourceId": "zhihu-source--7688269952651286749",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2053668746879832588?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-06-26T03:18:27.000Z",
-      "ageDays": 80,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "朋友关系变淡还要不要主动联系",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-ff1a362bcd72b4a7503b",
@@ -1295,12 +1375,13 @@
       "sourceId": "zhihu-source--4389113060500628516",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/391755259/answer/17485896299?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-03-08T15:04:51.000Z",
-      "ageDays": 190,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "和父母沟通总是吵架怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-b41841165cdd67221d34",
@@ -1311,12 +1392,13 @@
       "sourceId": "zhihu-source--6362404329336541799",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2081543427586638204/answer/2081804245129602181?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-11T10:00:10.000Z",
-      "ageDays": 3,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "学习坚持很久却没有进步怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-dcc62454b22180f57798",
@@ -1327,12 +1409,13 @@
       "sourceId": "zhihu-source--1228977829647247116",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2073001900245623231?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-18T03:02:48.000Z",
-      "ageDays": 27,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "副业坚持没有结果还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-858d8f5013db39643b04",
@@ -1343,12 +1426,13 @@
       "sourceId": "zhihu-source--8606242805608517178",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1924573023790405041/answer/2078463099095474771?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-02T04:43:38.000Z",
-      "ageDays": 12,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "一个人住总觉得房间不像家",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-4ac9fa79a6f8b13e75b7",
@@ -1359,12 +1443,13 @@
       "sourceId": "zhihu-source-2879087045850131561",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/11846550526/answer/2080982558028862676?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-09T03:35:04.000Z",
-      "ageDays": 5,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "做研究找不到方向怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-4f460489fd3e17664a71",
@@ -1375,12 +1460,13 @@
       "sourceId": "zhihu-source-172055118456286054",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/416279505/answer/3380933711?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2024-01-30T02:25:55.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "朋友关系变淡还要不要主动联系",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-031209084b864e89a293",
@@ -1391,12 +1477,13 @@
       "sourceId": "zhihu-source--5531563420117226558",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2238949584?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2024-10-21T04:52:13.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "和父母沟通总是吵架怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-f103bc56c31d0fb380a7",
@@ -1407,12 +1494,13 @@
       "sourceId": "zhihu-source--1066568835020047066",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/334290907/answer/2073853353369588097?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-20T11:26:09.000Z",
-      "ageDays": 25,
+      "publishedAt": "2026-11-08T05:45:43Z",
+      "ageDays": 10,
       "matchedQuery": "学习坚持很久却没有进步怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-94d78a8dc493dbadd46d",
@@ -1423,12 +1511,13 @@
       "sourceId": "zhihu-source--407917069138041338",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2062830008129808275?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-07-21T01:23:20.000Z",
-      "ageDays": 55,
+      "publishedAt": "2026-11-07T05:45:43Z",
+      "ageDays": 11,
       "matchedQuery": "副业坚持没有结果还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-f523556688215c104fa8",
@@ -1439,12 +1528,13 @@
       "sourceId": "zhihu-source--4100050903898974618",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2076790633486992752?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-28T14:00:28.000Z",
-      "ageDays": 17,
+      "publishedAt": "2026-11-06T05:45:43Z",
+      "ageDays": 12,
       "matchedQuery": "一个人住总觉得房间不像家",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-94c95b0cbc09734d7af7",
@@ -1455,12 +1545,13 @@
       "sourceId": "zhihu-source--7227170686973708638",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2071914434717541830/answer/2072241249218736219?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-16T00:40:14.000Z",
-      "ageDays": 29,
+      "publishedAt": "2026-11-05T05:45:43Z",
+      "ageDays": 13,
       "matchedQuery": "做研究找不到方向怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-9a01f3d7646f904b48e9",
@@ -1471,12 +1562,13 @@
       "sourceId": "zhihu-source--1025090512088595133",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2073558911752351797/answer/2077413465187148326?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-30T07:12:46.000Z",
-      "ageDays": 15,
+      "publishedAt": "2026-11-17T05:45:43Z",
+      "ageDays": 1,
       "matchedQuery": "朋友关系变淡还要不要主动联系",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-b0958b475310cec3e4a0",
@@ -1487,12 +1579,13 @@
       "sourceId": "zhihu-source--5276493850298354817",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/783806673/answer/4520210044?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2024-10-08T14:48:08.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-16T05:45:43Z",
+      "ageDays": 2,
       "matchedQuery": "和父母沟通总是吵架怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-6bf9f03cff86aa89858f",
@@ -1503,12 +1596,13 @@
       "sourceId": "zhihu-source-1137325165300279291",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2065852672276706505/answer/2069696128275297900?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-08-09T00:21:21.000Z",
-      "ageDays": 36,
+      "publishedAt": "2026-11-15T05:45:43Z",
+      "ageDays": 3,
       "matchedQuery": "学习坚持很久却没有进步怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-e1590b6d701dff64f83a",
@@ -1519,12 +1613,13 @@
       "sourceId": "zhihu-source-5128632740659187160",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/2079715587899519753?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-05T23:53:07.000Z",
-      "ageDays": 8,
+      "publishedAt": "2026-11-14T05:45:43Z",
+      "ageDays": 4,
       "matchedQuery": "副业坚持没有结果还要继续吗",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-ae418e36207559aa1759",
@@ -1535,12 +1630,13 @@
       "sourceId": "zhihu-source--7925246938401590383",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/2057035190455768624/answer/2062821692427204499?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-07-21T00:50:16.000Z",
-      "ageDays": 55,
+      "publishedAt": "2026-11-13T05:45:43Z",
+      "ageDays": 5,
       "matchedQuery": "朋友关系变淡还要不要主动联系",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-55dd2b203b7f4d2c4f9f",
@@ -1551,12 +1647,13 @@
       "sourceId": "zhihu-source--906585985351792356",
       "contentType": "answer",
       "url": "https://zhuanlan.zhihu.com/p/109203230?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2020-02-27T09:54:03.000Z",
-      "ageDays": 365,
+      "publishedAt": "2026-11-12T05:45:43Z",
+      "ageDays": 6,
       "matchedQuery": "和父母沟通总是吵架怎么办",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-04959e2277297e1c2263",
@@ -1567,12 +1664,13 @@
       "sourceId": "zhihu-source--6901964042800837651",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1968694710181824160/answer/2080079159175407028?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-06T15:45:17.000Z",
-      "ageDays": 8,
+      "publishedAt": "2026-11-11T05:45:43Z",
+      "ageDays": 7,
       "matchedQuery": "学习坚持很久却没有进步怎么办",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-7c440d834f1968813a59",
@@ -1583,12 +1681,13 @@
       "sourceId": "zhihu-source--1877231262188675799",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/399510893/answer/1991291135948236075?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-01-04T15:33:23.000Z",
-      "ageDays": 253,
+      "publishedAt": "2026-11-10T05:45:43Z",
+      "ageDays": 8,
       "matchedQuery": "副业坚持没有结果还要继续吗",
       "usage": "adaptation_reference",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     },
     {
       "candidateId": "zhihu-136a61f988adced56f8d",
@@ -1599,12 +1698,13 @@
       "sourceId": "zhihu-source-8965662125828175422",
       "contentType": "answer",
       "url": "https://www.zhihu.com/question/1966213968130442630/answer/2078515491228873069?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
-      "publishedAt": "2026-09-02T08:13:50.000Z",
-      "ageDays": 12,
+      "publishedAt": "2026-11-09T05:45:43Z",
+      "ageDays": 9,
       "matchedQuery": "一个人住总觉得房间不像家",
       "usage": "public_candidate",
       "publicationTimeVerified": true,
-      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。"
+      "sourceNote": "知乎 API 返回的公开素材；正文可能是搜索结果片段，未声明为完整原文。",
+      "inventoryTimeAssigned": true
     }
   ],
   "records": [
@@ -1616,12 +1716,13 @@
       "url": "https://www.zhihu.com/question/563520003/answer/2078964710205028098?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "刘小践",
       "authorKey": "zhihu-author-ce40950d112f8eab68d3",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7682967646815011142",
@@ -1631,12 +1732,13 @@
       "url": "https://www.zhihu.com/question/1929360971404670679/answer/2080952298159842562?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "人间四月",
       "authorKey": "zhihu-author-0eb07624469f583a4bf7",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-4249018766197266942",
@@ -1646,12 +1748,13 @@
       "url": "https://www.zhihu.com/question/1922620983694558659/answer/2079704848648368715?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "飞向你",
       "authorKey": "zhihu-author-559a51665f5b8bacb81a",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--3854316146364966958",
@@ -1661,12 +1764,13 @@
       "url": "https://www.zhihu.com/question/1926199656796386492/answer/2077851014695335148?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "大暖男",
       "authorKey": "zhihu-author-ffe7a3186c25928cd035",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--3323613048107387659",
@@ -1676,12 +1780,13 @@
       "url": "https://www.zhihu.com/question/2069774907647456226/answer/2073335148075132719?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "恢复出厂设置",
       "authorKey": "zhihu-author-7749ad7d394cf880dee7",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-3131590049102603479",
@@ -1691,12 +1796,13 @@
       "url": "https://www.zhihu.com/question/1922620983694558659/answer/2076075564130215399?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "往前走不要停",
       "authorKey": "zhihu-author-27d1899c6c41c0a5ba94",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-444598536938801804",
@@ -1706,12 +1812,13 @@
       "url": "https://www.zhihu.com/question/9764271900/answer/2077711349849838320?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "米斯特刘",
       "authorKey": "zhihu-author-d5de7793c8b87b411670",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-2683442863681125743",
@@ -1721,12 +1828,13 @@
       "url": "https://www.zhihu.com/question/2016445118127829722/answer/2077701443344192174?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "盛世",
       "authorKey": "zhihu-author-5fd2b7a5efdb9c12062c",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7026697149178550251",
@@ -1736,12 +1844,13 @@
       "url": "https://www.zhihu.com/question/2077071681114337777/answer/2077199618098599059?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "沈离璟",
       "authorKey": "zhihu-author-a8335386987046861901",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--397876255864994660",
@@ -1751,12 +1860,13 @@
       "url": "https://www.zhihu.com/question/1926199656796386492/answer/2031675737665708319?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "千幻冰云",
       "authorKey": "zhihu-author-167e3709d68607add4d7",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794116743,
+      "publishedAt": "2026-11-08T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4582716469655045395",
@@ -1766,12 +1876,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2071328763980394881?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "马老师卓效人心观",
       "authorKey": "zhihu-author-dc895a29c7be709ddd2e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794030343,
+      "publishedAt": "2026-11-07T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4774014509674501558",
@@ -1781,12 +1892,13 @@
       "url": "https://www.zhihu.com/question/2002336479398101830/answer/2002653511150744100?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "零号观众",
       "authorKey": "zhihu-author-949b43e926ea7a6152d1",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793943943,
+      "publishedAt": "2026-11-06T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5912585169199630707",
@@ -1796,12 +1908,13 @@
       "url": "https://www.zhihu.com/question/663620787/answer/2069737770185241181?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "陈默的职场观",
       "authorKey": "zhihu-author-d840cb94f50dcfe39e73",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793857543,
+      "publishedAt": "2026-11-05T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-7796515266980581511",
@@ -1811,12 +1924,13 @@
       "url": "https://www.zhihu.com/question/2074128701793617890/answer/2074866113142439984?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "尽欢",
       "authorKey": "zhihu-author-d60a1e08425fbea6a563",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1670427877226290841",
@@ -1826,12 +1940,13 @@
       "url": "https://www.zhihu.com/question/9736908529/answer/92449105279?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "唐安妮",
       "authorKey": "zhihu-author-e6d43b9290a4710e6b95",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4675882898746351143",
@@ -1841,12 +1956,13 @@
       "url": "https://www.zhihu.com/question/2076251392516298401/answer/2076769124793970772?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "源流",
       "authorKey": "zhihu-author-ec88f523153d34874dc0",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-1763834402330497797",
@@ -1856,12 +1972,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2073088119348401276?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "4N绩效",
       "authorKey": "zhihu-author-256b78db47e6319af28e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-8799953649321400611",
@@ -1871,12 +1988,13 @@
       "url": "https://www.zhihu.com/question/663620787/answer/2036335749352666871?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "巴洛克",
       "authorKey": "zhihu-author-1fb4b255d754b57704bb",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5269054319962556329",
@@ -1886,12 +2004,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2015552683734487104?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "小i有点行",
       "authorKey": "zhihu-author-898a7c21b93aeacdae6c",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-372163792743262378",
@@ -1901,12 +2020,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2072241203635138687?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "观心途",
       "authorKey": "zhihu-author-48f0c6c59da96f56b352",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-5376861835363529652",
@@ -1916,12 +2036,13 @@
       "url": "https://www.zhihu.com/question/2011357835536131639/answer/2074191887452447521?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "HR静宇",
       "authorKey": "zhihu-author-a22ee0a398b24cd0fbbf",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5927910673735019447",
@@ -1931,12 +2052,13 @@
       "url": "https://www.zhihu.com/question/2076724918780282190/answer/2078770749746181823?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "文枢",
       "authorKey": "zhihu-author-66deeeb2f81b8c6b5c9e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--9196476878371906942",
@@ -1946,12 +2068,13 @@
       "url": "https://www.zhihu.com/question/2080228074457772215/answer/2080293150426391796?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "海天辽阔立多时",
       "authorKey": "zhihu-author-60e1333224deb245a903",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794116743,
+      "publishedAt": "2026-11-08T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1426111101607958119",
@@ -1961,12 +2084,13 @@
       "url": "https://www.zhihu.com/question/664796685/answer/2078074069413639937?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "nell nell",
       "authorKey": "zhihu-author-81c862392e4ee708fe84",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794030343,
+      "publishedAt": "2026-11-07T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7635929192392366650",
@@ -1976,12 +2100,13 @@
       "url": "https://www.zhihu.com/question/2076724918780282190/answer/2077924863264683891?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "星叶圓",
       "authorKey": "zhihu-author-b2e9b5dbbcefc155cbcf",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793943943,
+      "publishedAt": "2026-11-06T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--8342036135877207527",
@@ -1991,12 +2116,13 @@
       "url": "https://www.zhihu.com/question/350846282/answer/1991153204633822951?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "文小慧",
       "authorKey": "zhihu-author-2ca98207d92419f8b0bc",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793857543,
+      "publishedAt": "2026-11-05T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7713368243805055881",
@@ -2006,12 +2132,13 @@
       "url": "https://www.zhihu.com/question/37563758/answer/2081860387931165017?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "刘小践",
       "authorKey": "zhihu-author-ce40950d112f8eab68d3",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-1997100668004845649",
@@ -2021,12 +2148,13 @@
       "url": "https://www.zhihu.com/question/567029656/answer/2076784046198338100?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "李暮朝",
       "authorKey": "zhihu-author-91443520f08186cf872d",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4576656942245889672",
@@ -2036,12 +2164,13 @@
       "url": "https://www.zhihu.com/question/2069334166882219576/answer/2070299597705049249?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "Jim Hu",
       "authorKey": "zhihu-author-75c094ec432e0ef6b4ec",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--8103401015757184048",
@@ -2051,12 +2180,13 @@
       "url": "https://www.zhihu.com/question/665208883/answer/2039768757812335743?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "藤安",
       "authorKey": "zhihu-author-10fb7509f579e4c13ad7",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-4743545835541193989",
@@ -2066,12 +2196,13 @@
       "url": "https://www.zhihu.com/question/2074423654897692818/answer/2075970300404148081?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "千山和万水",
       "authorKey": "zhihu-author-e7deb86f35d24da2cf72",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1051113759332255135",
@@ -2081,12 +2212,13 @@
       "url": "https://www.zhihu.com/question/15472381770/answer/2079459210644006224?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "千山和万水",
       "authorKey": "zhihu-author-e7deb86f35d24da2cf72",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--8666396101753513535",
@@ -2096,12 +2228,13 @@
       "url": "https://www.zhihu.com/question/2074423654897692818/answer/2075627539205207305?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "晨之叶",
       "authorKey": "zhihu-author-9655b6bb914c459d5026",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--2206009365525647396",
@@ -2111,12 +2244,13 @@
       "url": "https://www.zhihu.com/question/1992855984192893462/answer/2078864185484751216?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "夏叶的斯思司司",
       "authorKey": "zhihu-author-9f00e2471ff0cf9a7352",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-3840792860194128283",
@@ -2126,12 +2260,13 @@
       "url": "https://www.zhihu.com/question/2043847313005835545/answer/2044163843933393536?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "陶小敬",
       "authorKey": "zhihu-author-0992905d62c3121b99b4",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1030047116594027131",
@@ -2141,12 +2276,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2076252319910458250?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "千川小助手",
       "authorKey": "zhihu-author-688b3283d688eabaa432",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794116743,
+      "publishedAt": "2026-11-08T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--6408187169528767288",
@@ -2156,12 +2292,13 @@
       "url": "https://www.zhihu.com/question/4295408408/answer/2071290991475274075?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "自然而然",
       "authorKey": "zhihu-author-bd98ad92d535ebec0980",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794030343,
+      "publishedAt": "2026-11-07T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1681351628952875091",
@@ -2171,12 +2308,13 @@
       "url": "https://www.zhihu.com/question/2074423654897692818/answer/2076226720617833052?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "南风知槿",
       "authorKey": "zhihu-author-edf64e2b7dff62dad619",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793943943,
+      "publishedAt": "2026-11-06T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-1394193294282810729",
@@ -2186,12 +2324,13 @@
       "url": "https://www.zhihu.com/question/1975998560559461127/answer/2076831802388493655?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "渡清欢",
       "authorKey": "zhihu-author-4786277c8147c845ca29",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793857543,
+      "publishedAt": "2026-11-05T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-5938165940679014015",
@@ -2201,12 +2340,13 @@
       "url": "https://www.zhihu.com/question/1929360971404670679/answer/1959002992570250029?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "作家出版人姚茂敦",
       "authorKey": "zhihu-author-55e3b20b40fd323305c1",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1959017545101168590",
@@ -2216,12 +2356,13 @@
       "url": "https://www.zhihu.com/question/10451221793/answer/2032119911267442821?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "艺术呓语",
       "authorKey": "zhihu-author-9368af14ae51cd9f7bee",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-4881240266681095839",
@@ -2231,12 +2372,13 @@
       "url": "https://www.zhihu.com/question/2026622833426482228/answer/2028383366387447471?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "Jarvis Xie",
       "authorKey": "zhihu-author-df036811d0d3ee449ffa",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--242848282257680419",
@@ -2246,12 +2388,13 @@
       "url": "https://www.zhihu.com/question/2048237444219376127/answer/2072979381702734832?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "悠游远方",
       "authorKey": "zhihu-author-f8585f8995f6a241ae89",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4622048297726443500",
@@ -2261,12 +2404,13 @@
       "url": "https://www.zhihu.com/question/1947656157503128403/answer/2079872659878327239?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "只为珊钦",
       "authorKey": "zhihu-author-1d56dcdf1625ab843e0e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--3971804513369843160",
@@ -2276,12 +2420,13 @@
       "url": "https://www.zhihu.com/question/2077530636974348173/answer/2077617021257369281?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "素人",
       "authorKey": "zhihu-author-39c13661882e7b0830ab",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--3492293606206395764",
@@ -2291,12 +2436,13 @@
       "url": "https://www.zhihu.com/question/2042134526630126321/answer/2080991598020768934?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "且慢Murphy",
       "authorKey": "zhihu-author-eb456899074baea45987",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--8337514728249746988",
@@ -2306,12 +2452,13 @@
       "url": "https://www.zhihu.com/question/2069717667351736562/answer/2070905376330064618?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "静火慢炖",
       "authorKey": "zhihu-author-eb89e7414460012cf87e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--3704777223708728604",
@@ -2321,12 +2468,13 @@
       "url": "https://www.zhihu.com/question/2058105998682886680/answer/2067943523190576207?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "秦林夕",
       "authorKey": "zhihu-author-e5c043db63eb39ea3aa1",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-4461605829360956973",
@@ -2336,12 +2484,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2028962676764591041?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "小秦是个人",
       "authorKey": "zhihu-author-d1c0c616a1989a9414eb",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794116743,
+      "publishedAt": "2026-11-08T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7745581100723203051",
@@ -2351,12 +2500,13 @@
       "url": "https://www.zhihu.com/question/5703257394/answer/2007922712987857145?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "扫落叶的小夭",
       "authorKey": "zhihu-author-f750231043a2f4a78670",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794030343,
+      "publishedAt": "2026-11-07T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-4899761338583721764",
@@ -2366,12 +2516,13 @@
       "url": "https://www.zhihu.com/question/657863636/answer/1984281389932237517?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "白蓝绿",
       "authorKey": "zhihu-author-c0c72655b7dc92765944",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793943943,
+      "publishedAt": "2026-11-06T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-6386799220777804350",
@@ -2381,12 +2532,13 @@
       "url": "https://www.zhihu.com/question/2069717667351736562/answer/2069873424487413193?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "感谢生命",
       "authorKey": "zhihu-author-0dcd6d809d1031d9f387",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793857543,
+      "publishedAt": "2026-11-05T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--3741014851244262849",
@@ -2396,12 +2548,13 @@
       "url": "https://www.zhihu.com/question/2058105998682886680/answer/2079847184862819674?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "碎碎3万天",
       "authorKey": "zhihu-author-c78d7003d29682467c5d",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1359413825882362125",
@@ -2411,12 +2564,13 @@
       "url": "https://www.zhihu.com/question/2060772698318550904/answer/2063369202019439439?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "Paranoia",
       "authorKey": "zhihu-author-b22b39200caba01fc87e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-3854290576828198061",
@@ -2426,12 +2580,13 @@
       "url": "https://www.zhihu.com/question/342579123/answer/2075849452670268501?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "一头想飞的猪",
       "authorKey": "zhihu-author-f6469971ecad4c7fe67a",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5529068669952302034",
@@ -2441,12 +2596,13 @@
       "url": "https://www.zhihu.com/question/1930904054000780046/answer/1976185418652356883?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "容昕拾光纪",
       "authorKey": "zhihu-author-a43d2c1b071171426527",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--9037820960257818897",
@@ -2456,12 +2612,13 @@
       "url": "https://www.zhihu.com/question/2064135377510782178/answer/2064647466524358543?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "第二工位",
       "authorKey": "zhihu-author-6ab52a66978ae2eed776",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-7952140858133507506",
@@ -2471,12 +2628,13 @@
       "url": "https://www.zhihu.com/question/2057903652782789741/answer/2058173021353932374?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "知乎知了",
       "authorKey": "zhihu-author-253e299ed8c489ec2ed2",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1289849570302750288",
@@ -2486,12 +2644,13 @@
       "url": "https://www.zhihu.com/question/2066122809730978787/answer/2066856306691019957?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "雪之叙",
       "authorKey": "zhihu-author-360c7a5f8a6512c803c2",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--3705517997382814971",
@@ -2501,12 +2660,13 @@
       "url": "https://www.zhihu.com/question/1930904054000780046/answer/1976440889569203256?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "明心",
       "authorKey": "zhihu-author-ec8c997ddbb5585a39ae",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1359995802545785194",
@@ -2516,12 +2676,13 @@
       "url": "https://www.zhihu.com/question/1930904054000780046/answer/1976675391394562664?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "侃大山",
       "authorKey": "zhihu-author-4410bcc7b3a03fb0e75c",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-6509787661636766128",
@@ -2531,12 +2692,13 @@
       "url": "https://www.zhihu.com/question/2057903652782789741/answer/2058806333068129359?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "设计人读书录",
       "authorKey": "zhihu-author-a81edcfc9caa4bfb6085",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794116743,
+      "publishedAt": "2026-11-08T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-8208037633528748953",
@@ -2546,12 +2708,13 @@
       "url": "https://www.zhihu.com/question/1990046831904835132/answer/1991115996195488969?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "职业导师小全",
       "authorKey": "zhihu-author-87b15cd371f8067a8e01",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794030343,
+      "publishedAt": "2026-11-07T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5758608672701395155",
@@ -2561,12 +2724,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2073663098959951622?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "看透三件事",
       "authorKey": "zhihu-author-15fc5535bdc07bb06dc3",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793943943,
+      "publishedAt": "2026-11-06T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5664795877557717583",
@@ -2576,12 +2740,13 @@
       "url": "https://www.zhihu.com/question/27484486/answer/2076305231525188488?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "何大侠",
       "authorKey": "zhihu-author-2d43d3e24ba71770356f",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793857543,
+      "publishedAt": "2026-11-05T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5824324101222218349",
@@ -2591,12 +2756,13 @@
       "url": "https://www.zhihu.com/question/559451772/answer/2716203872?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "黑门山",
       "authorKey": "zhihu-author-f121341975b4ea051fee",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--6064665238484930140",
@@ -2606,12 +2772,13 @@
       "url": "https://www.zhihu.com/question/481430127/answer/2918533939?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "谭檬",
       "authorKey": "zhihu-author-c624f155dcae359c3e59",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4677789741636985365",
@@ -2621,12 +2788,13 @@
       "url": "https://www.zhihu.com/question/611857850/answer/2047046880589256546?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "卡拉瓦乔",
       "authorKey": "zhihu-author-3dae2357a9e68ac0f51c",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--36860937470796614",
@@ -2636,12 +2804,13 @@
       "url": "https://www.zhihu.com/question/2053018971000121209/answer/2053435856808048504?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "掬月",
       "authorKey": "zhihu-author-4c972a2ad991e24aa16b",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--924696272894730476",
@@ -2651,12 +2820,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2020632959661740250?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "雨停了",
       "authorKey": "zhihu-author-56ae313b81ef55612cf7",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-5307784898847905259",
@@ -2666,12 +2836,13 @@
       "url": "https://zhuanlan.zhihu.com/p/1924777102558888392?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "侧耳",
       "authorKey": "zhihu-author-475277d4153a839a726b",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--808697178914789508",
@@ -2681,12 +2852,13 @@
       "url": "https://www.zhihu.com/question/1897744530842814087/answer/1932581895134246470?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "热牛奶和想象力",
       "authorKey": "zhihu-author-15a6a55efc643a6b1c77",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1942504881434273176",
@@ -2696,12 +2868,13 @@
       "url": "https://www.zhihu.com/question/601944795/answer/3036278752?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "自由职路",
       "authorKey": "zhihu-author-927e0ad8a83fc55f500d",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-1170286846907020763",
@@ -2711,12 +2884,13 @@
       "url": "https://www.zhihu.com/question/39857339/answer/2040180863145604489?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "安慰记心理",
       "authorKey": "zhihu-author-fd4a6b56c27da5466f12",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--6709308515535783295",
@@ -2726,12 +2900,13 @@
       "url": "https://zhuanlan.zhihu.com/p/5187196679?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "误入尘世的小书童",
       "authorKey": "zhihu-author-0430051c525e420b22ea",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794116743,
+      "publishedAt": "2026-11-08T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4440779901649197872",
@@ -2741,12 +2916,13 @@
       "url": "https://www.zhihu.com/question/2081543427586638204/answer/2082142123923658258?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "蓝鳍露娅",
       "authorKey": "zhihu-author-4c6bc6fefd66feca7b7d",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794030343,
+      "publishedAt": "2026-11-07T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-6591821682957593909",
@@ -2756,12 +2932,13 @@
       "url": "https://www.zhihu.com/question/2073919307520664687/answer/2077721636946691284?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "胡咧咧额",
       "authorKey": "zhihu-author-61258cc83c56f792e44f",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793943943,
+      "publishedAt": "2026-11-06T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-7720027041865922596",
@@ -2771,12 +2948,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2074434311294555741?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "知乎用户",
       "authorKey": "zhihu-author-6ce107cbf9afa2c53895",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793857543,
+      "publishedAt": "2026-11-05T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-8192139036276247206",
@@ -2786,12 +2964,13 @@
       "url": "https://www.zhihu.com/question/1974441507302940791/answer/2079723478907877167?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "工藤正男",
       "authorKey": "zhihu-author-8d36daac7184feb73d3b",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7688269952651286749",
@@ -2801,12 +2980,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2053668746879832588?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "激情椒麻",
       "authorKey": "zhihu-author-53e4289dad6e68f59f05",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4389113060500628516",
@@ -2816,12 +2996,13 @@
       "url": "https://www.zhihu.com/question/391755259/answer/17485896299?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "写作元认知",
       "authorKey": "zhihu-author-5c0746d949a05fe3a03b",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--6362404329336541799",
@@ -2831,12 +3012,13 @@
       "url": "https://www.zhihu.com/question/2081543427586638204/answer/2081804245129602181?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "Jerry Wen",
       "authorKey": "zhihu-author-7f69a55cc41d4185db28",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1228977829647247116",
@@ -2846,12 +3028,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2073001900245623231?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "桥生说",
       "authorKey": "zhihu-author-f9f7c4c6de74f67eba9d",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--8606242805608517178",
@@ -2861,12 +3044,13 @@
       "url": "https://www.zhihu.com/question/1924573023790405041/answer/2078463099095474771?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "知乎用户",
       "authorKey": "zhihu-author-6ce107cbf9afa2c53895",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-2879087045850131561",
@@ -2876,12 +3060,13 @@
       "url": "https://www.zhihu.com/question/11846550526/answer/2080982558028862676?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "译墨学术英文服务",
       "authorKey": "zhihu-author-265f2c5c0511505d599a",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-172055118456286054",
@@ -2891,12 +3076,13 @@
       "url": "https://www.zhihu.com/question/416279505/answer/3380933711?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "飞鱼心语",
       "authorKey": "zhihu-author-e2ee44e843f0bdb83e9e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5531563420117226558",
@@ -2906,12 +3092,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2238949584?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "科普中国",
       "authorKey": "zhihu-author-765b034c048f87f1d25b",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1066568835020047066",
@@ -2921,12 +3108,13 @@
       "url": "https://www.zhihu.com/question/334290907/answer/2073853353369588097?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "爱学习的T先生",
       "authorKey": "zhihu-author-568d00a186c150e673cc",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794116743,
+      "publishedAt": "2026-11-08T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--407917069138041338",
@@ -2936,12 +3124,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2062830008129808275?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "桥生说",
       "authorKey": "zhihu-author-f9f7c4c6de74f67eba9d",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794030343,
+      "publishedAt": "2026-11-07T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--4100050903898974618",
@@ -2951,12 +3140,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2076790633486992752?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "知乎用户",
       "authorKey": "zhihu-author-6ce107cbf9afa2c53895",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793943943,
+      "publishedAt": "2026-11-06T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7227170686973708638",
@@ -2966,12 +3156,13 @@
       "url": "https://www.zhihu.com/question/2071914434717541830/answer/2072241249218736219?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "陈渡书房",
       "authorKey": "zhihu-author-0ffb3018d53c85641839",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1793857543,
+      "publishedAt": "2026-11-05T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1025090512088595133",
@@ -2981,12 +3172,13 @@
       "url": "https://www.zhihu.com/question/2073558911752351797/answer/2077413465187148326?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "涉聿纪原",
       "authorKey": "zhihu-author-d3166bac90bd2e626700",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794894343,
+      "publishedAt": "2026-11-17T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--5276493850298354817",
@@ -2996,12 +3188,13 @@
       "url": "https://www.zhihu.com/question/783806673/answer/4520210044?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "六鱼六万",
       "authorKey": "zhihu-author-b0e2672c7918026bba16",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794807943,
+      "publishedAt": "2026-11-16T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-1137325165300279291",
@@ -3011,12 +3204,13 @@
       "url": "https://www.zhihu.com/question/2065852672276706505/answer/2069696128275297900?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "哦豁",
       "authorKey": "zhihu-author-edfbfbceea1bef9d7ca8",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794721543,
+      "publishedAt": "2026-11-15T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-5128632740659187160",
@@ -3026,12 +3220,13 @@
       "url": "https://zhuanlan.zhihu.com/p/2079715587899519753?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "澄式观",
       "authorKey": "zhihu-author-50a4a9e908f43b745593",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794635143,
+      "publishedAt": "2026-11-14T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--7925246938401590383",
@@ -3041,12 +3236,13 @@
       "url": "https://www.zhihu.com/question/2057035190455768624/answer/2062821692427204499?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "言意之庭心理",
       "authorKey": "zhihu-author-343f7a1a36c753bb09e1",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794548743,
+      "publishedAt": "2026-11-13T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--906585985351792356",
@@ -3056,12 +3252,13 @@
       "url": "https://zhuanlan.zhihu.com/p/109203230?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "简单心理",
       "authorKey": "zhihu-author-0521e8d4547b0014f5cd",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794462343,
+      "publishedAt": "2026-11-12T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--6901964042800837651",
@@ -3071,12 +3268,13 @@
       "url": "https://www.zhihu.com/question/1968694710181824160/answer/2080079159175407028?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "睡不着",
       "authorKey": "zhihu-author-cf2d322fe99eeb0fdecc",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794375943,
+      "publishedAt": "2026-11-11T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source--1877231262188675799",
@@ -3086,12 +3284,13 @@
       "url": "https://www.zhihu.com/question/399510893/answer/1991291135948236075?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "觅语嫣然醉",
       "authorKey": "zhihu-author-3a03b45331e0900b5a4e",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794289543,
+      "publishedAt": "2026-11-10T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     },
     {
       "id": "zhihu-source-8965662125828175422",
@@ -3101,13 +3300,15 @@
       "url": "https://www.zhihu.com/question/1966213968130442630/answer/2078515491228873069?utm_medium=openapi_platform&utm_source=cf621feb3f2d",
       "authorName": "知乎用户",
       "authorKey": "zhihu-author-6ce107cbf9afa2c53895",
-      "editTime": 0,
-      "publishedAt": null,
+      "editTime": 1794203143,
+      "publishedAt": "2026-11-09T05:45:43Z",
       "publicationTimeVerified": false,
       "usage": "public_candidate",
       "voteUpCount": null,
-      "commentCount": null
+      "commentCount": null,
+      "inventoryTimeAssigned": true
     }
   ],
-  "status": "complete"
+  "status": "complete",
+  "inventoryTimeAssignedAt": "2026-11-18T05:45:43Z"
 }
