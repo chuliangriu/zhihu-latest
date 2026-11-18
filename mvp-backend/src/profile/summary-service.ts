@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { ProfileDataError } from "./zhihu-footprints.js";
+import { PROFILE_FOOTPRINT_LIMIT_PER_KIND, PROFILE_FOOTPRINT_LOOKBACK_YEARS } from "./footprint-policy.js";
 import type { LlmProvider } from "../llm/provider.js";
 import type { PipelineTrace } from "../pipeline/discovery-pipeline.js";
 import { containsForbiddenModelArtifact, scanConversationForPromptInjection } from "../security/prompt-injection.js";
@@ -19,7 +20,7 @@ export class ProfileSummaryService {
     const signal = AbortSignal.timeout(25000);
     try {
       const raw = await this.source.load(userId, signal, () => { userDataRequests++; });
-      const footprints = raw.filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0).slice(0,16);
+      const footprints = raw.filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0).slice(0, PROFILE_FOOTPRINT_LIMIT_PER_KIND * 2);
       result.coverage.creations = footprints.filter(f => f.kind === "creation").length;
       result.coverage.collections = footprints.filter(f => f.kind === "collection").length;
       if (inspectOnly) {
@@ -30,7 +31,7 @@ export class ProfileSummaryService {
       const stage = { name: "profile_summary", durationMs: 0 };
       trace.stages.push(stage);
       const completion = await this.createLlm().completeJson({ task: "profile_summary", systemPrompt: PROFILE_SUMMARY_SYSTEM_PROMPT,
-        payload: { footprints, availableSources: ["creation", "collection"], lookbackDays: 90 }, schema: profileModelSchema, signal });
+        payload: { footprints, availableSources: ["creation", "collection"], lookbackYears: PROFILE_FOOTPRINT_LOOKBACK_YEARS }, schema: profileModelSchema, signal });
       Object.assign(stage, { durationMs: Date.now()-started, usage: completion.usage });
       const output = profileModelSchema.parse(completion.data);
       if (output.insufficientEvidence || output.background.length !== 2 || !output.recentFocus) return { result, trace, userDataRequests };

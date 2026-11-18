@@ -47,6 +47,18 @@ describe("profile generation", () => {
     expect(llm.calls).toEqual(["profile_summary"]);
     expect(result.coverage).toEqual({creations:0,collections:2,browsingAvailable:false,likedHistoryAvailable:false});
   });
+  it("passes all 15+15 footprints and the two-year window to the model", async () => {
+    const records: Footprint[] = Array.from({length:30}, (_,i) => ({
+      ...footprints[i % 2]!, id:`f${i+1}`, kind:i<15?"creation":"collection"
+    }));
+    const llm = new MockLlmProvider({profile_summary:{insufficientEvidence:true,background:[],recentFocus:null,unknown:[]}});
+    const complete = vi.spyOn(llm,"completeJson");
+    const {result}=await new ProfileSummaryService({load:async()=>records},()=>llm).generate(userId);
+    expect(result.coverage).toMatchObject({creations:15,collections:15});
+    expect(complete).toHaveBeenCalledOnce();
+    expect(complete.mock.calls[0]![0].payload).toMatchObject({footprints:records,lookbackYears:2});
+    expect(complete.mock.calls[0]![0].payload).not.toHaveProperty("lookbackDays");
+  });
   it("keeps successful footprint coverage when model authentication fails", async () => {
     const llm = new MockLlmProvider({profile_summary:output});
     vi.spyOn(llm, "completeJson").mockRejectedValue(new LlmProviderError("LLM_HTTP_401", "provider authentication failed"));
@@ -85,7 +97,7 @@ describe("profile generation", () => {
 });
 describe("authorized Zhihu footprint access", () => {
   const accounts={oauthAccount:vi.fn(async(id:string)=>({user_id:id,access_token:encrypted(),token_storage_version:"encrypted_v1" as const,expires_at:new Date(Date.now()+86400000).toISOString()}))};
-  it("decrypts colleague v1 tokens, sends both credentials, and reads only 8+8 recent items", async () => {
+  it("decrypts colleague v1 tokens, sends both credentials, and requests 15 items per kind", async () => {
     expect(decryptProfileToken(encrypted(),secret)).toBe(oauthToken);
     const now=Math.floor(Date.now()/1000);
     const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[{Title:"我的创作",Summary:"自己的摘要",Url:"https://www.zhihu.com/answer/1",CreatedAt:now,LikeCount:123}]}}))
@@ -96,12 +108,32 @@ describe("authorized Zhihu footprint access", () => {
     expect(accounts.oauthAccount).toHaveBeenCalledWith(userId,expect.anything());
     expect(onRequest).toHaveBeenCalledTimes(2);
     for(const [url,options] of fetcher.mock.calls){
-      expect(new URL(String(url)).searchParams.get("Limit")).toBe("8");
+      expect(new URL(String(url)).searchParams.get("Limit")).toBe("15");
       expect(options?.headers).toMatchObject({"X-OAuth-Token":oauthToken,Authorization:"Bearer test-access-secret"});
       expect(options?.redirect).toBe("error");
     }
     expect(JSON.stringify(items)).not.toContain(oauthToken);
     expect(JSON.stringify(items)).not.toContain("LikeCount");
+  });
+  it("keeps two calendar years using creation time or collection time", async () => {
+    const now=Date.parse("2026-11-18T12:00:00Z");
+    const clock=vi.spyOn(Date,"now").mockReturnValue(now);
+    try {
+      const dates=["2025-05-18T12:00:00Z","2024-11-18T12:00:00Z","2024-11-18T11:59:59Z","2026-11-18T12:01:01Z"];
+      const rows=dates.map((date,i)=>({Title:`资料${i}`,Summary:"测试内容",Url:`https://www.zhihu.com/answer/${i+10}`,CreatedAt:Date.parse(date)/1000,FavTime:Date.parse(date)/1000}));
+      const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:0,Data:{Items:rows}}))
+        .mockResolvedValueOnce(Response.json({Code:0,Data:{Items:rows.map(x=>({...x,CreatedAt:1}))}}));
+      const records=await new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{});
+      expect(records.map(x=>[x.kind,x.title])).toEqual([["creation","资料0"],["creation","资料1"],["collection","资料0"],["collection","资料1"]]);
+    } finally { clock.mockRestore(); }
+  });
+  it("caps each kind at 15 even if the upstream returns extra rows", async () => {
+    const now=Math.floor(Date.now()/1000);
+    const rows=Array.from({length:20},(_,i)=>({Title:`资料${i}`,Summary:"测试内容",Url:`https://www.zhihu.com/answer/${i+100}`,CreatedAt:now,FavTime:now}));
+    const fetcher=vi.fn<typeof fetch>().mockImplementation(async()=>Response.json({Code:0,Data:{Items:rows}}));
+    const records=await new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{});
+    expect(records.filter(x=>x.kind==="creation")).toHaveLength(15);
+    expect(records.filter(x=>x.kind==="collection")).toHaveLength(15);
   });
   it.each([401,429])("stops on HTTP %s without fallback to developer identity", async status=>{
     const fetcher=vi.fn<typeof fetch>().mockResolvedValue(new Response(null,{status}));

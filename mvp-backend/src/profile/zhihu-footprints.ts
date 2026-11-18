@@ -1,5 +1,6 @@
 import { createDecipheriv, createHash } from "node:crypto";
 import { isZhihuUrl } from "../guards/candidates.js";
+import { PROFILE_FOOTPRINT_LIMIT_PER_KIND, PROFILE_FOOTPRINT_LOOKBACK_YEARS } from "./footprint-policy.js";
 import type { SupabaseAdapter } from "../sources/supabase-adapter.js";
 import type { AccessSecretCheck, Footprint, FootprintSource, ProfileConnectionDiagnostic } from "./contracts.js";
 
@@ -49,10 +50,12 @@ export class ZhihuFootprintSource implements FootprintSource {
     catch { throw new ProfileDataError("OAUTH_TOKEN_UNAVAILABLE", { stage: "token_decryption" }); }
     const records: Footprint[] = [];
     const now = Date.now();
+    const cutoff = new Date(now);
+    cutoff.setUTCFullYear(cutoff.getUTCFullYear() - PROFILE_FOOTPRINT_LOOKBACK_YEARS);
     const seen = new Set<string>();
     for (const kind of ["creation", "collection"] as const) {
       const url = new URL(kind === "creation" ? "https://developer.zhihu.com/api/v1/user/contents" : "https://developer.zhihu.com/api/v1/user/collections");
-      url.searchParams.set("Limit", "8");
+      url.searchParams.set("Limit", String(PROFILE_FOOTPRINT_LIMIT_PER_KIND));
       if (kind === "creation") {
         url.searchParams.set("ContentType", "all"); url.searchParams.set("SortField", "ts"); url.searchParams.set("SortOrder", "desc");
       }
@@ -72,9 +75,9 @@ export class ZhihuFootprintSource implements FootprintSource {
       if (!response.ok) throw new ProfileDataError([401,403].includes(response.status) ? "OAUTH_REAUTH_REQUIRED" : response.status === 429 ? "ZHIHU_RATE_LIMITED" : "ZHIHU_USER_DATA_UNAVAILABLE", connection);
       if (payload?.Code !== 0) throw new ProfileDataError(payload?.Code === 20001 ? "OAUTH_REAUTH_REQUIRED" : [30001,30002].includes(payload?.Code) ? "ZHIHU_RATE_LIMITED" : "ZHIHU_USER_DATA_UNAVAILABLE", connection);
       if (!Array.isArray(payload.Data?.Items)) throw new ProfileDataError("ZHIHU_RESPONSE_INVALID", connection);
-      for (const item of payload.Data.Items.slice(0,8)) {
+      for (const item of payload.Data.Items.slice(0, PROFILE_FOOTPRINT_LIMIT_PER_KIND)) {
         const timestamp = kind === "creation" ? item.CreatedAt : item.FavTime;
-        if (!Number.isFinite(timestamp) || timestamp * 1000 < now - 90 * 86400000 || timestamp * 1000 > now + 60000 || !isZhihuUrl(item.Url)) continue;
+        if (!Number.isFinite(timestamp) || timestamp * 1000 < cutoff.getTime() || timestamp * 1000 > now + 60000 || !isZhihuUrl(item.Url)) continue;
         const key = `${kind}:${item.Url.split("?")[0]}`; if (seen.has(key)) continue;
         const title = plain(item.Title,160), summary = plain(item.Summary,700);
         if (!title && !summary) continue;
