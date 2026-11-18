@@ -29,7 +29,7 @@ import {
   filterInjectionCandidates,
   scanConversationForPromptInjection
 } from "../security/prompt-injection.js";
-import type { CandidateSource } from "../sources/candidate-source.js";
+import { CandidateSourceError, type CandidateSource, type CandidateBatch } from "../sources/candidate-source.js";
 
 export interface PipelineTrace {
   requestId: string;
@@ -186,146 +186,152 @@ export async function runDiscoveryPipeline(
       note: `${matchPolicy.tier}; private_pool=${eligiblePrivatePoolSize}; applies_to=authorized_private`
     });
 
-    const sourceStageStart = dependencies.now?.() ?? Date.now();
-    const rawCandidates = await dependencies.candidateSource.search(
-      {
-        directions: intent.searchDirections,
-        limit: matchPolicy.retrieval.searchLimit,
-        breadth: matchPolicy.retrieval.breadth
-      },
-      controller.signal
-    );
-    const routed = dependencies.dataMode === "routed";
-    const publicDays = routed ? Math.min(dependencies.publicRecentDays ?? 14, 14) : dependencies.publicRecentDays ?? 7;
-    const displayableCandidates = filterDisplayableCandidates(rawCandidates, dependencies.now?.() ?? Date.now(), 7, publicDays, routed, dependencies.allowPublicDemoTime);
-    const injectionCheck = filterInjectionCandidates(displayableCandidates);
-    const candidates = injectionCheck.accepted.slice(0, matchPolicy.retrieval.analysisLimit);
-    candidateCount = candidates.length;
-    trace.stages.push({
-      name: "candidate_source",
-      durationMs: (dependencies.now?.() ?? Date.now()) - sourceStageStart,
-      note: `${rawCandidates.length} received, ${candidates.length} displayable, ${injectionCheck.rejected.length} injection-rejected`
-    });
+    const searchInput = { directions: intent.searchDirections, limit: matchPolicy.retrieval.searchLimit, breadth: matchPolicy.retrieval.breadth };
+    const source = dependencies.candidateSource;
+    const batches = source.searchBatches ? source.searchBatches(searchInput,controller.signal) : (async function*(): AsyncIterable<CandidateBatch> {
+      yield {source:"static",candidates:await source.search(searchInput,controller.signal)};
+    })();
+    let noMatchReason = "no_displayable_candidates";
+    for await (const batch of batches) {
+      controller.signal.throwIfAborted();
+      const sourceStageStart = dependencies.now?.() ?? Date.now();
+      const rawCandidates = dependencies.dataMode === "routed" ? batch.candidates.filter(c=>c.source.sourceType!=="synthetic_private") : batch.candidates;
+      const routed = dependencies.dataMode === "routed";
+      const publicDays = routed ? Math.min(dependencies.publicRecentDays ?? 14, 14) : dependencies.publicRecentDays ?? 7;
+      const displayableCandidates = filterDisplayableCandidates(rawCandidates, dependencies.now?.() ?? Date.now(), 7, publicDays, routed, dependencies.allowPublicDemoTime);
+      const injectionCheck = filterInjectionCandidates(displayableCandidates);
+      const candidates = injectionCheck.accepted.slice(0, matchPolicy.retrieval.analysisLimit);
+      candidateCount += candidates.length;
+      trace.stages.push({
+        name: "candidate_source",
+        durationMs: (dependencies.now?.() ?? Date.now()) - sourceStageStart,
+        note: `${batch.source}; ${rawCandidates.length} received, ${candidates.length} displayable, ${injectionCheck.rejected.length} injection-rejected; ${batch.reasonCode??"completed"}`
+      });
 
-    if (candidates.length === 0) {
-      return finish("no_match", "no_displayable_candidates", emptyMatches(), null);
-    }
-
-    const analysisStageStart = dependencies.now?.() ?? Date.now();
-    const analysisCompletion = await dependencies.llm.completeJson({
-      task: "candidate_analysis",
-      systemPrompt: CANDIDATE_ANALYSIS_SYSTEM_PROMPT,
-      payload: {
-        understanding: intent,
-        adaptiveMatchPolicy: matchPolicy,
-        userMessages: request.conversation.messages
-          .filter((message) => message.role === "user")
-          .map(({ id, content }) => ({ id, content })),
-        candidates: candidates.map((candidate) => ({
-          candidateId: candidate.candidateId,
-          domain: candidate.domain,
-          text: candidate.text,
-          source: {
-            sourceId: candidate.source.sourceId,
-            sourceType: candidate.source.sourceType,
-            contentType: candidate.source.contentType,
-            publishedAt: candidate.source.publishedAt,
-            timestampKind: candidate.source.timestampKind ?? "published"
-          }
-        }))
-      },
-      schema: candidateAnalysisOutputSchema,
-      signal: controller.signal
-    });
-    trace.stages.push({
-      name: "candidate_analysis",
-      durationMs: (dependencies.now?.() ?? Date.now()) - analysisStageStart,
-      usage: analysisCompletion.usage
-    });
-
-    if (
-      containsForbiddenModelArtifact([
-        analysisCompletion.data.inviteCopy ?? "",
-        ...analysisCompletion.data.rejectionReasons,
-        ...analysisCompletion.data.matches.flatMap((match) => [match.sharedRelation, match.difference])
-      ])
-    ) {
-      return finish("unavailable", "model_output_security_rejected", emptyMatches(), null);
-    }
-
-    const validation = validateMatchDrafts(
-      analysisCompletion.data.matches,
-      request.conversation,
-      candidates,
-      intent
-    );
-    trace.rejectedMatches.push(...validation.rejected);
-
-    if (validation.accepted.length === 0) {
-      if (analysisCompletion.data.matches.length > 0) {
-        return finish("no_match", "no_supported_match_after_validation", emptyMatches(), null);
+      if (candidates.length === 0) {
+        trace.stages.push({name:"candidate_source_result",durationMs:0,note:`${batch.source}; no_displayable_candidates`});
+        continue;
       }
-      return finish("no_match", "llm_found_no_supported_match", emptyMatches(), null);
-    }
 
-    const matches = emptyMatches();
-    for (const match of validation.accepted) matches[match.path] = match;
-
-    const presentationStageStart = dependencies.now?.() ?? Date.now();
-    // Co-generate wording to save a network/model round-trip, but never expose
-    // it before the exact same candidate/evidence validation has passed.
-    const bundledCopy = analysisCompletion.data.presentationCopy;
-    const reusableCopy = bundledCopy && presentationMatchesValidatedCandidates(bundledCopy,validation.accepted) ? bundledCopy : null;
-    const presentationCompletion = reusableCopy ? {data:reusableCopy,usage:undefined} : await dependencies.llm.completeJson({
-      task: "presentation_copy",
-      systemPrompt: PRESENTATION_COPY_SYSTEM_PROMPT,
-      payload: {
-        templateVersion: "discovery-presentation-v0.4",
-        understanding: {
-          explicitConcerns: intent.explicitConcerns,
-          uncertainPoints: intent.uncertainPoints
+      const analysisStageStart = dependencies.now?.() ?? Date.now();
+      const analysisCompletion = await dependencies.llm.completeJson({
+        task: "candidate_analysis",
+        systemPrompt: CANDIDATE_ANALYSIS_SYSTEM_PROMPT,
+        payload: {
+          understanding: intent,
+          adaptiveMatchPolicy: matchPolicy,
+          userMessages: request.conversation.messages
+            .filter((message) => message.role === "user")
+            .map(({ id, content }) => ({ id, content })),
+          candidates: candidates.map((candidate) => ({
+            candidateId: candidate.candidateId,
+            domain: candidate.domain,
+            text: candidate.text,
+            source: {
+              sourceId: candidate.source.sourceId,
+              sourceType: candidate.source.sourceType,
+              contentType: candidate.source.contentType,
+              publishedAt: candidate.source.publishedAt,
+              timestampKind: candidate.source.timestampKind ?? "published"
+            }
+          }))
         },
-        validatedMatches: validation.accepted.map((match) => {
-          const candidate = candidates.find((item) => item.candidateId === match.candidateId)!;
-          return {
-            path: match.path,
-            candidateId: match.candidateId,
-            sourceType: match.sourceType,
-            contentType: match.contentType,
-            contactable: match.contactable,
-            identityDisclosable: match.identityDisclosable,
-            candidateText: candidate.text,
-            timestampKind: candidate.source.timestampKind ?? "published",
-            interactionFacts: candidate.source.interactionFacts ?? null,
-            sharedRelation: match.sharedRelation,
-            difference: match.difference,
-            evidence: match.evidenceRefs
-          };
-        })
-      },
-      schema: presentationCopyOutputSchema,
-      signal: controller.signal
-    });
-    trace.stages.push({
-      name: "presentation_copy",
-      durationMs: (dependencies.now?.() ?? Date.now()) - presentationStageStart,
-      ...(presentationCompletion.usage ? {usage:presentationCompletion.usage} : {note:"co_generated_with_analysis; evidence_validated_before_display"})
-    });
+        schema: candidateAnalysisOutputSchema,
+        signal: controller.signal
+      });
+      trace.stages.push({
+        name: "candidate_analysis",
+        durationMs: (dependencies.now?.() ?? Date.now()) - analysisStageStart,
+        usage: analysisCompletion.usage,
+        note: batch.source
+      });
 
-    if (!presentationMatchesValidatedCandidates(presentationCompletion.data, validation.accepted)) {
-      return finish("unavailable", "presentation_output_misaligned", emptyMatches(), null);
+      if (
+        containsForbiddenModelArtifact([
+          analysisCompletion.data.inviteCopy ?? "",
+          ...analysisCompletion.data.rejectionReasons,
+          ...analysisCompletion.data.matches.flatMap((match) => [match.sharedRelation, match.difference])
+        ])
+      ) {
+        return finish("unavailable", "model_output_security_rejected", emptyMatches(), null);
+      }
+
+      const validation = validateMatchDrafts(
+        analysisCompletion.data.matches,
+        request.conversation,
+        candidates,
+        intent
+      );
+      trace.rejectedMatches.push(...validation.rejected);
+
+      if (validation.accepted.length === 0) {
+        noMatchReason = analysisCompletion.data.matches.length > 0 ? "no_supported_match_after_validation" : "llm_found_no_supported_match";
+        trace.stages.push({name:"candidate_source_result",durationMs:0,note:`${batch.source}; ${noMatchReason}`});
+        continue;
+      }
+
+      const matches = emptyMatches();
+      for (const match of validation.accepted) matches[match.path] = match;
+
+      const presentationStageStart = dependencies.now?.() ?? Date.now();
+      // Co-generate wording to save a network/model round-trip, but never expose
+      // it before the exact same candidate/evidence validation has passed.
+      const bundledCopy = analysisCompletion.data.presentationCopy;
+      const reusableCopy = bundledCopy && presentationMatchesValidatedCandidates(bundledCopy,validation.accepted) ? bundledCopy : null;
+      const presentationCompletion = reusableCopy ? {data:reusableCopy,usage:undefined} : await dependencies.llm.completeJson({
+        task: "presentation_copy",
+        systemPrompt: PRESENTATION_COPY_SYSTEM_PROMPT,
+        payload: {
+          templateVersion: "discovery-presentation-v0.4",
+          understanding: {
+            explicitConcerns: intent.explicitConcerns,
+            uncertainPoints: intent.uncertainPoints
+          },
+          validatedMatches: validation.accepted.map((match) => {
+            const candidate = candidates.find((item) => item.candidateId === match.candidateId)!;
+            return {
+              path: match.path,
+              candidateId: match.candidateId,
+              sourceType: match.sourceType,
+              contentType: match.contentType,
+              contactable: match.contactable,
+              identityDisclosable: match.identityDisclosable,
+              candidateText: candidate.text,
+              timestampKind: candidate.source.timestampKind ?? "published",
+              interactionFacts: candidate.source.interactionFacts ?? null,
+              sharedRelation: match.sharedRelation,
+              difference: match.difference,
+              evidence: match.evidenceRefs
+            };
+          })
+        },
+        schema: presentationCopyOutputSchema,
+        signal: controller.signal
+      });
+      trace.stages.push({
+        name: "presentation_copy",
+        durationMs: (dependencies.now?.() ?? Date.now()) - presentationStageStart,
+        ...(presentationCompletion.usage ? {usage:presentationCompletion.usage} : {note:"co_generated_with_analysis; evidence_validated_before_display"})
+      });
+
+      if (!presentationMatchesValidatedCandidates(presentationCompletion.data, validation.accepted)) {
+        return finish("unavailable", "presentation_output_misaligned", emptyMatches(), null);
+      }
+      if (
+        containsForbiddenModelArtifact([
+          presentationCompletion.data.sharedConcern,
+          ...presentationCompletion.data.choices.flatMap((choice) => [choice.bridge, choice.relation])
+        ])
+      ) {
+        return finish("unavailable", "model_output_security_rejected", emptyMatches(), null);
+      }
+      presentationCopy = presentationCompletion.data;
+      trace.stages.push({name:"candidate_source_result",durationMs:0,note:`${batch.source}; supported_match_found`});
+      return finish("matched", "supported_match_found", matches, analysisCompletion.data.inviteCopy);
     }
-    if (
-      containsForbiddenModelArtifact([
-        presentationCompletion.data.sharedConcern,
-        ...presentationCompletion.data.choices.flatMap((choice) => [choice.bridge, choice.relation])
-      ])
-    ) {
-      return finish("unavailable", "model_output_security_rejected", emptyMatches(), null);
-    }
-    presentationCopy = presentationCompletion.data;
-    return finish("matched", "supported_match_found", matches, analysisCompletion.data.inviteCopy);
+    return finish("no_match", noMatchReason, emptyMatches(), null);
   } catch (error) {
+    if (error instanceof CandidateSourceError) trace.stages.push({name:"candidate_source_result",durationMs:0,note:`${error.source}; failed; ${error.code}`});
     trace.stages.push({
       name: "pipeline_error",
       durationMs: Math.max(0, (dependencies.now?.() ?? Date.now()) - startedAt),

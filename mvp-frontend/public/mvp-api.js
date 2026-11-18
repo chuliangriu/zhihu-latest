@@ -87,7 +87,7 @@ export function discoveryView(result, name) {
     const time = match.sourceType === 'public' && match.timestampKind === 'sample_created'
       ? `${relativeTime} · 演示时间（非原文发布时间）` : relativeTime;
     const quote = match.evidenceRefs?.find(x => x.side === 'candidate')?.quote || '';
-    const key = match.path === 'structureRelated' ? 'B' : 'A';
+    const key = index === 0 ? 'A' : 'B';
     const sourceUrl = safeZhihuUrl(match.sourceUrl);
     candidates[key] = { candidateId: match.candidateId, path: match.path, sourceType: match.sourceType,
       name: match.authorDisplayName.replace(/ · 非真人$/, ''), avatarKey: null,

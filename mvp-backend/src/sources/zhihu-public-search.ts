@@ -21,9 +21,13 @@ export class ZhihuPublicSearchProvider implements PublicSearchProvider{
     this.requestCount++;
     let response:Response;try{response=await this.fetcher(url,{headers:{Authorization:`Bearer ${this.accessSecret}`,"X-Request-Timestamp":String(Math.floor(this.now()/1000)),"Content-Type":"application/json"},signal:AbortSignal.any([signal,AbortSignal.timeout(8000)]),redirect:"error"});}
     catch{throw new ZhihuPublicSearchError("ZHIHU_SEARCH_UNAVAILABLE");}
-    if(!response.ok)throw new ZhihuPublicSearchError(response.status===429?"ZHIHU_RATE_LIMITED":[401,403].includes(response.status)?"ZHIHU_AUTH_FAILED":"ZHIHU_SEARCH_UNAVAILABLE");
-    const payload=await limitedJson(response);const code=Number(payload?.Code);
-    if(code!==0)throw new ZhihuPublicSearchError(code===30001||code===30002?"ZHIHU_RATE_LIMITED":code===20001?"ZHIHU_AUTH_FAILED":"ZHIHU_SEARCH_UNAVAILABLE");
+    let payload:any;
+    try{payload=await limitedJson(response);}catch(error){if(response.ok)throw error;}
+    const code=Number(payload?.Code);
+    if(code===30002)throw new ZhihuPublicSearchError("ZHIHU_QUOTA_EXCEEDED");
+    if(code===30001||response.status===429)throw new ZhihuPublicSearchError("ZHIHU_RATE_LIMITED");
+    if(code===20001||[401,403].includes(response.status))throw new ZhihuPublicSearchError("ZHIHU_AUTH_FAILED");
+    if(!response.ok||code!==0)throw new ZhihuPublicSearchError("ZHIHU_SEARCH_UNAVAILABLE");
     if(!Array.isArray(payload?.Data?.Items))throw new ZhihuPublicSearchError("ZHIHU_RESPONSE_INVALID");
     const parsed=parsePublicSearchItems(payload.Data.Items,this.now(),this.allowDemoTime);
     this.lastReason=parsed.reason;return parsed.candidates;
@@ -47,12 +51,12 @@ export class ZhihuCliPublicSearchProvider implements PublicSearchProvider {
     } catch(error) {
       // CLI errors can contain command/query text. Only surface an allowlisted code.
       const stdout=(error as {stdout?:unknown}).stdout;
-      if(typeof stdout==="string") { try { const code=Number(JSON.parse(stdout)?.Code); if([30001,30002].includes(code))throw new ZhihuPublicSearchError("ZHIHU_RATE_LIMITED"); if(code===20001)throw new ZhihuPublicSearchError("ZHIHU_AUTH_FAILED"); } catch(e){if(e instanceof ZhihuPublicSearchError)throw e;} }
+      if(typeof stdout==="string") { try { const code=Number(JSON.parse(stdout)?.Code); if([30001,30002].includes(code))throw new ZhihuPublicSearchError(code===30002?"ZHIHU_QUOTA_EXCEEDED":"ZHIHU_RATE_LIMITED"); if(code===20001)throw new ZhihuPublicSearchError("ZHIHU_AUTH_FAILED"); } catch(e){if(e instanceof ZhihuPublicSearchError)throw e;} }
       throw new ZhihuPublicSearchError("ZHIHU_SEARCH_UNAVAILABLE");
     }
     let payload;try{payload=JSON.parse(output);}catch{throw new ZhihuPublicSearchError("ZHIHU_RESPONSE_INVALID");}
     const code=Number(payload?.Code);
-    if(code!==0)throw new ZhihuPublicSearchError([30001,30002].includes(code)?"ZHIHU_RATE_LIMITED":code===20001?"ZHIHU_AUTH_FAILED":"ZHIHU_SEARCH_UNAVAILABLE");
+    if(code!==0)throw new ZhihuPublicSearchError(code===30002?"ZHIHU_QUOTA_EXCEEDED":code===30001?"ZHIHU_RATE_LIMITED":code===20001?"ZHIHU_AUTH_FAILED":"ZHIHU_SEARCH_UNAVAILABLE");
     if(!Array.isArray(payload?.Data?.Items))throw new ZhihuPublicSearchError("ZHIHU_RESPONSE_INVALID");
     const parsed=parsePublicSearchItems(payload.Data.Items,this.now(),this.allowDemoTime);
     this.lastReason=parsed.reason;return parsed.candidates;

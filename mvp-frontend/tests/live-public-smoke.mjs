@@ -7,7 +7,6 @@ import { createApi } from '../public/mvp-api.js';
 import { createLiveController } from '../public/mvp-live.js';
 import { entryView } from '../public/mvp-entry.js';
 if(!process.argv.includes('--live'))throw new Error('Pass --live to permit model/search costs');
-process.env.PUBLIC_SOURCE_PROBABILITY='1';
 process.env.ZHIHU_PUBLIC_SEARCH_ENABLED='true';
 process.env.ZHIHU_PUBLIC_DEMO_TIME_ENABLED='true';
 let handler;
@@ -30,7 +29,7 @@ try {
   const entries=Object.entries(c.getState().user.candidates);
   const entry=entries.find(([key,p])=>key==='B'&&p.sourceType==='public')??entries.find(([,p])=>p.sourceType==='public');
   assert.ok(entry,'This live run produced no grounded public match');
-  await c.action('view',entry[0]);assert.equal(c.getState().screen,'public-preview');
+  await c.action('view',entry[0]);assert.equal(c.getState().screen,'card');
   assert.match(html,/知乎/);assert.ok(entry[1].publicReference.url);
   await c.action('write');assert.equal(c.getState().screen,'consent');
   await c.action('confirm-consent');assert.equal(c.getState().error,'');assert.equal(c.getState().screen,'share');

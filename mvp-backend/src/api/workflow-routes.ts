@@ -52,7 +52,7 @@ export function registerWorkflowRoutes(app:Express,deps:{config:AppConfig;runtim
   app.post("/api/conversations/:conversationId/discovery",auth,async(request,response,next)=>{
     const route=z.string().uuid().safeParse(request.params.conversationId),body=discoveryRequestSchema.safeParse(request.body);
     if(!route.success||!body.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
-    const started=await begin(request,response,protection,deps.config,"discovery.evaluate",3,true);if(!started)return;
+    const started=await begin(request,response,protection,deps.config,"discovery.evaluate",deps.config.candidateMode === "routed" ? 5 : 3,true);if(!started)return;
     try{
       const ownerId=request.principal!.userId;
       const assessment=await deps.workflowStore.getTopicAssessment(route.data,ownerId,body.data.assistantMessageId);

@@ -115,7 +115,7 @@ export function createEntryController({ render, schedule = setTimeout, cancel = 
     if (action === 'replay-chat') { state.stage = 0; state.typewriterStage = null; play(); return; }
     if (action === 'collapse-chat' || action === 'toggle-chat') { state.chatOpen = action === 'collapse-chat' ? false : !state.chatOpen; play(); return; }
     if (action === 'view' && !state.selected && flowUser(state).candidates[id]) {
-      state.selected = id; state.screen = candidate().publicReference ? 'public-preview' : 'card'; paint(); return;
+      state.selected = id; state.screen = !state.live && candidate().publicReference ? 'public-preview' : 'card'; paint(); return;
     }
     if (action === 'write' && candidate() && !candidate().previewOnly) { state.screen = 'consent'; paint(); return; }
     if (action === 'confirm-consent') { state.screen = 'share'; paint(); return; }
@@ -134,7 +134,7 @@ export function createEntryController({ render, schedule = setTimeout, cancel = 
     if (action === 'back') {
       stop();
       if (state.screen === 'share') state.screen = 'consent';
-      else if (state.screen === 'consent') state.screen = candidate().publicReference ? 'public-preview' : 'card';
+      else if (state.screen === 'consent') state.screen = !state.live && candidate().publicReference ? 'public-preview' : 'card';
       else { if (candidate()?.previewOnly) state.selected = null; state.screen = 'chat'; }
       paint(); return;
     }

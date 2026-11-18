@@ -19,6 +19,11 @@ describe("Zhihu public recency boundary",()=>{
     await expect(new ZhihuPublicSearchProvider("secret",fetcher,()=>now).search(["写作"],new AbortController().signal)).rejects.toMatchObject({code:"ZHIHU_RATE_LIMITED"});
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
+  it.each([200,429])("preserves explicit quota error with HTTP %s and does not retry",async status=>{
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:30002},{status}));
+    await expect(new ZhihuPublicSearchProvider("secret",fetcher,()=>now).search(["写作"],new AbortController().signal)).rejects.toMatchObject({code:"ZHIHU_QUOTA_EXCEEDED"});
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
   it("keeps all valid live results and null metrics, marks unknown publication only in demo mode",()=>{
     const first={...item({EditTime:now/1000}),VoteUpCount:null,CommentCount:null};
     const second={...item({PublishedAt:(now-86400000)/1000}),ContentID:"124"};

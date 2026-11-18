@@ -28,3 +28,23 @@ test('a discovery JSON failure does not discard an already completed chat reply'
   assert.match(html, /这是一段已经完成的正常回复。/);
   assert.match(html, /这次没能整理出相关的纸条，但刚才的聊天已经完成。你可以继续说。/);
 });
+
+for (const [reasonCode,notice] of [
+  ['zhihu_rate_limited','知乎搜索触发频率限制'],
+  ['zhihu_quota_exceeded','知乎搜索额度暂不可用'],
+  ['zhihu_auth_failed','这次匹配暂时没有完成'],
+]) test(`discovery ${reasonCode} stays distinct from a normal no-match`,async()=>{
+  const api={
+    async json(path){
+      if(path==='/api/auth-me')return {success:true,localDevelopment:true,user:{id:'user-1',display_name:'测试用户'}};
+      if(path.includes('/discovery'))return {status:'unavailable',reasonCode,matches:{situationClose:null,structureRelated:null}};
+      throw new Error('unexpected path');
+    },
+    async chat(_conversationId,_message,onDelta){onDelta('已经完成的聊天。');return {conversationId:'conversation-1',assistantMessageId:'assistant-1',discovery:{eligible:true,topicKey:'writing'}};}
+  };
+  const c=createLiveController({api,render:()=>{}});c.initialize();await c.action('start');await c.action('enter-chat');
+  c.input('chatDraft','我想聊聊最近正在做的一件事。');await c.action('send-chat');
+  assert.ok(c.getState().chatNotice.includes(notice));
+  assert.doesNotMatch(c.getState().chatNotice,/没有找到有具体关联/);
+  assert.ok(c.getState().user.chat.some(m=>m.text==='已经完成的聊天。'));
+});

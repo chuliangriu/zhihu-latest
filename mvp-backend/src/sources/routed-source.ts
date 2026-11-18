@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { candidateExpressionSchema, type CandidateExpression } from "../contracts/schemas.js";
 import { filterDisplayableCandidates, isZhihuUrl } from "../guards/candidates.js";
 import { filterInjectionCandidates } from "../security/prompt-injection.js";
-import type { CandidateSource, CandidateSearchInput } from "./candidate-source.js";
+import { CandidateSourceError, type CandidateSource, type CandidateSearchInput, type CandidateBatch } from "./candidate-source.js";
 import type { PublicSearchProvider } from "./zhihu-public-search.js";
 import { demoPublicDate, ZhihuPublicSearchError } from "./zhihu-public-search.js";
 import { syntheticCardProfile } from "./candidate-profile.js";
@@ -12,9 +12,9 @@ export interface PrivatePool {
   listRecentlyPresentedCandidateIds?(viewerId: string, signal: AbortSignal): Promise<string[]>;
 }
 
-/** Per-request instance. Randomness chooses a source, never fabricates a relationship. */
+/** Per-request, lazy ordered sources. Synthetic cards belong only to the separate demo. */
 export class RoutedCandidateSource implements CandidateSource {
-  decision: "real_private" | "public" | "synthetic_private" | "empty" | null = null;
+  decision: "real_private" | "public" | "empty" | null = null;
   publicWindowDays: 7 | 14 | null = null;
   publicOrigin: "live" | "backup" | null = null;
   private searchFailure: string | null = null;
@@ -22,10 +22,9 @@ export class RoutedCandidateSource implements CandidateSource {
   get publicSearchReason(){return this.searchFailure??this.options.publicProvider?.lastReason??null;}
   private real: CandidateExpression[] | undefined;
   constructor(private readonly viewerId: string, private readonly pool: PrivatePool,
-    private readonly publicCandidates: CandidateExpression[], private readonly synthetic: CandidateExpression[],
+    private readonly publicCandidates: CandidateExpression[], _synthetic: CandidateExpression[],
     private readonly options: { publicProbability?: number; random?: () => number; now?: () => number; publicProvider?:PublicSearchProvider; allowPublicDemoTime?:boolean } = {}) {
-    const p = options.publicProbability ?? 0.65;
-    if (!Number.isFinite(p) || p < 0 || p > 1) throw new RangeError("Invalid public probability");
+    // Legacy probability/random arguments are ignored; routing is deterministic.
   }
   private clean(items: CandidateExpression[], publicDays = 7) {
     return filterInjectionCandidates(filterDisplayableCandidates(items.filter(c => c.authorId !== this.viewerId),
@@ -49,6 +48,10 @@ export class RoutedCandidateSource implements CandidateSource {
     });
   }
   async search(input: CandidateSearchInput, signal: AbortSignal) {
+    for await (const batch of this.searchBatches(input,signal)) if (batch.candidates.length) return batch.candidates;
+    return [];
+  }
+  async *searchBatches(input: CandidateSearchInput, signal: AbortSignal): AsyncIterable<CandidateBatch> {
     this.publicWindowDays = null;
     this.publicOrigin = null;
     this.searchFailure = null;
@@ -59,45 +62,37 @@ export class RoutedCandidateSource implements CandidateSource {
       const unseen=scored.filter(x=>!recentlyPresented.has(x.candidate.candidateId));
       return (unseen.length?unseen:scored).map(x=>x.candidate).slice(0,input.limit);
     };
-    const real = await this.realPool(signal);
-    const draw = (this.options.random ?? Math.random)();
-    if (!Number.isFinite(draw) || draw < 0 || draw >= 1) throw new RangeError("Invalid random draw");
-    const publicFirst = draw < (this.options.publicProbability ?? 0.65);
-    const sources = publicFirst ? ["public", "private"] as const : ["private", "public"] as const;
-    for (const kind of sources) {
-      if(kind==="private"){
-        const found=rank(this.clean([...real,...this.synthetic.filter(c=>c.source.sourceType==="synthetic_private")]));
-        if(found.length){this.decision=found[0]!.source.sourceType==="authorized_private"?"real_private":"synthetic_private";return found;}
-        continue;
+    this.decision = "real_private";
+    yield {source:"authorized_private",candidates:rank(await this.realPool(signal))};
+    signal.throwIfAborted();
+    const publicRecall = (items: CandidateExpression[]) => {
+      const publicItems=items.filter(c=>c.source.sourceType==="public"&&isZhihuUrl(c.source.url));
+      for (const days of [7,14] as const) {
+        const candidates=rank(this.clean(publicItems,days));
+        if(candidates.length){this.publicWindowDays=days;return candidates;}
       }
-      let dynamic:CandidateExpression[]=[];
-      if(this.options.publicProvider){
-        try { dynamic=await this.options.publicProvider.search(input.directions,signal); }
-        catch(error){
-          if(signal.aborted)throw error;
-          this.searchFailure=error instanceof ZhihuPublicSearchError?error.code:"ZHIHU_SEARCH_UNAVAILABLE";
-        }
+      return [];
+    };
+    this.decision="public";this.publicOrigin="backup";
+    yield {source:"public_inventory",candidates:publicRecall(this.publicCandidates)};
+    signal.throwIfAborted();
+    this.publicOrigin="live";this.publicWindowDays=null;
+    if(this.options.publicProvider){
+      let dynamic:CandidateExpression[];
+      try { dynamic=await this.options.publicProvider.search(input.directions,signal); }
+      catch(error){
+        this.searchFailure=error instanceof ZhihuPublicSearchError?error.code:"ZHIHU_SEARCH_UNAVAILABLE";
+        throw new CandidateSourceError(this.searchFailure,"public_search");
       }
-      // Exhaust live 7/14-day results before consulting stored backup. One
-      // bounded API attempt only; rate limits never start a retry loop.
-      const batches=[dynamic,this.publicCandidates];
-      for(const [batchIndex,batch] of batches.entries()){
-      const items = batch
-        .filter(c => c.source.sourceType === "public" && isZhihuUrl(c.source.url));
-      // Widen only when no relevant first-week candidates were recalled; never pad to two.
-      const windows = [7, 14] as const;
-      for (const days of windows) {
-        const found = rank(this.clean(items, days));
-        if (found.length) {
-          this.decision = "public";
-          this.publicWindowDays = days;this.publicOrigin=batchIndex===0?"live":"backup";
-          return found;
-        }
-      }
-      }
+      yield {source:"public_search",candidates:publicRecall(dynamic),reasonCode:this.options.publicProvider.lastReason??"completed"};
+    } else {
+      // Disabled search is an unavailable source, not a successfully empty result.
+      this.searchFailure="ZHIHU_SEARCH_NOT_CONNECTED";
+      throw new CandidateSourceError(this.searchFailure,"public_search");
     }
-    this.decision = "empty"; return [];
+    this.decision="empty";
   }
+
 }
 
 const segmenter = new Intl.Segmenter("zh", { granularity: "word" });

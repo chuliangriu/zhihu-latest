@@ -19,7 +19,6 @@ const configSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     CANDIDATE_MODE: z.enum(["fixture", "routed"]).default("fixture"),
-    PUBLIC_SOURCE_PROBABILITY: z.coerce.number().min(0).max(1).default(0.65),
     AUTH_MODE: z.enum(["signed", "session"]).default("signed"),
     PROFILE_SUMMARY_ENABLED: booleanString,
     ZHIHU_USER_DATA_MIN_INTERVAL_MS: z.coerce.number().int().min(1_000).max(10_000).default(2_000),
@@ -89,7 +88,6 @@ const configSchema = z
   .transform((value) => ({
     nodeEnv: value.NODE_ENV,
     candidateMode: value.CANDIDATE_MODE,
-    publicSourceProbability: value.PUBLIC_SOURCE_PROBABILITY,
     authMode: value.AUTH_MODE,
     profile: { enabled: value.PROFILE_SUMMARY_ENABLED, accessSecret: value.ZHIHU_ACCESS_SECRET, encryptionKey: value.TOKEN_ENCRYPTION_KEY,
       userDataPolicy: { minIntervalMs: value.ZHIHU_USER_DATA_MIN_INTERVAL_MS, cooldownMs: value.ZHIHU_USER_DATA_COOLDOWN_MS,

@@ -5,7 +5,8 @@ import { MockLlmProvider } from "../src/llm/mock-provider.js";
 import { runDiscoveryPipeline } from "../src/pipeline/discovery-pipeline.js";
 import { StaticCandidateSource } from "../src/sources/candidate-source.js";
 
-it.each(["public", "synthetic_private"] as const)("runs all three nodes with routed %s evidence", async kind => {
+it("runs all three nodes with real public evidence", async () => {
+  const kind: "public" | "synthetic_private" = "public";
   const fixture = await new FixtureRepository().load("feedback-across-domains");
   const candidate = structuredClone(fixture.candidates.find(c => kind === "public" ? c.source.sourceType === "public" : c.source.sourceType === "authorized_private")!);
   candidate.source.sourceType = kind;
@@ -21,7 +22,7 @@ it.each(["public", "synthetic_private"] as const)("runs all three nodes with rou
     candidate_analysis: { ...outputs.candidateAnalysis!, matches: outputs.candidateAnalysis!.matches.filter(m => m.candidateId === candidate.candidateId) },
     presentation_copy: { ...outputs.presentationCopy!, choices: outputs.presentationCopy!.choices.filter(c => c.candidateId === candidate.candidateId) }
   });
-  const source = new RoutedCandidateSource("viewer", { list: async () => [] }, kind === "public" ? [candidate] : [], kind === "synthetic_private" ? [candidate] : [], { random: () => 0 });
+  const source = new RoutedCandidateSource("viewer", { list: async () => [] }, kind === "public" ? [candidate] : [], [], { random: () => 0 });
   const result = await runDiscoveryPipeline({ fixtureSet: "ignored", conversation: fixture.fixture.request.conversation! }, {
     llm, candidateSource: source, timeoutMs: 1000, dataMode: "routed", publicRecentDays: 14,
     trustedContext: { allowDiscovery: true, safetyPassed: true }
@@ -33,8 +34,7 @@ it.each(["public", "synthetic_private"] as const)("runs all three nodes with rou
   expect(match.sourceType).toBe(kind);
   expect(match.contactable).toBe(false);
   expect(result.meta.eligiblePrivatePoolSize).toBe(0);
-  if (kind === "synthetic_private") expect(match.authorDisplayName).toContain("非真人");
-  else expect(match.publishedAt).toBe(candidate.source.publishedAt);
+  expect(match.publishedAt).toBe(candidate.source.publishedAt);
 });
 
 it.each(["old", "ambiguous", "missing"])("routed pipeline cannot bypass date policy through another source: %s", async reason => {

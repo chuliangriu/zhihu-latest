@@ -53,9 +53,9 @@ test('private frontend actions use real backend draft, confirm/deliver, handoff 
   c.initialize();await c.action('start');await c.action('enter-chat');
   const s=c.getState();s.conversationId=conversation.id;s.discoveryId=snapshot.id;
   s.user.candidates=discoveryView(result,'测试发送方').candidates;
-  assert.deepEqual(s.user.candidates.B.profile,result.matches.structureRelated.profileBackground);
-  assert.equal(s.user.candidates.B.focus,result.matches.structureRelated.recentFocus);
-  await c.action('view','B');await c.action('write');await c.action('confirm-consent');
+  assert.deepEqual(s.user.candidates.A.profile,result.matches.structureRelated.profileBackground);
+  assert.equal(s.user.candidates.A.focus,result.matches.structureRelated.recentFocus);
+  await c.action('view','A');await c.action('write');await c.action('confirm-consent');
   assert.equal(s.error,'');assert.equal(s.paper.status,'draft');
   await c.action('deposit');assert.equal(s.error,'');finish();
   assert.equal(s.paper.status,'active');assert.equal(s.delivery.status,'delivered');

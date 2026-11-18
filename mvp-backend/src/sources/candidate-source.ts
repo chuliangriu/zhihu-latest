@@ -8,7 +8,20 @@ export interface CandidateSearchInput {
   breadth: "broad" | "expanded" | "focused";
 }
 
+export type CandidateBatchSource = "authorized_private" | "public_inventory" | "public_search" | "static";
+export interface CandidateBatch {
+  source: CandidateBatchSource;
+  candidates: CandidateExpression[];
+  reasonCode?: string;
+}
+
+export class CandidateSourceError extends Error {
+  constructor(public readonly code: string, public readonly source: CandidateBatchSource) { super(code); }
+}
+
 export interface CandidateSource {
+  /** Lazy batches: requesting the next batch means the previous one had no supported match. */
+  searchBatches?(input: CandidateSearchInput, signal: AbortSignal): AsyncIterable<CandidateBatch>;
   /** Returns the effective authorized-private pool size, not registration count. */
   getEligiblePrivatePoolSize(signal: AbortSignal): Promise<number>;
   search(input: CandidateSearchInput, signal: AbortSignal): Promise<CandidateExpression[]>;

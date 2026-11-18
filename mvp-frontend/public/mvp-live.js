@@ -141,7 +141,11 @@ export function createLiveController({ render, api = createApi(), navigate = url
           state.discoveryId = result.discoveryId;
           const display = discoveryView(result, state.user.name);
           state.user.candidates = display.candidates; state.user.discoveryChat = display.messages;
-          if (!display.messages.length) state.chatNotice = result.status === 'not_eligible' ? '我们先接着聊聊刚才的事。' : '这次暂时没有找到有具体关联的表达。我们可以接着聊。';
+          if (!display.messages.length) state.chatNotice = result.status === 'unavailable'
+            ? /zhihu_quota_exceeded/i.test(result.reasonCode) ? '知乎搜索额度暂不可用，这次匹配没有完成。刚才的聊天已保留。'
+              : /zhihu_rate_limited/i.test(result.reasonCode) ? '知乎搜索触发频率限制，这次匹配没有完成。请稍后再试，刚才的聊天已保留。'
+              : '这次匹配暂时没有完成，刚才的聊天已保留。可以稍后再试。'
+            : result.status === 'not_eligible' ? '我们先接着聊聊刚才的事。' : '这次暂时没有找到有具体关联的表达。我们可以接着聊。';
           else state.chatNotice = '';
         } catch {
           // Discovery is an optional follow-up. The streamed chat answer has

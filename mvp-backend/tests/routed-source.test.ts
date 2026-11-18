@@ -14,34 +14,40 @@ const make = (type: CandidateExpression["source"]["sourceType"], id: string = ty
 });
 function source(real: CandidateExpression[], p = 0.5, draw = 0.1, pub = [make("public")], synthetic = [make("synthetic_private")]) {
   const random = vi.fn(() => draw);
-  return { random, source: new RoutedCandidateSource("viewer", { list: async () => real }, pub, synthetic, { now: () => now, publicProbability: p, random }) };
+  return { random, source: new RoutedCandidateSource("viewer", { list: async () => real }, pub, synthetic, { now: () => now, publicProbability: p, random, publicProvider:{search:async()=>[],requestCount:0,lastReason:"no_recent_result"} }) };
 }
-describe("probability-based source routing", () => {
-  it("searches live on the public draw, prefers live over backup, records usage",async()=>{
+describe("ordered source routing", () => {
+  it("prefers real authorized papers over inventory and live search without a random draw",async()=>{
+    const provider={requestCount:0,lastReason:null,search:vi.fn(async()=>[make("public","live")])};
+    const random=vi.fn(()=>{throw new Error("random routing must never run");});
+    const s=new RoutedCandidateSource("viewer",{list:async()=>[make("authorized_private")]},[make("public","inventory")],[make("synthetic_private")],{random,now:()=>now,publicProvider:provider});
+    expect((await s.search(input,signal)).map(c=>c.candidateId)).toEqual(["authorized_private"]);
+    expect(provider.search).not.toHaveBeenCalled();expect(random).not.toHaveBeenCalled();
+  });
+  it("prefers inventory over live search",async()=>{
+    const provider={requestCount:0,lastReason:null,search:vi.fn(async()=>[make("public","live")])};
+    const s=new RoutedCandidateSource("viewer",{list:async()=>[]},[make("public","inventory")],[],{now:()=>now,publicProvider:provider});
+    expect((await s.search(input,signal)).map(c=>c.candidateId)).toEqual(["inventory"]);
+    expect(s.publicOrigin).toBe("backup");expect(provider.search).not.toHaveBeenCalled();
+  });
+  it("reaches live only after earlier batches are consumed, and calls it once",async()=>{
     const provider={requestCount:1,lastReason:"verified_publication_time",search:vi.fn(async()=>[make("public","live")])};
-    const s=new RoutedCandidateSource("viewer",{list:async()=>[]},[make("public","backup")],[],{random:()=>0,now:()=>now,publicProvider:provider});
-    expect((await s.search(input,signal)).map(c=>c.candidateId)).toEqual(["live"]);
-    expect(provider.search).toHaveBeenCalledWith(input.directions,signal);
-    expect(s.publicOrigin).toBe("live");expect(s.zhihuSearchRequests).toBe(1);
+    const s=new RoutedCandidateSource("viewer",{list:async()=>[make("authorized_private")]},[make("public","inventory")],[],{now:()=>now,publicProvider:provider});
+    const iterator=s.searchBatches(input,signal)[Symbol.asyncIterator]();
+    expect((await iterator.next()).value?.source).toBe("authorized_private");expect(provider.search).not.toHaveBeenCalled();
+    expect((await iterator.next()).value?.source).toBe("public_inventory");expect(provider.search).not.toHaveBeenCalled();
+    expect((await iterator.next()).value).toMatchObject({source:"public_search",candidates:[{candidateId:"live"}]});
+    expect((await iterator.next()).done).toBe(true);expect(provider.search).toHaveBeenCalledTimes(1);
   });
-  it.each(["ZHIHU_RATE_LIMITED","ZHIHU_AUTH_FAILED","ZHIHU_SEARCH_UNAVAILABLE"])("uses backup after %s without retrying",async code=>{
+  it.each(["ZHIHU_RATE_LIMITED","ZHIHU_QUOTA_EXCEEDED","ZHIHU_AUTH_FAILED","ZHIHU_SEARCH_UNAVAILABLE"])("preserves %s as a failure, with no retry or fabricated fallback",async code=>{
     const provider={requestCount:1,lastReason:null,search:vi.fn(async()=>{throw new ZhihuPublicSearchError(code);})};
-    const s=new RoutedCandidateSource("viewer",{list:async()=>[]},[make("public","backup")],[],{random:()=>0,now:()=>now,publicProvider:provider});
-    expect((await s.search(input,signal))[0]?.candidateId).toBe("backup");
-    expect(provider.search).toHaveBeenCalledTimes(1);expect(s.publicOrigin).toBe("backup");expect(s.publicSearchReason).toBe(code);expect(s.zhihuSearchRequests).toBe(1);
+    const s=new RoutedCandidateSource("viewer",{list:async()=>[]},[],[make("synthetic_private")],{now:()=>now,publicProvider:provider});
+    await expect(s.search(input,signal)).rejects.toMatchObject({code});
+    expect(provider.search).toHaveBeenCalledTimes(1);expect(s.publicSearchReason).toBe(code);
   });
-  it("uses backup on empty live search, but not when live is usable within 14 days",async()=>{
-    const live=make("public","live");live.source.publishedAt=new Date(now-10*86400000).toISOString();
-    const provider={requestCount:1,lastReason:null,search:vi.fn(async()=>[live])};
-    const s=new RoutedCandidateSource("viewer",{list:async()=>[]},[make("public","backup")],[],{random:()=>0,now:()=>now,publicProvider:provider});
-    expect((await s.search(input,signal))[0]?.candidateId).toBe("live");expect(s.publicWindowDays).toBe(14);
-    provider.search.mockResolvedValue([]);
-    expect((await s.search(input,signal))[0]?.candidateId).toBe("backup");
-  });
-  it.each([true,false])("does not call public search when a private draw succeeds: %s",async real=>{
-    const provider={requestCount:0,lastReason:null,search:vi.fn(async()=>[])};
-    const s=new RoutedCandidateSource("viewer",{list:async()=>real?[make("authorized_private")]:[]},[],[make("synthetic_private")],{random:()=>0.9,now:()=>now,publicProvider:provider});
-    await s.search(input,signal);expect(provider.search).not.toHaveBeenCalled();
+  it("treats disabled live search as unavailable, not a successful empty search",async()=>{
+    const s=new RoutedCandidateSource("viewer",{list:async()=>[]},[],[]);
+    await expect(s.search(input,signal)).rejects.toMatchObject({code:"ZHIHU_SEARCH_NOT_CONNECTED"});
   });
   it("public demo dates require explicit server opt-in",async()=>{
     const c=make("public");c.source.timestampKind="sample_created";
@@ -54,25 +60,14 @@ describe("probability-based source routing", () => {
     expect(demo.publicCandidates.length).toBe(strict.publicCandidates.length);
     expect(demo.publicCandidates[0]).toMatchObject({text:strict.publicCandidates[0]!.text,permission:{contactable:false},source:{url:strict.publicCandidates[0]!.source.url,timestampKind:"sample_created"}});
   });
-  it("counts only real authorized cards while the draw still controls public versus private", async () => {
-    const s = source([make("authorized_private")],0.5,0.9);
+  it("counts only real authorized cards and never consults the legacy random options", async () => {
+    const s=source([make("authorized_private")]);
     expect(await s.source.getEligiblePrivatePoolSize(signal)).toBe(1);
-    expect((await s.source.search(input, signal))[0]?.source.sourceType).toBe("authorized_private");
-    expect(s.random).toHaveBeenCalledTimes(1);
+    expect((await s.source.search(input,signal))[0]?.source.sourceType).toBe("authorized_private");
+    expect(s.random).not.toHaveBeenCalled();
   });
-  it("honors a public draw even when a relevant real private paper exists",async()=>{
-    const s=source([make("authorized_private")],0.65,0.1);
-    expect((await s.source.search(input,signal))[0]?.source.sourceType).toBe("public");
-  });
-  it.each([[0.1, "public"], [0.9, "synthetic_private"]] as const)("draw %s selects %s", async (draw, type) => {
-    const s = source([], 0.5, draw);
-    expect(await s.source.getEligiblePrivatePoolSize(signal)).toBe(0);
-    expect((await s.source.search(input, signal))[0]?.source.sourceType).toBe(type);
-    expect(s.random).toHaveBeenCalledTimes(1);
-  });
-  it.each([[0.649999, "public"], [0.65, "synthetic_private"]] as const)("uses a 65:35 public-to-synthetic boundary at draw %s", async (draw, type) => {
-    const s = source([], 0.65, draw);
-    expect((await s.source.search(input, signal))[0]?.source.sourceType).toBe(type);
+  it("does not use synthetic samples even when all real sources are empty",async()=>{
+    expect(await source([],0.5,0.9,[]).source.search(input,signal)).toEqual([]);
   });
   it("rotates away from candidates already presented to the same viewer",async()=>{
     const first=make("public","public-first"),second=make("public","public-second");
@@ -86,10 +81,10 @@ describe("probability-based source routing", () => {
     const routed=new RoutedCandidateSource("viewer",pool,[first,second],[],{publicProbability:1,random:()=>0,now:()=>now});
     expect((await routed.search(input,signal)).map(c=>c.candidateId)).toEqual([first.candidateId,second.candidateId]);
   });
-  it("falls back from empty public source and ignores unrelated real cards", async () => {
+  it("ignores unrelated real cards without falling back to synthetic cards", async () => {
     const real = make("authorized_private"); real.text = "我想知道客厅里的桌子应该怎么摆。";
     const s = source([real], 0.5, 0, []);
-    expect((await s.source.search(input, signal))[0]?.source.sourceType).toBe("synthetic_private");
+    expect(await s.source.search(input, signal)).toEqual([]);
   });
   it("filters self, revoked, expired and injection before matching", async () => {
     const revoked = make("authorized_private"); revoked.permission.status = "withdrawn";
@@ -132,9 +127,9 @@ describe("probability-based source routing", () => {
     expect((await s.source.search(input, signal)).map(c => c.candidateId)).toEqual(["older"]);
     expect(s.source.publicWindowDays).toBe(14);
   });
-  it("keeps the existing synthetic fallback when public dates cannot be verified", async () => {
+  it("does not replace unverifiable public evidence with synthetic people", async () => {
     const c = make("public"); c.source.timestampKind = "edited_or_published";
-    expect((await source([], 1, 0, [c]).source.search(input, signal))[0]?.source.sourceType).toBe("synthetic_private");
+    expect(await source([], 1, 0, [c]).source.search(input, signal)).toEqual([]);
   });
   it("does not invent a match for unrelated input or database failure", async () => {
     expect(await source([]).source.search({ ...input, directions: ["如何养绿萝"] }, signal)).toEqual([]);
@@ -155,11 +150,11 @@ describe("probability-based source routing", () => {
     expect(matches.accepted[0]?.profileBackground).toEqual(c.profileBackground);
     expect(matches.accepted[0]?.recentFocus).toBe(c.recentFocus);
   });
-  it("accepts an explicitly marked recent synthetic sample without calling it verified", async () => {
+  it("excludes even explicitly marked recent synthetic samples from normal routing", async () => {
     const c = make("synthetic_private");
     expect(c.source.verified).toBe(false);
     expect(c.source.timestampKind).toBe("sample_created");
-    expect((await source([], 0.5, 0.9, [], [c]).source.search(input, signal))[0]?.candidateId).toBe(c.candidateId);
+    expect(await source([], 0.5, 0.9, [], [c]).source.search(input, signal)).toEqual([]);
   });
   it("loads distinct real-public and synthetic data with provenance", async () => {
     const data = await loadSeedCandidates(() => now);

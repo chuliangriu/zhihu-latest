@@ -52,7 +52,7 @@ export class DiscoveryRuntime {
     const seeds = await loadSeedCandidates(Date.now, this.config.publicDemoTimeEnabled);
     const source = new RoutedCandidateSource(principal.userId,
       new SupabaseAdapter(this.config.supabase.url!, this.config.supabase.serviceKey!),
-      seeds.publicCandidates, seeds.synthetic, { publicProbability: this.config.publicSourceProbability, allowPublicDemoTime:this.config.publicDemoTimeEnabled,
+      seeds.publicCandidates, [], { allowPublicDemoTime:this.config.publicDemoTimeEnabled,
         ...(this.config.publicSearchEnabled?{publicProvider:this.config.publicSearchTransport==="local_cli"
           ? new ZhihuCliPublicSearchProvider(this.config.zhihuCliPath!,Date.now,this.config.publicDemoTimeEnabled)
           : new ZhihuPublicSearchProvider(this.config.profile.accessSecret!,fetch,Date.now,this.config.publicDemoTimeEnabled)}:{}) });

@@ -86,7 +86,7 @@ export class ProtectionService {
       }
 
       const date = new Date().toISOString().slice(0, 10);
-      const llmRequestReserve = requiresLlm ? (input.llmRequestBase ?? (endpointId === "profile.summarize" ? 1 : 3)) + this.config.llm.maxRetries : 0;
+      const llmRequestReserve = requiresLlm ? (input.llmRequestBase ?? (endpointId === "profile.summarize" ? 1 : endpointId === "discovery.evaluate" && this.config.candidateMode === "routed" ? 5 : 3)) + this.config.llm.maxRetries : 0;
       const outputTokenReserve = this.config.llm.maxOutputTokens * llmRequestReserve;
       const requestId = randomUUID();
       const reservationDecision = await this.protectionStore.reserve({
