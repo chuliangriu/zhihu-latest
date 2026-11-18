@@ -5,7 +5,7 @@ export function createApi(fetcher = globalThis.fetch) {
     coverage: payload?.data?.coverage,
     sources: payload?.data?.sources,
     retryAfter: response?.headers?.get?.('retry-after') ?? payload?.data?.retryAfterSeconds ?? null,
-    requestId: payload?.error?.requestId || response?.headers?.get?.('x-request-id') || null,
+    requestId: payload?.error?.requestId || payload?.data?.requestId || response?.headers?.get?.('x-request-id') || null,
   });
   async function json(path, body, method = 'POST', signal) {
     const response = await fetcher(path, { method, credentials: 'same-origin', cache: 'no-store', redirect: 'error',

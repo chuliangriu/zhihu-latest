@@ -1,6 +1,7 @@
 import { createEntryController } from './mvp-entry.js';
 import { createApi, discoveryView, safeZhihuUrl } from './mvp-api.js';
 import { decodeSession } from './mvp-auth.js';
+import { initialUser } from './mvp-profile.js';
 
 const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什么、你为什么在意、现在卡在哪里，都可以慢慢说，不用一次讲完。等我真的听懂了，才有可能从看山们的信箱里，替你带回一张相关的纸 🦊';
 
@@ -67,7 +68,9 @@ export function createLiveController({ render, api = createApi(), navigate = url
       ZHIHU_RATE_LIMITED: '知乎读取触发频率限制，请等待后再同步背景。',
       ZHIHU_QUOTA_EXCEEDED: '知乎接口可用额度已耗尽，恢复时间以知乎为准。可以先手动补充背景。',
       ZHIHU_ACCESS_SECRET_REJECTED: '知乎连接配置暂不可用，请稍后再试。你可以先手动补充背景。',
-      insufficient_footprints: '近期可用的公开创作和收藏不足以整理背景。你可以先补充自己的近期背景。',
+      insufficient_footprints: `近两年可用的公开创作和收藏共 ${(coverage?.creations || 0) + (coverage?.collections || 0)} 条，尚不足 2 条。你可以补充知乎内容后再同步，或手动补充背景。`,
+      profile_insufficient_evidence: '已读取足够数量的知乎资料，但内容还不足以可靠地整理你的背景。你可以先手动补充背景。',
+      profile_output_incomplete: '知乎资料已读取，但这次背景整理不完整。请重新同步，或先手动补充背景。',
       profile_evidence_rejected: '现有足迹还不足以可靠地介绍你。你可以先补充自己的近期背景。',
       SHORT_RATE_LIMITED: '同步太频繁了，请稍后再试。',
       DAILY_QUOTA_EXCEEDED: '今天的背景同步额度已用完，可以先手动补充背景。',
@@ -96,12 +99,30 @@ export function createLiveController({ render, api = createApi(), navigate = url
     state.busy = true; paint();
     try { await syncProfile(); } finally { state.busy = false; paint(); }
   }
+  function clearAccount() {
+    base.stop(); clearTimeout(profileRetryTimer);
+    Object.assign(state, { user: initialUser(), sampleScenario: null, conversationId: null, discoveryId: null,
+      sessionReady: false, localDevelopment: false, selected: null, paper: null, paperEdit: null, activePapers: [],
+      chatDraft: '', queuedChat: '', privateDraft: '', privateMessages: [], publicDraft: '', publicReplies: [],
+      profileDraft: '', nameDraft: '', roleDraft: '', profileOpen: false, profileError: '',
+      profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
+      stage: 0, typewriterStage: null, typedChars: 0, chatNotice: '' });
+  }
+  async function logout() {
+    state.busy = true; state.error = ''; paint();
+    try {
+      await api.json('/api/logout', {});
+      clearAccount(); state.authRequired = false; state.screen = 'home';
+    } catch { state.error = '退出未完成，请稍后重试。'; }
+    finally { state.busy = false; paint(); }
+  }
   async function start() {
     state.screen = 'login'; state.busy = true; state.error = ''; paint();
     try {
       const session = await api.json('/api/auth-me', undefined, 'GET');
       const decoded = decodeSession(session);
       if (decoded.status !== 'authenticated') throw new Error('SESSION_INVALID');
+      if (state.user.id !== decoded.identity.id) clearAccount();
       Object.assign(state.user, decoded.identity); state.sessionReady = true; state.authRequired = false;
       state.localDevelopment = session.localDevelopment === true;
       state.chatNotice = '';
@@ -110,6 +131,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       }
     } catch (error) {
       if (/NOT_LOGGED|UNAUTHENTICATED/.test(error?.message || '')) {
+        clearAccount();
         state.authRequired = true;
         state.error = '';
       } else fail(error);
@@ -217,6 +239,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (state.busy) return;
       if (action === 'save-profile' && !state.nameDraft.trim()) state.nameDraft = state.user.name;
       if (action === 'start') return start();
+      if (action === 'logout') return logout();
       if (action === 'retry-profile') return retryProfile();
       if (action === 'enter-chat') {
         if (!state.sessionReady) return start();

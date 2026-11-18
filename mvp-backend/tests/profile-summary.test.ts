@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { ProfileSummaryService } from "../src/profile/summary-service.js";
-import { ZhihuFootprintSource, decryptProfileToken } from "../src/profile/zhihu-footprints.js";
+import { ZhihuFootprintSource, decryptProfileToken, ProfileDataError } from "../src/profile/zhihu-footprints.js";
 import { LlmProviderError } from "../src/llm/provider.js";
 import { MockLlmProvider } from "../src/llm/mock-provider.js";
 import { KANSHAN_PROFILE_PROMPT } from "../src/prompts/profile-summary.js";
@@ -98,6 +98,32 @@ describe("profile generation", () => {
     expect(result.status).toBe("needs_input"); expect(result.profile).toBeNull();
   });
 });
+describe("profile result diagnostics", () => {
+  it("separates insufficient count, model evidence and incomplete model output", async () => {
+    const provider = vi.fn(() => new MockLlmProvider({profile_summary:output}));
+    const short = await new ProfileSummaryService({load:async()=>footprints.slice(0,1)},provider).generate(userId);
+    expect(short.result.reasonCode).toBe("insufficient_footprints");
+    expect(short.result.diagnostics).toEqual({usableCount:1,modelCalled:false,stage:"filtering"});
+    expect(short.result.sources).toEqual({creation:"read",collection:"read"});
+    expect(short.result.requestId).toBe(short.trace.requestId);expect(provider).not.toHaveBeenCalled();
+    for (const [modelOutput, reasonCode, status] of [
+      [{insufficientEvidence:true,background:[],recentFocus:null,unknown:[]},"profile_insufficient_evidence","needs_input"],
+      [{...output,background:[]},"profile_output_incomplete","unavailable"]
+    ] as const) {
+      const detail=await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:modelOutput})).generate(userId);
+      expect(detail.result).toMatchObject({reasonCode,status,profile:null,diagnostics:{usableCount:2,modelCalled:true,stage:"evidence"}});
+      expect(JSON.stringify(detail.result)).not.toContain(footprints[0]!.title);
+    }
+  });
+  it("an upstream failure stays distinct from an empty successful read", async()=>{
+    const llm=vi.fn(()=>new MockLlmProvider({profile_summary:output}));
+    const empty=await new ProfileSummaryService({load:async()=>[]},llm).generate(userId);
+    const failed=await new ProfileSummaryService({load:async()=>{throw new ProfileDataError("ZHIHU_USER_DATA_UNAVAILABLE");}},llm).generate(userId);
+    expect(empty.result).toMatchObject({status:"needs_input",reasonCode:"insufficient_footprints",diagnostics:{usableCount:0,modelCalled:false,stage:"filtering"}});
+    expect(failed.result).toMatchObject({status:"unavailable",reasonCode:"ZHIHU_USER_DATA_UNAVAILABLE",diagnostics:{usableCount:0,modelCalled:false,stage:"reading"}});
+    expect(llm).not.toHaveBeenCalled();
+  });
+});
 describe("authorized Zhihu footprint access", () => {
   const accounts={oauthAccount:vi.fn(async(id:string)=>({user_id:id,access_token:encrypted(),token_storage_version:"encrypted_v1" as const,expires_at:new Date(Date.now()+86400000).toISOString()}))};
   it("decrypts colleague v1 tokens, sends both credentials, and requests 15 items per kind", async () => {
@@ -169,6 +195,10 @@ it("profile endpoint is authenticated, scoped, rate-limited, idempotent and moni
   expect(generate).toHaveBeenCalledTimes(1);
   const events=await monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:20,cursor:0});
   const success=events.events.find(e=>e.quotaDecision==="allowed");
+  expect(response.headers["x-request-id"]).toBe(response.body.data.requestId);
+  expect(success?.requestId).toBe(response.body.data.requestId);
+  expect(success?.profile).toEqual({usableCount:2,modelCalled:true,stage:"complete"});
+  expect(JSON.stringify(success)).not.toContain(footprints[0]!.title);
   expect(success?.zhihu.userDataRequests).toBe(2); expect(success?.llm.requests).toBe(1);
 });
 
@@ -227,12 +257,16 @@ describe("footprint inspection without a model", () => {
   });
   it("shares rate and idempotency protection and records zero model requests",async()=>{
     const h=setup("2");
-    await h.call("inspect-request-001").expect(200);
+    const response=await h.call("inspect-request-001").expect(200);
     await h.call("inspect-request-001").expect(409);
     await h.call("inspect-request-002").expect(429);
     expect(h.inspect).toHaveBeenCalledTimes(1);
     const events=await h.monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:20,cursor:0});
     const success=events.events.find(e=>e.quotaDecision==="allowed");
+    expect(response.headers["x-request-id"]).toBe(response.body.data.requestId);
+    expect(success?.requestId).toBe(response.body.data.requestId);
+    expect(success?.profile).toEqual({usableCount:2,modelCalled:false,stage:"filtering"});
+    expect(JSON.stringify(success)).not.toContain(footprints[0]!.title);
     expect(success?.zhihu.userDataRequests).toBe(2);
     expect(success?.llm.requests).toBe(0);
   });

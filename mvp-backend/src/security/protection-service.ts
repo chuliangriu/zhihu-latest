@@ -174,6 +174,7 @@ export class ProtectionService {
       trace?: PipelineTrace;
       conservative: boolean;
       userDataRequests?: number;
+      profile?: UsageEvent["profile"];
     }
   ): Promise<void> {
     const actual = usageFromTrace(input.trace);
@@ -204,7 +205,8 @@ export class ProtectionService {
       },
       zhihu: { searchRequests: actual.zhihuSearchRequests, userDataRequests: actual.zhihuUserDataRequests },
       quotaDecision: "allowed",
-      reasonCode: input.reasonCode
+      reasonCode: input.reasonCode,
+      ...(input.profile ? { profile: { ...input.profile } } : {})
     };
     await this.monitoringStore.record(event);
     console.info(JSON.stringify({ type: "usage_event", ...event }));

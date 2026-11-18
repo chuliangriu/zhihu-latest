@@ -95,6 +95,7 @@ export interface UsageEvent {
     searchRequests: number;
     userDataRequests: number;
   };
+  profile?: import("../profile/contracts.js").ProfileDiagnostics;
   quotaDecision: "allowed" | "rejected" | "not_applicable";
   reasonCode: string;
 }

@@ -15,13 +15,15 @@ export function hashToken(value) {
 
 export function readCookie(request, name) {
   const cookieHeader = request.headers.cookie || '';
+  let found = ''; let count = 0;
   for (const part of cookieHeader.split(';')) {
     const [key, ...value] = part.trim().split('=');
     if (key === name) {
-      try { return decodeURIComponent(value.join('=')); } catch { return ''; }
+      count++;
+      try { found = decodeURIComponent(value.join('=')); } catch { return ''; }
     }
   }
-  return '';
+  return count === 1 ? found : '';
 }
 
 export function preventAuthCaching(response) {
@@ -61,28 +63,38 @@ export async function createSession(userId, response) {
 
 export async function requireUser(request) {
   const token = readCookie(request, SESSION_COOKIE);
-  if (!token) return null;
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
   const now = encodeURIComponent(new Date().toISOString());
   const sessionHash = encodeURIComponent(hashToken(token));
   const sessions = await supabaseRequest(
-    `app_sessions?session_hash=eq.${sessionHash}&revoked_at=is.null&expires_at=gt.${now}&select=id,user_id&limit=1`
+    `app_sessions?session_hash=eq.${sessionHash}&revoked_at=is.null&expires_at=gt.${now}&select=id,user_id,expires_at,revoked_at&limit=1`
   );
-  if (!sessions.ok || !Array.isArray(sessions.data) || !sessions.data[0]) return null;
+  if (!sessions.ok) throw new Error('SESSION_STORE_UNAVAILABLE');
+  if (!Array.isArray(sessions.data) || !sessions.data[0]) return null;
 
   const session = sessions.data[0];
+  if (!validUuid(session.id) || !validUuid(session.user_id) || session.revoked_at !== null ||
+      !Number.isFinite(Date.parse(session.expires_at)) || Date.parse(session.expires_at) <= Date.now()) return null;
   const users = await supabaseRequest(
-    `users?id=eq.${encodeURIComponent(session.user_id)}&select=id,display_name,avatar_url,profile_url,created_at&limit=1`
+    `users?id=eq.${encodeURIComponent(session.user_id)}&select=id,zhihu_user_id,display_name,avatar_url,profile_url,created_at&limit=1`
   );
-  if (!users.ok || !Array.isArray(users.data) || !users.data[0]) return null;
-  return { sessionId: session.id, user: users.data[0] };
+  if (!users.ok) throw new Error('SESSION_STORE_UNAVAILABLE');
+  if (!Array.isArray(users.data) || !users.data[0] || users.data[0].id !== session.user_id) return null;
+  const { zhihu_user_id: identityKey, ...user } = users.data[0];
+  return { sessionId: session.id, identityKey, user };
 }
 
 export async function revokeSession(request) {
   const token = readCookie(request, SESSION_COOKIE);
-  if (!token) return;
-  await supabaseRequest(`app_sessions?session_hash=eq.${encodeURIComponent(hashToken(token))}`, {
+  if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return;
+  const result = await supabaseRequest(`app_sessions?session_hash=eq.${encodeURIComponent(hashToken(token))}`, {
     method: 'PATCH',
     headers: { Prefer: 'return=minimal' },
     body: { revoked_at: new Date().toISOString() },
   });
+  if (!result.ok) throw new Error('SESSION_REVOCATION_FAILED');
+}
+
+function validUuid(value) {
+  return typeof value === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value);
 }

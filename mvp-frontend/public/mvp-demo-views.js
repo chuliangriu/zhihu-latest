@@ -30,7 +30,7 @@ function chatMessage({ message, characterLimit }, index, messages) {
 
 function header() {
   const user = current();
-  return `<header><button class="brand" data-action="reset">未见之人</button>${user ? `<span class="identity-pill">${avatar(user)}${esc(user.name)}</span>` : ''}${state.screen !== 'home' ? '<button class="reset" data-action="reset">重新开始</button>' : ''}</header>`;
+  return `<header><button class="brand" data-action="reset">未见之人</button>${user ? `<span class="identity-pill">${avatar(user)}${esc(user.name)}</span>` : ''}${state.live && state.sessionReady && !state.localDevelopment ? '<button class="reset" data-action="logout">退出登录</button>' : ''}${state.screen !== 'home' ? '<button class="reset" data-action="reset">重新开始</button>' : ''}</header>`;
 }
 
 function login() {

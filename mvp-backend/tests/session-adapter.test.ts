@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 import { SupabaseAdapter } from "../src/sources/supabase-adapter.js";
+import { ZhihuFootprintSource } from "../src/profile/zhihu-footprints.js";
 import { createApp } from "../src/api/app.js";
 import { loadConfig } from "../src/config.js";
 import { DiscoveryRuntime } from "../src/runtime.js";
@@ -11,7 +12,7 @@ const token = "a".repeat(43);
 const principal = { userId, sessionId, role: "user" as const, status: "active" as const };
 describe("colleague session integration", () => {
   it("hashes the existing cookie, checks current DB session and returns no token", async () => {
-    const fetcher = vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json([{ id: sessionId, user_id: userId }]))
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json([{ id: sessionId, user_id: userId, expires_at: new Date(Date.now()+86400000).toISOString(), revoked_at: null }]))
       .mockResolvedValueOnce(Response.json([{ id: userId }]));
     const db = new SupabaseAdapter("https://project.supabase.co", "sb_secret_test-only", fetcher);
     expect(await db.session(`wjr_session=${token}`, new AbortController().signal)).toEqual(principal);
@@ -29,6 +30,28 @@ describe("colleague session integration", () => {
     expect(await db.session(`wjr_session=${token}; wjr_session=${token}`, AbortSignal.timeout(1000))).toBeNull();
     expect(fetcher).not.toHaveBeenCalled();
     await expect(db.session(`wjr_session=${token}`, AbortSignal.timeout(1000))).rejects.toMatchObject({ code: "DATABASE_UNAVAILABLE" });
+  });
+  it("rejects expired or revoked sessions before reading a user", async()=>{
+    for (const change of [{expires_at:"2000-01-01T00:00:00Z",revoked_at:null},
+      {expires_at:new Date(Date.now()+86400000).toISOString(),revoked_at:new Date().toISOString()}]) {
+      const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json([{id:sessionId,user_id:userId,...change}]));
+      const db=new SupabaseAdapter("https://project.supabase.co","sb_secret_test-only",fetcher);
+      expect(await db.session(`wjr_session=${token}`,AbortSignal.timeout(1000))).toBeNull();
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    }
+  });
+  it("expired, absent or cross-account OAuth records require reauthorization before upstream reads",async()=>{
+    for (const rows of [[],[{user_id:userId,access_token:"encrypted-test",token_storage_version:"encrypted_v1",expires_at:null}],
+      [{user_id:userId,access_token:"encrypted-test",token_storage_version:"encrypted_v1",expires_at:"2000-01-01T00:00:00Z"}],
+      [{user_id:sessionId,access_token:"encrypted-test",token_storage_version:"encrypted_v1",expires_at:new Date(Date.now()+86400000).toISOString()}]]) {
+      const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json(rows));
+      const db=new SupabaseAdapter("https://project.supabase.co","sb_secret_test-only",fetcher);
+      const upstream=vi.fn<typeof fetch>();
+      const source=new ZhihuFootprintSource(db,"synthetic-access-secret","synthetic-encryption-key-at-least-32",upstream);
+      await expect(source.load(userId,AbortSignal.timeout(1000),()=>{})).rejects.toMatchObject({code:"OAUTH_REAUTH_REQUIRED"});
+      expect(upstream).not.toHaveBeenCalled();
+      expect(new URL(String(fetcher.mock.calls[0]![0])).searchParams.get("user_id")).toBe(`eq.${userId}`);
+    }
   });
   it("checks owner, consent, expiry and source type even in a malformed DB response", async () => {
     const owner = "33333333-3333-4333-8333-333333333333";

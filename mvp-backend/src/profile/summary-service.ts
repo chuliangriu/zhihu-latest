@@ -13,7 +13,8 @@ export class ProfileSummaryService {
   async inspect(userId: string) { return this.run(userId, true); }
   private async run(userId: string, inspectOnly: boolean) {
     const trace: PipelineTrace = { requestId: randomUUID(), matchPolicy: null, stages: [], rejectedMatches: [] };
-    const result: ProfileSummary = { status: "needs_input", reasonCode: "insufficient_footprints", profile: null,
+    const result: ProfileSummary = { requestId: trace.requestId,
+      diagnostics: { usableCount: 0, modelCalled: false, stage: "reading" }, status: "needs_input", reasonCode: "insufficient_footprints", profile: null,
       coverage: { creations: 0, collections: 0, browsingAvailable: false, likedHistoryAvailable: false } };
     let userDataRequests = 0;
     const started = Date.now();
@@ -21,6 +22,9 @@ export class ProfileSummaryService {
     try {
       const raw = await this.source.load(userId, signal, () => { userDataRequests++; });
       const footprints = raw.filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0).slice(0, PROFILE_FOOTPRINT_LIMIT_PER_KIND * 2);
+      result.sources = { creation: "read", collection: "read" };
+      result.diagnostics.stage = "filtering";
+      result.diagnostics.usableCount = footprints.length;
       result.coverage.creations = footprints.filter(f => f.kind === "creation").length;
       result.coverage.collections = footprints.filter(f => f.kind === "collection").length;
       if (inspectOnly) {
@@ -30,11 +34,22 @@ export class ProfileSummaryService {
       if (footprints.length < 2) return { result, trace, userDataRequests };
       const stage = { name: "profile_summary", durationMs: 0 };
       trace.stages.push(stage);
-      const completion = await this.createLlm().completeJson({ task: "profile_summary", systemPrompt: PROFILE_SUMMARY_SYSTEM_PROMPT,
+      const llm = this.createLlm();
+      result.diagnostics.stage = "model";
+      result.diagnostics.modelCalled = true;
+      const completion = await llm.completeJson({ task: "profile_summary", systemPrompt: PROFILE_SUMMARY_SYSTEM_PROMPT,
         payload: { footprints, availableSources: ["creation", "collection"], lookbackYears: PROFILE_FOOTPRINT_LOOKBACK_YEARS }, schema: profileModelSchema, signal });
       Object.assign(stage, { durationMs: Date.now()-started, usage: completion.usage });
       const output = profileModelSchema.parse(completion.data);
-      if (output.insufficientEvidence || output.background.length !== 2 || !output.recentFocus) return { result, trace, userDataRequests };
+      result.diagnostics.stage = "evidence";
+      if (output.insufficientEvidence) {
+        result.reasonCode = "profile_insufficient_evidence";
+        return { result, trace, userDataRequests };
+      }
+      if (output.background.length !== 2 || !output.recentFocus) {
+        result.status = "unavailable"; result.reasonCode = "profile_output_incomplete";
+        return { result, trace, userDataRequests };
+      }
       const claims = [...output.background, output.recentFocus];
       const invalid = claims.some(c => /[<>\n\r]|【|】/.test(c.text) || containsForbiddenModelArtifact([c.text]) || c.citations.some(ref => {
         const evidence = footprints.find(f => f.id === ref.refId);
@@ -49,12 +64,14 @@ export class ProfileSummaryService {
       const unknown = [...new Set(output.unknown)].join("、") || "无";
       result.profile = { role: "你的近期背景", impression, recentFocus, requiresConfirmation: true,
         markdown: `【有限背景】\n${impression.join("\n\n")}\n\n【最近最明显的一条线】\n${recentFocus}\n\n【无法确认】\n${unknown}` };
+      result.diagnostics.stage = "complete";
       result.status = "ready"; result.reasonCode = "profile_summary_generated";
     } catch (error) {
       const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "PROFILE_UNAVAILABLE";
       result.status = "unavailable"; result.reasonCode = code;
       if (error instanceof ProfileDataError) {
         const accepted = (error.progress?.footprints ?? []).filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0);
+        result.diagnostics.usableCount = accepted.length;
         result.coverage.creations = accepted.filter(f => f.kind === "creation").length;
         result.coverage.collections = accepted.filter(f => f.kind === "collection").length;
         if (error.progress) result.sources = { ...error.progress.sources };

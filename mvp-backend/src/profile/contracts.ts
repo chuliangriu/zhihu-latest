@@ -20,7 +20,14 @@ export interface ProfileConnectionDiagnostic {
   upstreamCode?: number;
   hint?: "application_mismatch" | "oauth_rejected" | "access_secret_rejected" | "permission_denied" | "unspecified";
 }
+export interface ProfileDiagnostics {
+  usableCount: number;
+  modelCalled: boolean;
+  stage: "reading" | "filtering" | "model" | "evidence" | "complete";
+}
 export interface ProfileSummary {
+  requestId: string;
+  diagnostics: ProfileDiagnostics;
   connection?: ProfileConnectionDiagnostic;
   sources?: ProfileSources;
   retryAfterSeconds?: number;

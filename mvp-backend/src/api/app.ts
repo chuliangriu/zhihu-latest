@@ -111,10 +111,11 @@ export function createApp(dependencies: AppDependencies) {
           await protection.finishDiscovery(begin.context, { statusCode: 503, businessStatus: "unavailable", reasonCode: "PROFILE_UNAVAILABLE", conservative: true });
           response.locals.monitoringRecorded = true; throw error;
         }
+        response.setHeader("X-Request-Id", detail.trace.requestId);
         if (detail.result.retryAfterSeconds) response.setHeader("Retry-After", detail.result.retryAfterSeconds);
         await protection.finishDiscovery(begin.context, { statusCode: detail.result.status === "unavailable" ? 503 : 200,
           businessStatus: detail.result.status, reasonCode: detail.result.reasonCode, trace: detail.trace,
-          conservative: detail.trace.stages.some(stage => stage.name === "profile_summary" && !stage.usage), userDataRequests: detail.userDataRequests });
+          conservative: detail.trace.stages.some(stage => stage.name === "profile_summary" && !stage.usage), userDataRequests: detail.userDataRequests, profile: detail.result.diagnostics });
         response.locals.monitoringRecorded = true;
         response.status(detail.result.status === "unavailable" ? 503 : 200).json({ success: detail.result.status !== "unavailable", data: detail.result });
       } catch (error) { next(error); }

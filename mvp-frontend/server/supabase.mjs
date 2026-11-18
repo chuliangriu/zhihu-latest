@@ -12,6 +12,8 @@ export async function supabaseRequest(path, options = {}) {
 
   const response = await fetch(`${baseUrl.replace(/\/$/, '')}/rest/v1/${path}`, {
     method: options.method || 'GET',
+    signal: options.signal ?? AbortSignal.timeout(8000),
+    redirect: 'error',
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   });

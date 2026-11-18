@@ -39,11 +39,12 @@ export class SupabaseAdapter implements PrivatePool {
     if (tokens.length !== 1) return null;
     const token = tokens[0]!.slice("wjr_session=".length);
     if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
-    const sessions = z.array(z.object({ id: z.string().uuid(), user_id: z.string().uuid() })).parse(await this.get("app_sessions", {
+    const sessions = z.array(z.object({ id: z.string().uuid(), user_id: z.string().uuid(), expires_at: z.string().datetime({offset:true}), revoked_at: z.string().nullable() })).parse(await this.get("app_sessions", {
       session_hash: `eq.${createHash("sha256").update(token).digest("hex")}`, revoked_at: "is.null",
-      expires_at: `gt.${new Date().toISOString()}`, select: "id,user_id", limit: "1"
+      expires_at: `gt.${new Date().toISOString()}`, select: "id,user_id,expires_at,revoked_at", limit: "1"
     }, signal));
-    const session = sessions[0]; if (!session) return null;
+    const session = sessions[0];
+    if (!session || session.revoked_at !== null || Date.parse(session.expires_at) <= Date.now()) return null;
     const users = z.array(z.object({ id: z.string().uuid() })).parse(await this.get("users", { id: `eq.${session.user_id}`, select: "id", limit: "1" }, signal));
     if (!users[0] || users[0].id !== session.user_id) return null;
     return { userId: users[0].id, sessionId: session.id, role: "user", status: "active" };

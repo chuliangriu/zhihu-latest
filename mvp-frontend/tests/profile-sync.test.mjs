@@ -53,13 +53,13 @@ test('missing backend integration is visible instead of a silent placeholder', a
 test('insufficient footprints does not pretend the profile synchronized; manual recovery clears notice', async () => {
   const h = harness([{ status: 'needs_input', reasonCode: 'insufficient_footprints', profile: null, coverage: { creations: 0, collections: 0 } }]);
   await h.c.action('start');
-  assert.match(h.html, /近期可用的公开创作和收藏不足/);
+  assert.match(h.html, /共 0 条，尚不足 2 条/);
   assert.equal(h.c.getState().user.profileReady, false);
   h.c.input('profileDraft', '【有限背景】\n这是我愿意介绍的近期背景。');
   await h.c.action('save-profile');
   assert.equal(h.c.getState().profileNotice, '');
   assert.equal(h.c.getState().user.profileReady, true);
-  assert.doesNotMatch(h.html, /公开创作和收藏不足/);
+  assert.doesNotMatch(h.html, /尚不足 2 条/);
 });
 test('API failure retains only code and counts, never footprint text or tokens', async () => {
   const api = createApi(async () => Response.json({ success: false, data: { reasonCode: 'OAUTH_TOKEN_UNAVAILABLE', coverage: { creations: 0, collections: 0 }, access_token: 'secret-test-token', raw: 'private-test-content' } }, { status: 503 }));
@@ -91,4 +91,34 @@ test('quota exhaustion does not claim a reset time or ask for login', async () =
 test('server credential rejection does not ask users to log in again', async () => {
   const h=harness([Response.json({success:false,data:{status:'unavailable',reasonCode:'ZHIHU_ACCESS_SECRET_REJECTED'}},{status:503})]);
   await h.c.action('start');assert.match(h.html,/连接配置暂不可用/);assert.doesNotMatch(h.html,/重新登录知乎/);
+});
+
+test('model evidence shortage and incomplete generation have different recovery messages',async()=>{
+ const h=harness([{status:'needs_input',reasonCode:'profile_insufficient_evidence',coverage:{creations:2,collections:1}},{status:'unavailable',reasonCode:'profile_output_incomplete',coverage:{creations:2,collections:1}}]);
+ await h.c.action('start');assert.match(h.html,/已读取足够数量/);assert.doesNotMatch(h.html,/尚不足 2 条/);
+ await h.c.action('retry-profile');assert.match(h.html,/这次背景整理不完整/);assert.doesNotMatch(h.html,/尚不足 2 条/);
+});
+test('account changes clear previous private profile, conversations, candidates and drafts',async()=>{
+ let account='user-one',reads=0;
+ const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/auth-me')return{success:true,user:{id:account}};reads++;return ready;}}});
+ await c.action('start');const state=c.getState();
+ Object.assign(state,{conversationId:'old-conversation',discoveryId:'old-discovery',paper:{id:'old-paper'},activePapers:[{}],paperEdit:{quote:'old-private-quote'},profileDraft:'old-background',privateDraft:'old-message',publicReplies:[{}]});
+ state.user.chat=[{role:'user',text:'old-private-chat'}];state.user.candidates={A:{quote:'old-candidate'}};state.user.sharePaper={quote:'old-paper'};
+ account='user-two';await c.action('start');assert.equal(reads,2);assert.equal(state.user.id,'user-two');
+ assert.equal(state.conversationId,null);assert.equal(state.discoveryId,null);assert.deepEqual(state.user.chat,[]);assert.deepEqual(state.user.candidates,{});assert.deepEqual(state.user.sharePaper,{});assert.equal(state.profileDraft,'');assert.equal(state.privateDraft,'');assert.equal(state.paperEdit,null);assert.deepEqual(state.activePapers,[]);
+});
+test('expired site sessions clear old private data and logout clears the current page',async()=>{
+ let expired=false;const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/logout')return{success:true};if(path==='/api/auth-me'){if(expired)throw new Error('NOT_LOGGED_IN');return session;}return ready;}}});
+ await c.action('start');c.getState().privateDraft='old-private';expired=true;await c.action('start');
+ assert.equal(c.getState().sessionReady,false);assert.equal(c.getState().user.profileReady,false);assert.equal(c.getState().privateDraft,'');assert.equal(c.getState().authRequired,true);
+ expired=false;await c.action('start');await c.action('logout');assert.equal(c.getState().screen,'home');assert.equal(c.getState().sessionReady,false);assert.equal(c.getState().user.profileReady,false);
+});
+test('failed logout leaves the session available for an explicit retry',async()=>{
+ const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/logout')throw new Error('SESSION_REVOCATION_FAILED');if(path==='/api/auth-me')return session;return ready;}}});
+ await c.action('start');await c.action('logout');assert.equal(c.getState().sessionReady,true);assert.match(c.getState().error,/退出未完成/);
+});
+test('temporary session-store outage preserves private page state for retry',async()=>{
+ let outage=false;const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/auth-me'){if(outage)throw new Error('SESSION_STORE_UNAVAILABLE');return session;}return ready;}}});
+ await c.action('start');c.getState().privateDraft='keep-for-retry';outage=true;await c.action('start');
+ assert.equal(c.getState().sessionReady,true);assert.equal(c.getState().user.profileReady,true);assert.equal(c.getState().privateDraft,'keep-for-retry');assert.equal(c.getState().authRequired,false);
 });
