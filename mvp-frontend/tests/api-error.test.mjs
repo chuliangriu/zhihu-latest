@@ -32,3 +32,10 @@ test('SSE error frames preserve their request ID', async () => {
       && error.requestId === 'sse-request-id'
   );
 });
+
+test('profile API errors retain only the allowed diagnostic metadata',async()=>{
+ const api=createApi(async()=>Response.json({success:false,data:{reasonCode:'LLM_TIMEOUT_OR_ABORTED',requestId:'safe-request-03',diagnostics:{stage:'model',modelCalled:true,usableCount:5,token:'do-not-retain',raw:'private-content'}}},{status:503}));
+ await assert.rejects(()=>api.json('/api/profile/summary',{}),error=>{
+  assert.equal(error.requestId,'safe-request-03');assert.deepEqual(error.diagnostics,{stage:'model',modelCalled:true,usableCount:5});assert.doesNotMatch(JSON.stringify(error),/do-not-retain|private-content/);return true;
+ });
+});

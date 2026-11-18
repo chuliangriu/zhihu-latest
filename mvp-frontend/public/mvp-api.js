@@ -4,6 +4,7 @@ export function createApi(fetcher = globalThis.fetch) {
     code: payload?.error?.code || (typeof payload?.error === 'string' ? payload.error : null) || payload?.data?.reasonCode || 'SERVICE_UNAVAILABLE',
     coverage: payload?.data?.coverage,
     sources: payload?.data?.sources,
+    diagnostics: payload?.data?.diagnostics,
     retryAfter: response?.headers?.get?.('retry-after') ?? payload?.data?.retryAfterSeconds ?? null,
     requestId: payload?.error?.requestId || payload?.data?.requestId || response?.headers?.get?.('x-request-id') || null,
   });
@@ -49,13 +50,14 @@ export function createApi(fetcher = globalThis.fetch) {
 }
 
 export class ApiError extends Error {
-  constructor({ status = 0, code = 'SERVICE_UNAVAILABLE', retryAfter = null, requestId = null, coverage, sources } = {}) {
+  constructor({ status = 0, code = 'SERVICE_UNAVAILABLE', retryAfter = null, requestId = null, coverage, sources, diagnostics } = {}) {
     super(code);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.retryAfter = retryAfter;
     this.requestId = requestId;
+    if (diagnostics) this.diagnostics = profileDiagnostic({ diagnostics }).diagnostics;
     if (sources) this.sources = Object.fromEntries(['creation', 'collection'].map(kind => [kind,
       ['read', 'failed', 'not_requested'].includes(sources[kind]) ? sources[kind] : 'not_requested']));
     if (coverage) this.coverage = {
@@ -63,6 +65,23 @@ export class ApiError extends Error {
       collections: Number.isInteger(coverage.collections) && coverage.collections >= 0 ? coverage.collections : 0,
     };
   }
+}
+
+// Only explicit metadata can be copied for support. Never include source text, prompts or tokens.
+export function profileDiagnostic(value = {}) {
+  const count = n => Number.isInteger(n) && n >= 0 && n <= 30 ? n : null;
+  const stages = ['reading', 'filtering', 'model', 'evidence', 'complete'];
+  const safeId = id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(id) ? id : null;
+  return {
+    reasonCode: safeId(value.reasonCode) || 'PROFILE_UNAVAILABLE',
+    requestId: safeId(value.requestId),
+    coverage: { creations: count(value.coverage?.creations), collections: count(value.coverage?.collections) },
+    diagnostics: value.diagnostics ? {
+      usableCount: count(value.diagnostics.usableCount),
+      modelCalled: typeof value.diagnostics.modelCalled === 'boolean' ? value.diagnostics.modelCalled : null,
+      stage: stages.includes(value.diagnostics.stage) ? value.diagnostics.stage : null,
+    } : null,
+  };
 }
 
 export function safeZhihuUrl(value) {

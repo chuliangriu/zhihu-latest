@@ -61,6 +61,17 @@ const controller = createLiveController({
 app.addEventListener('click', async event => {
   const button = event.target.closest('[data-action]');
   if (!button || button.disabled) return;
+  if (button.dataset.action === 'copy-profile-diagnostic') {
+    const diagnostic = controller.getState().profileDiagnostic;
+    if (!diagnostic) return;
+    try { await navigator.clipboard.writeText(JSON.stringify(diagnostic, null, 2)); button.textContent = '诊断已复制'; }
+    catch {
+      const field = document.getElementById('profile-sync-diagnostic');
+      if (field) { field.closest('details').open = true; field.focus(); field.select(); }
+      button.textContent = '请复制展开的诊断信息';
+    }
+    return;
+  }
   if (button.dataset.action === 'copy-profile-prompt') {
     try { await navigator.clipboard.writeText(KANSHAN_PROFILE_PROMPT); button.textContent = '已复制'; }
     catch { app.querySelector('details').open = true; button.textContent = '请展开后手动复制'; }

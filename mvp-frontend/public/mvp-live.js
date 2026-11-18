@@ -1,5 +1,5 @@
 import { createEntryController } from './mvp-entry.js';
-import { createApi, discoveryView, safeZhihuUrl } from './mvp-api.js';
+import { createApi, discoveryView, safeZhihuUrl, profileDiagnostic } from './mvp-api.js';
 import { decodeSession } from './mvp-auth.js';
 import { initialUser } from './mvp-profile.js';
 
@@ -8,7 +8,7 @@ const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什
 export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
   const base = createEntryController({ render, schedule, cancel });
   const state = base.getState();
-  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [] });
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [] });
   state.chatNotice = '';
   const paint = () => render(state);
   const candidate = () => state.user.candidates[state.selected];
@@ -75,6 +75,17 @@ export function createLiveController({ render, api = createApi(), navigate = url
       SHORT_RATE_LIMITED: '同步太频繁了，请稍后再试。',
       DAILY_QUOTA_EXCEEDED: '今天的背景同步额度已用完，可以先手动补充背景。',
     };
+    if (['LLM_TIMEOUT', 'LLM_TIMEOUT_OR_ABORTED', 'LLM_ABORTED'].includes(code)) {
+      messages[code] = '知乎足迹已读取，但生成背景超时了。可以重新同步，或先手动补充背景。';
+    } else if (['LLM_HTTP_401', 'LLM_HTTP_403', 'LLM_CONFIG_MISSING'].includes(code)) {
+      messages[code] = '已读取你的知乎足迹，但背景生成服务的配置暂不可用。可以先手动补充背景。';
+    } else if (code === 'LLM_HTTP_429') {
+      messages[code] = '知乎足迹已读取，但背景生成服务暂时受限。请稍后重新同步，或先手动补充背景。';
+    } else if (['LLM_SCHEMA_INVALID', 'LLM_OUTPUT_NOT_JSON', 'LLM_RESPONSE_NOT_JSON', 'LLM_EMPTY_RESPONSE', 'LLM_OUTPUT_LIMIT_REACHED'].includes(code)) {
+      messages[code] = '知乎足迹已读取，但这次没有生成完整可用的背景介绍。可以重新同步，或先手动补充背景。';
+    } else if (/^LLM_HTTP_5[0-9][0-9]$/.test(code) || ['LLM_NETWORK_ERROR', 'LLM_REQUEST_FAILED'].includes(code)) {
+      messages[code] = '知乎足迹已读取，但背景生成服务暂时没有连通。请稍后重新同步，或先手动补充背景。';
+    }
     const read = (coverage?.creations || 0) + (coverage?.collections || 0) > 0;
     state.profileNotice = messages[code] || (read
       ? '已读取你的知乎足迹，但暂时无法整理背景。可以稍后重新同步，或先手动补充。'
@@ -85,14 +96,22 @@ export function createLiveController({ render, api = createApi(), navigate = url
     if (state.profileRetryAt) state.profileNotice += ` 最早可于 ${new Date(state.profileRetryAt).toLocaleTimeString('zh-CN', { hour12: false })} 再试。`;
   }
   async function syncProfile() {
-    state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false;
+    state.profileNotice = ''; state.profileDiagnostic = null; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false;
+    state.phase = 'profile_summary'; paint();
     try {
       const profile = await api.json('/api/profile/summary', { useAuthorizedFootprints: true });
       if (profile.status === 'ready' && profile.profile) {
         Object.assign(state.user, { role: profile.profile.role, impression: profile.profile.impression,
           recentFocus: profile.profile.recentFocus, profileReady: true });
-      } else profileFailure(profile.reasonCode || 'PROFILE_UNAVAILABLE', profile.coverage, profile.sources, profile.retryAfterSeconds);
-    } catch (error) { profileFailure(error?.code || error?.message || 'PROFILE_UNAVAILABLE', error?.coverage, error?.sources, error?.retryAfter); }
+      } else {
+        state.profileDiagnostic = profileDiagnostic(profile);
+        profileFailure(profile.reasonCode || 'PROFILE_UNAVAILABLE', profile.coverage, profile.sources, profile.retryAfterSeconds);
+      }
+    } catch (error) {
+      const code = error?.code || error?.message || 'PROFILE_UNAVAILABLE';
+      state.profileDiagnostic = profileDiagnostic({ reasonCode: code, requestId: error?.requestId, coverage: error?.coverage, diagnostics: error?.diagnostics });
+      profileFailure(code, error?.coverage, error?.sources, error?.retryAfter);
+    } finally { state.phase = null; }
   }
   async function retryProfile() {
     if (state.busy || !state.sessionReady || state.localDevelopment || state.user.profileReady || state.profileRetryAt > Date.now()) return;
@@ -105,7 +124,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       sessionReady: false, localDevelopment: false, selected: null, paper: null, paperEdit: null, activePapers: [],
       chatDraft: '', queuedChat: '', privateDraft: '', privateMessages: [], publicDraft: '', publicReplies: [],
       profileDraft: '', nameDraft: '', roleDraft: '', profileOpen: false, profileError: '',
-      accountNotice: '', profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
+      accountNotice: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
       stage: 0, typewriterStage: null, typedChars: 0, chatNotice: '' });
   }
   async function logout() {
@@ -117,7 +136,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
     finally { state.busy = false; paint(); }
   }
   async function start() {
-    state.screen = 'login'; state.busy = true; state.error = ''; paint();
+    state.screen = 'login'; state.busy = true; state.phase = 'session'; state.error = ''; paint();
     try {
       const session = await api.json('/api/auth-me', undefined, 'GET');
       const decoded = decodeSession(session);
@@ -137,7 +156,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
         state.error = '';
       } else fail(error);
     }
-    finally { state.busy = false; paint(); }
+    finally { state.busy = false; state.phase = null; paint(); }
   }
   async function send() {
     const text = state.chatDraft.trim(); if (!text || state.busy || !state.sessionReady) return;
@@ -279,7 +298,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (action === 'switch-sample' || action === 'skip-sample' || action === 'replay-chat') return;
       base.action(action, id);
       if (action === 'save-profile' && state.user.profileReady) {
-        state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false; paint();
+        state.profileNotice = ''; state.profileDiagnostic = null; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false; paint();
       }
     }
   };

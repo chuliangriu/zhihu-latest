@@ -28,7 +28,7 @@ test('model failure preserves footprint progress and can retry without logging o
   assert.equal(h.c.getState().profileIssueCode, 'LLM_HTTP_401');
   assert.match(h.html, /已读取你的知乎足迹/);
   assert.match(h.html, /data-action="retry-profile"/);
-  assert.doesNotMatch(h.html, /重新登录知乎|API Key|LLM_HTTP_401/);
+  assert.doesNotMatch(h.c.getState().profileNotice, /重新登录知乎|API Key|LLM_HTTP_401/);
   await h.c.action('retry-profile');
   assert.equal(h.syncCalls, 2);
   assert.equal(h.c.getState().user.profileReady, true);
@@ -126,4 +126,29 @@ test('unlinked history is disclosed while the new account still completes backgr
  const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/auth-me')return{...session,accountNotice:'history_unlinked'};return ready;}}});
  await c.action('start');assert.equal(c.getState().sessionReady,true);assert.equal(c.getState().user.profileReady,true);
  assert.match(entryView(c.getState()),/已登录。旧账号的历史暂未关联，原记录仍保留/);
+});
+
+test('initial sync and retry show the specific profile progress message while the API is pending',async()=>{
+ let complete;const pending=()=>new Promise(resolve=>{complete=resolve;});
+ const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/auth-me')return session;return pending();}}});
+ const first=c.action('start');await Promise.resolve();await Promise.resolve();
+ assert.equal(c.getState().phase,'profile_summary');assert.match(entryView(c.getState()),/正在读取你的知乎足迹，生成你专属的背景介绍/);
+ assert.doesNotMatch(entryView(c.getState()),/正在处理/);
+ complete({status:'unavailable',reasonCode:'LLM_TIMEOUT_OR_ABORTED',coverage:{creations:2,collections:1},requestId:'test-request-01',diagnostics:{usableCount:3,modelCalled:true,stage:'model'}});await first;
+ assert.equal(c.getState().phase,null);assert.match(c.getState().profileNotice,/生成背景超时/);assert.doesNotMatch(entryView(c.getState()),/正在读取你的知乎足迹/);
+ const retry=c.action('retry-profile');assert.equal(c.getState().phase,'profile_summary');assert.match(entryView(c.getState()),/正在读取你的知乎足迹，生成你专属的背景介绍/);
+ complete(ready);await retry;assert.equal(c.getState().profileDiagnostic,null);assert.equal(c.getState().user.profileReady,true);
+ assert.doesNotMatch(entryView(c.getState()),/复制同步诊断|正在读取你的知乎足迹/);
+});
+test('failed summary exposes copyable, safe diagnostics without retaining private source data',async()=>{
+ const h=harness([Response.json({success:false,data:{status:'unavailable',reasonCode:'LLM_SCHEMA_INVALID',requestId:'safe-request-02',coverage:{creations:3,collections:2},diagnostics:{usableCount:5,modelCalled:true,stage:'model',raw:'private-do-not-copy'},access_token:'secret-do-not-copy',footprints:['private-do-not-copy']}},{status:503})]);
+ await h.c.action('start');
+ assert.match(h.c.getState().profileNotice,/没有生成完整可用的背景介绍/);assert.match(h.html,/data-action="copy-profile-diagnostic"/);assert.match(h.html,/safe-request-02/);
+ assert.deepEqual(h.c.getState().profileDiagnostic,{reasonCode:'LLM_SCHEMA_INVALID',requestId:'safe-request-02',coverage:{creations:3,collections:2},diagnostics:{usableCount:5,modelCalled:true,stage:'model'}});
+ assert.doesNotMatch(h.html,/private-do-not-copy|secret-do-not-copy/);
+});
+test('model rate limits and model configuration failures stay separate from Zhihu authorization',async()=>{
+ for(const [code,expected] of [['LLM_HTTP_429',/背景生成服务暂时受限/],['LLM_HTTP_401',/背景生成服务的配置暂不可用/],['LLM_NETWORK_ERROR',/背景生成服务暂时没有连通/],['LLM_HTTP_503',/背景生成服务暂时没有连通/]]){
+  const h=harness([Response.json({success:false,data:{reasonCode:code,coverage:{creations:2,collections:1}}},{status:503})]);await h.c.action('start');assert.match(h.c.getState().profileNotice,expected);assert.equal(h.c.getState().profileNeedsLogin,false);
+ }
 });

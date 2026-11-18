@@ -212,7 +212,7 @@ function renderEntry(state) {
   if (state.screen === 'login') {
     const syncNotice = state.live && state.profileNotice ? `<section class="profile-sync-status" aria-label="背景同步状态"><p role="status">${esc(state.profileNotice)}</p>${state.profileNeedsLogin
       ? '<a href="/api/zhihu-login">重新登录知乎</a>'
-      : `<button data-action="retry-profile"${state.profileRetryAt > Date.now() ? ' disabled' : ''}>${state.profileRetryAt > Date.now() ? '请等待后再试' : state.profileQuotaBlocked ? '检查额度并重试' : '重新同步背景'}</button>`}</section>` : '';
+      : `<button data-action="retry-profile"${state.profileRetryAt > Date.now() ? ' disabled' : ''}>${state.profileRetryAt > Date.now() ? '请等待后再试' : state.profileQuotaBlocked ? '检查额度并重试' : '重新同步背景'}</button>`}${state.profileDiagnostic ? `<button type="button" data-action="copy-profile-diagnostic">复制同步诊断</button><details><summary>查看同步详情</summary><textarea id="profile-sync-diagnostic" aria-label="同步诊断信息" readonly>${esc(JSON.stringify(state.profileDiagnostic, null, 2))}</textarea></details>` : ''}</section>` : '';
     const accountNotice = state.live && state.accountNotice ? `<p class="profile-sync-status" role="status">${esc(state.accountNotice)}</p>` : '';
     return views.header() + views.login() + accountNotice + syncNotice + `<button class="profile-recovery" data-action="open-profile">${state.user.profileReady ? '修改背景' : '资料未同步'}</button>` + (state.profileOpen ? profileImport(state) : '');
   }
@@ -235,7 +235,7 @@ export function entryView(state) {
     .replace('仅当前页面保存 · Enter 发送', '点击后前往知乎继续联系，文字不会自动发送。')
     .replace('Demo 评论预览 · Enter 发布', '点击后前往知乎原文，文字不会自动发布。');
   if (state.error) html += `<div class="mvp-live-status" role="alert">${esc(state.error)}</div>`;
-  else if (state.busy && state.screen !== 'chat') html += '<div class="mvp-live-status" role="status">正在处理……</div>';
+  else if (state.busy && state.screen !== 'chat') html += `<div class="mvp-live-status" role="status">${state.phase === 'profile_summary' ? '正在读取你的知乎足迹，生成你专属的背景介绍……' : state.phase === 'session' ? '正在确认登录状态……' : '正在处理……'}</div>`;
   if (state.activePapers?.length && state.screen === 'chat' && !state.busy) html += `<div class="mvp-paper-tools">${state.activePapers.map(p => `<button data-action="withdraw-paper" data-id="${esc(p.id)}">收回${p.subject ? `「${esc(p.subject)}」` : '我的纸条'}</button>`).join('')}</div>`;
   if (state.screen === 'share' && !state.busy) html += '<div class="mvp-paper-tools"><button data-action="edit-paper">修改这张纸</button></div>';
   return html;
