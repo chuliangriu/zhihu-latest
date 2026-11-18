@@ -3,7 +3,8 @@ export function createApi(fetcher = globalThis.fetch) {
     status: response?.status ?? 0,
     code: payload?.error?.code || (typeof payload?.error === 'string' ? payload.error : null) || payload?.data?.reasonCode || 'SERVICE_UNAVAILABLE',
     coverage: payload?.data?.coverage,
-    retryAfter: response?.headers?.get?.('retry-after') ?? null,
+    sources: payload?.data?.sources,
+    retryAfter: response?.headers?.get?.('retry-after') ?? payload?.data?.retryAfterSeconds ?? null,
     requestId: payload?.error?.requestId || response?.headers?.get?.('x-request-id') || null,
   });
   async function json(path, body, method = 'POST', signal) {
@@ -48,13 +49,15 @@ export function createApi(fetcher = globalThis.fetch) {
 }
 
 export class ApiError extends Error {
-  constructor({ status = 0, code = 'SERVICE_UNAVAILABLE', retryAfter = null, requestId = null, coverage } = {}) {
+  constructor({ status = 0, code = 'SERVICE_UNAVAILABLE', retryAfter = null, requestId = null, coverage, sources } = {}) {
     super(code);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
     this.retryAfter = retryAfter;
     this.requestId = requestId;
+    if (sources) this.sources = Object.fromEntries(['creation', 'collection'].map(kind => [kind,
+      ['read', 'failed', 'not_requested'].includes(sources[kind]) ? sources[kind] : 'not_requested']));
     if (coverage) this.coverage = {
       creations: Number.isInteger(coverage.creations) && coverage.creations >= 0 ? coverage.creations : 0,
       collections: Number.isInteger(coverage.collections) && coverage.collections >= 0 ? coverage.collections : 0,

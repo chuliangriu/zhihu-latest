@@ -20,7 +20,7 @@ async function getApp() {
     const database = config.authMode === "session" || config.profile.enabled
       ? new SupabaseAdapter(config.supabase.url, config.supabase.serviceKey) : null;
     const profileInspector = database && config.profile.accessSecret && config.profile.encryptionKey
-      ? new ProfileSummaryService(new ZhihuFootprintSource(database, config.profile.accessSecret, config.profile.encryptionKey), () => new OpenAiCompatibleProvider(config.llm))
+      ? new ProfileSummaryService(new ZhihuFootprintSource(database, config.profile.accessSecret, config.profile.encryptionKey, fetch, { gate: stores.profileRequestGate, policy: config.profile.userDataPolicy }), () => new OpenAiCompatibleProvider(config.llm))
       : undefined;
     const profileService = config.profile.enabled ? profileInspector : undefined;
     const workflowStore = config.businessStoreMode === "supabase"

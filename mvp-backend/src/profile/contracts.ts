@@ -6,6 +6,7 @@ export const profileModelSchema = z.object({
   recentFocus: claim.extend({ text: z.string().trim().min(1).max(90) }).nullable(),
   unknown: z.array(z.enum(["年龄", "职业", "学校", "城市", "关系状态", "健康情况"])).max(6)
 }).strict();
+export interface ProfileSources { creation: "read" | "failed" | "not_requested"; collection: "read" | "failed" | "not_requested"; }
 export interface Footprint { id: string; kind: "creation" | "collection"; title: string; summary: string; occurredAt: string; }
 export interface AccessSecretCheck { status: "accepted" | "rejected" | "unavailable"; httpStatus?: number; upstreamCode?: number; }
 export interface FootprintSource {
@@ -21,6 +22,8 @@ export interface ProfileConnectionDiagnostic {
 }
 export interface ProfileSummary {
   connection?: ProfileConnectionDiagnostic;
+  sources?: ProfileSources;
+  retryAfterSeconds?: number;
   status: "ready" | "needs_input" | "unavailable";
   reasonCode: string;
   profile: { role: string; impression: string[]; recentFocus: string; markdown: string; requiresConfirmation: true } | null;

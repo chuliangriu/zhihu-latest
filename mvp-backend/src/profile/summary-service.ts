@@ -53,9 +53,16 @@ export class ProfileSummaryService {
     } catch (error) {
       const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "PROFILE_UNAVAILABLE";
       result.status = "unavailable"; result.reasonCode = code;
+      if (error instanceof ProfileDataError) {
+        const accepted = (error.progress?.footprints ?? []).filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0);
+        result.coverage.creations = accepted.filter(f => f.kind === "creation").length;
+        result.coverage.collections = accepted.filter(f => f.kind === "collection").length;
+        if (error.progress) result.sources = { ...error.progress.sources };
+        if (error.retryAfterSeconds) result.retryAfterSeconds = error.retryAfterSeconds;
+      }
       if (inspectOnly && error instanceof ProfileDataError && error.connection) {
         result.connection = { ...error.connection };
-        if (code === "OAUTH_REAUTH_REQUIRED" && ["creation", "collection"].includes(error.connection.stage) && this.source.checkAccessSecret) {
+        if (["OAUTH_REAUTH_REQUIRED","ZHIHU_ACCESS_SECRET_REJECTED"].includes(code) && ["creation", "collection"].includes(error.connection.stage) && this.source.checkAccessSecret) {
           const checkStarted = Date.now();
           try { result.connection.accessSecret = await this.source.checkAccessSecret(signal); }
           catch { result.connection.accessSecret = { status: "unavailable" }; }

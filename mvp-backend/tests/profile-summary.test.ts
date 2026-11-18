@@ -14,11 +14,14 @@ import { InMemoryMonitoringStore } from "../src/security/monitoring-store.js";
 const secret = "profile-test-encryption-secret-32-characters";
 const oauthToken = "profile-test-oauth-token";
 const userId = "11111111-1111-4111-8111-111111111111";
-function encrypted() {
+function encrypted(token = oauthToken) {
   const iv = Buffer.alloc(12,1);
   const cipher = createCipheriv("aes-256-gcm", createHash("sha256").update(secret).digest(), iv);
-  const bytes = Buffer.concat([cipher.update(oauthToken,"utf8"),cipher.final()]);
+  const bytes = Buffer.concat([cipher.update(token,"utf8"),cipher.final()]);
   return ["v1",iv.toString("base64url"),cipher.getAuthTag().toString("base64url"),bytes.toString("base64url")].join(".");
+}
+function testSource(accounts: ConstructorParameters<typeof ZhihuFootprintSource>[0], accessSecret: string, encryptionKey: string, fetcher: typeof fetch) {
+  return new ZhihuFootprintSource(accounts,accessSecret,encryptionKey,fetcher,{policy:{minIntervalMs:0}});
 }
 const footprints: Footprint[] = [
   { id: "f1", kind: "collection", title: "客厅为什么没人停留", summary: "讨论客厅的共同活动。", occurredAt: new Date().toISOString() },
@@ -103,7 +106,7 @@ describe("authorized Zhihu footprint access", () => {
     const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[{Title:"我的创作",Summary:"自己的摘要",Url:"https://www.zhihu.com/answer/1",CreatedAt:now,LikeCount:123}]}}))
       .mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[{Title:"一篇收藏",Summary:"别人的摘要",Url:"https://www.zhihu.com/answer/2",CreatedAt:1,FavTime:now},{Title:"旧收藏",Summary:"old",Url:"https://www.zhihu.com/answer/3",FavTime:1}]}}));
     const onRequest=vi.fn();
-    const items=await new ZhihuFootprintSource(accounts,"test-access-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),onRequest);
+    const items=await testSource(accounts,"test-access-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),onRequest);
     expect(items.map(x=>x.kind)).toEqual(["creation","collection"]);
     expect(accounts.oauthAccount).toHaveBeenCalledWith(userId,expect.anything());
     expect(onRequest).toHaveBeenCalledTimes(2);
@@ -123,7 +126,7 @@ describe("authorized Zhihu footprint access", () => {
       const rows=dates.map((date,i)=>({Title:`资料${i}`,Summary:"测试内容",Url:`https://www.zhihu.com/answer/${i+10}`,CreatedAt:Date.parse(date)/1000,FavTime:Date.parse(date)/1000}));
       const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:0,Data:{Items:rows}}))
         .mockResolvedValueOnce(Response.json({Code:0,Data:{Items:rows.map(x=>({...x,CreatedAt:1}))}}));
-      const records=await new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{});
+      const records=await testSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{});
       expect(records.map(x=>[x.kind,x.title])).toEqual([["creation","资料0"],["creation","资料1"],["collection","资料0"],["collection","资料1"]]);
     } finally { clock.mockRestore(); }
   });
@@ -131,18 +134,18 @@ describe("authorized Zhihu footprint access", () => {
     const now=Math.floor(Date.now()/1000);
     const rows=Array.from({length:20},(_,i)=>({Title:`资料${i}`,Summary:"测试内容",Url:`https://www.zhihu.com/answer/${i+100}`,CreatedAt:now,FavTime:now}));
     const fetcher=vi.fn<typeof fetch>().mockImplementation(async()=>Response.json({Code:0,Data:{Items:rows}}));
-    const records=await new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{});
+    const records=await testSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{});
     expect(records.filter(x=>x.kind==="creation")).toHaveLength(15);
     expect(records.filter(x=>x.kind==="collection")).toHaveLength(15);
   });
   it.each([401,429])("stops on HTTP %s without fallback to developer identity", async status=>{
     const fetcher=vi.fn<typeof fetch>().mockResolvedValue(new Response(null,{status}));
-    await expect(new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{})).rejects.toMatchObject({code:status===401?"OAUTH_REAUTH_REQUIRED":"ZHIHU_RATE_LIMITED"});
+    await expect(testSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{})).rejects.toMatchObject({code:status===401?"OAUTH_REAUTH_REQUIRED":"ZHIHU_RATE_LIMITED"});
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
   it("missing token or tampered ciphertext makes zero user-data calls", async ()=>{
     const fetcher=vi.fn<typeof fetch>();
-    await expect(new ZhihuFootprintSource({oauthAccount:async()=>null},"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{})).rejects.toMatchObject({code:"OAUTH_REAUTH_REQUIRED"});
+    await expect(testSource({oauthAccount:async()=>null},"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(1000),()=>{})).rejects.toMatchObject({code:"OAUTH_REAUTH_REQUIRED"});
     expect(()=>decryptProfileToken(encrypted(),"wrong-test-secret-with-enough-characters")).toThrow("OAUTH_TOKEN_UNAVAILABLE");
     expect(fetcher).not.toHaveBeenCalled();
   });
@@ -240,9 +243,9 @@ describe("private connection failure diagnostics", () => {
   const createLlm=vi.fn(()=>{throw new Error("model must not run");});
   it("distinguishes account lookup and token decryption from an upstream failure",async()=>{
     const fetcher=vi.fn<typeof fetch>();
-    const missing=await new ProfileSummaryService(new ZhihuFootprintSource({oauthAccount:async()=>null},"access-secret",secret,fetcher),createLlm).inspect(userId);
+    const missing=await new ProfileSummaryService(testSource({oauthAccount:async()=>null},"access-secret",secret,fetcher),createLlm).inspect(userId);
     expect(missing.result.connection).toEqual({stage:"account_lookup"});
-    const tampered=await new ProfileSummaryService(new ZhihuFootprintSource(accounts,"access-secret","wrong-secret-with-at-least-32-characters",fetcher),createLlm).inspect(userId);
+    const tampered=await new ProfileSummaryService(testSource(accounts,"access-secret","wrong-secret-with-at-least-32-characters",fetcher),createLlm).inspect(userId);
     expect(tampered.result.connection).toEqual({stage:"token_decryption"});
     expect(fetcher).not.toHaveBeenCalled();
     expect(createLlm).not.toHaveBeenCalled();
@@ -256,7 +259,7 @@ describe("private connection failure diagnostics", () => {
   ])("exposes only allowlisted fields for %s",async(message,hint)=>{
     const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:20001,Message:message},{status:401}))
       .mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[{Summary:"public result is not user data"}]}}));
-    const service=new ProfileSummaryService(new ZhihuFootprintSource(accounts,"access-secret",secret,fetcher),createLlm);
+    const service=new ProfileSummaryService(testSource(accounts,"access-secret",secret,fetcher),createLlm);
     const detail=await service.inspect(userId);
     expect(detail.result.connection).toEqual({stage:"creation",httpStatus:401,upstreamCode:20001,hint,accessSecret:{status:"accepted",httpStatus:200,upstreamCode:0}});
     expect(fetcher).toHaveBeenCalledTimes(2);
@@ -273,7 +276,7 @@ describe("private connection failure diagnostics", () => {
   });
   it("keeps diagnostics out of the product summary response",async()=>{
     const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:20001,Message:"OAuth token invalid"}));
-    const detail=await new ProfileSummaryService(new ZhihuFootprintSource(accounts,"access-secret",secret,fetcher),createLlm).generate(userId);
+    const detail=await new ProfileSummaryService(testSource(accounts,"access-secret",secret,fetcher),createLlm).generate(userId);
     expect(detail.result.reasonCode).toBe("OAUTH_REAUTH_REQUIRED");
     expect(detail.result).not.toHaveProperty("connection");
     expect(createLlm).not.toHaveBeenCalled();
@@ -284,7 +287,97 @@ it.each([
   [401,20001,"rejected"], [200,20001,"rejected"], [429,30001,"unavailable"]
 ])("separates independent server-credential HTTP %s / Code %s from OAuth failure",async(http,code,status)=>{
   const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:code,Message:"private message"},{status:http}));
-  const source=new ZhihuFootprintSource({oauthAccount:async()=>null},"server-secret",secret,fetcher);
+  const source=testSource({oauthAccount:async()=>null},"server-secret",secret,fetcher);
   expect(await source.checkAccessSecret(AbortSignal.timeout(1000))).toEqual({status,httpStatus:http,upstreamCode:code});
   expect(fetcher).toHaveBeenCalledTimes(1);
+});
+
+describe("upstream limit recovery", () => {
+  const accounts={oauthAccount:async(id:string)=>({user_id:id,access_token:encrypted(),token_storage_version:"encrypted_v1" as const,expires_at:new Date(Date.now()+86400000).toISOString()})};
+  const item=()=>({Title:"创作标题",Summary:"这是用于测试的私人创作摘要。",Url:"https://www.zhihu.com/answer/100",CreatedAt:Math.floor(Date.now()/1000)});
+  it.each([[30001,"ZHIHU_RATE_LIMITED",60],[30002,"ZHIHU_QUOTA_EXCEEDED",900]] as const)("retains successful counts after Code %s and stops during cooldown",async(code,reason,seconds)=>{
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[item()]}})).mockResolvedValueOnce(Response.json({Code:code,Message:"private-upstream-body"}));
+    const createLlm=vi.fn(()=>{throw new Error("no model on partial input");});
+    const service=new ProfileSummaryService(testSource(accounts,"test-secret",secret,fetcher),createLlm);
+    const first=await service.inspect(userId),second=await service.generate(userId);
+    expect(first.result).toMatchObject({status:"unavailable",reasonCode:reason,retryAfterSeconds:seconds,coverage:{creations:1,collections:0},sources:{creation:"read",collection:"failed"},connection:{stage:"collection",httpStatus:200,upstreamCode:code}});
+    expect(second.result).toMatchObject({reasonCode:reason,coverage:{creations:1}});
+    expect(fetcher).toHaveBeenCalledTimes(2);expect(createLlm).not.toHaveBeenCalled();
+    expect(JSON.stringify(first)).not.toMatch(/私人创作摘要|private-upstream-body|profile-test-oauth-token/);
+  });
+  it.each(["120","Wed, 18 Nov 2026 12:02:00 GMT"])("honors Retry-After %s and resumes only the missing collection",async(retry)=>{
+    let now=Date.parse("2026-11-18T12:00:00Z");const clock=vi.spyOn(Date,"now").mockImplementation(()=>now);
+    try {
+      const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[item()]}})).mockResolvedValueOnce(Response.json({Code:30001},{headers:{"Retry-After":retry}})).mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[]}}));
+      const service=new ProfileSummaryService(testSource(accounts,"test-secret",secret,fetcher),()=>{throw new Error();});
+      expect((await service.inspect(userId)).result.retryAfterSeconds).toBe(120);
+      now+=119000;expect((await service.inspect(userId)).result.retryAfterSeconds).toBe(1);expect(fetcher).toHaveBeenCalledTimes(2);
+      now+=1000;expect((await service.inspect(userId)).result).toMatchObject({status:"needs_input",coverage:{creations:1,collections:0}});
+      expect(fetcher).toHaveBeenCalledTimes(3);expect(new URL(String(fetcher.mock.calls[2]![0])).pathname).toBe("/api/v1/user/collections");
+    } finally {clock.mockRestore();}
+  });
+  it("keeps HTTP429/Code30002 distinct from a frequency limit",async()=>{
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:30002},{status:429}));
+    const detail=await new ProfileSummaryService(testSource(accounts,"test-secret",secret,fetcher),()=>{throw new Error();}).inspect(userId);
+    expect(detail.result.reasonCode).toBe("ZHIHU_QUOTA_EXCEEDED");expect(fetcher).toHaveBeenCalledOnce();
+  });
+  it("separates cache by user and current authorization and expires cached empty success",async()=>{
+    let now=Date.now(),token=oauthToken;const clock=vi.spyOn(Date,"now").mockImplementation(()=>now);
+    const account={oauthAccount:async(id:string)=>({...await accounts.oauthAccount(id),access_token:encrypted(token)})};
+    const fetcher=vi.fn<typeof fetch>().mockImplementation(async()=>Response.json({Code:0,Data:{Items:[]}}));
+    const source=new ZhihuFootprintSource(account,"test-secret",secret,fetcher,{policy:{minIntervalMs:0,cacheTtlMs:1000}});
+    const load=(id=userId)=>source.load(id,AbortSignal.timeout(1000),()=>{});
+    try {
+      await load();await load();expect(fetcher).toHaveBeenCalledTimes(2);
+      await load("22222222-2222-4222-8222-222222222222");expect(fetcher).toHaveBeenCalledTimes(4);
+      token="rotated-test-token";await load();expect(fetcher).toHaveBeenCalledTimes(6);
+      now+=1000;await load();expect(fetcher).toHaveBeenCalledTimes(8);
+    } finally {clock.mockRestore();}
+  });
+  it("coalesces concurrent reads and accounts only actual upstream requests",async()=>{
+    const fetcher=vi.fn<typeof fetch>().mockImplementation(async()=>Response.json({Code:0,Data:{Items:[]}}));
+    const source=testSource(accounts,"test-secret",secret,fetcher),a=vi.fn(),b=vi.fn();
+    const result=await Promise.all([source.load(userId,AbortSignal.timeout(1000),a),source.load(userId,AbortSignal.timeout(1000),b)]);
+    expect(result[0]).toEqual(result[1]);expect(fetcher).toHaveBeenCalledTimes(2);expect(a.mock.calls.length+b.mock.calls.length).toBe(2);
+  });
+  it("cancels while queued without issuing a second upstream request",async()=>{
+    const controller=new AbortController();
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:0,Data:{Items:[item()]}}));
+    const source=new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher);
+    const pending=source.load(userId,controller.signal,()=>{});
+    const timer=setTimeout(()=>controller.abort(),20);
+    try { await expect(pending).rejects.toMatchObject({code:"ZHIHU_USER_DATA_UNAVAILABLE",progress:{sources:{creation:"read",collection:"failed"}}}); }
+    finally {clearTimeout(timer);}
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
+  it("fails closed when the shared request gate is unavailable",async()=>{
+    const fetcher=vi.fn<typeof fetch>();
+    const gate={reserve:vi.fn().mockRejectedValue(new Error("private-redis-message")),check:vi.fn(),block:vi.fn()};
+    const source=new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher,{gate});
+    const detail=await new ProfileSummaryService(source,()=>{throw new Error();}).generate(userId);
+    expect(detail.result.reasonCode).toBe("PROFILE_THROTTLE_UNAVAILABLE");expect(fetcher).not.toHaveBeenCalled();
+    expect(JSON.stringify(detail)).not.toContain("private-redis-message");
+  });
+  it("paces requests by two seconds by default",async()=>{
+    const times:number[]=[];const fetcher=vi.fn<typeof fetch>().mockImplementation(async()=>{times.push(Date.now());return Response.json({Code:0,Data:{Items:[]}});});
+    await new ZhihuFootprintSource(accounts,"test-secret",secret,fetcher).load(userId,AbortSignal.timeout(4000),()=>{});
+    expect(times).toHaveLength(2);expect(times[1]!-times[0]!).toBeGreaterThanOrEqual(1950);
+  });
+  it("preserves successful counts when collection times out, without automatic retries",async()=>{
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({Code:0,Data:{Items:[item()]}})).mockRejectedValueOnce(new Error("private-network-message"));
+    const result=await new ProfileSummaryService(testSource(accounts,"test-secret",secret,fetcher),()=>{throw new Error();}).generate(userId);
+    expect(result.result).toMatchObject({reasonCode:"ZHIHU_USER_DATA_UNAVAILABLE",coverage:{creations:1},sources:{collection:"failed"}});
+    expect(fetcher).toHaveBeenCalledTimes(2);expect(JSON.stringify(result)).not.toContain("private-network-message");
+  });
+  it("propagates Retry-After and records zero model usage before any model call",async()=>{
+    const config=loadConfig({NODE_ENV:"test",AUTH_MODE:"session",SUPABASE_URL:"https://project.supabase.co",SUPABASE_SERVICE_ROLE_KEY:"test-key",CORS_ORIGINS:"https://app.example",IP_HASH_SECRET:"test-ip-hash-secret-with-32-characters"});
+    const monitoringStore=new InMemoryMonitoringStore();
+    const fetcher=vi.fn<typeof fetch>().mockResolvedValue(Response.json({Code:30002},{headers:{"Retry-After":"1800"}}));
+    const service=new ProfileSummaryService(testSource(accounts,"server-key",secret,fetcher),()=>{throw new Error();});
+    const app=createApp({config,runtime:{evaluateDetailed:vi.fn()},profileService:service,monitoringStore,sessionResolver:async()=>({userId,sessionId:"test-session",role:"user",status:"active"})});
+    const response=await request(app).post("/api/profile/summary").set("Cookie","wjr_session=test").set("Origin","https://app.example").set("Idempotency-Key","profile-limited-request-01").send({useAuthorizedFootprints:true}).expect(503);
+    expect(response.headers["retry-after"]).toBe("1800");expect(response.body.data.reasonCode).toBe("ZHIHU_QUOTA_EXCEEDED");
+    const events=await monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:20,cursor:0});
+    expect(events.events.find(x=>x.quotaDecision==="allowed")?.llm.requests).toBe(0);expect(events.events.find(x=>x.quotaDecision==="allowed")?.zhihu.userDataRequests).toBe(1);
+  });
 });

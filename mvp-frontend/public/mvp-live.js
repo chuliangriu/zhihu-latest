@@ -7,7 +7,7 @@ const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什
 export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
   const base = createEntryController({ render, schedule, cancel });
   const state = base.getState();
-  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, paper: null, activePapers: [] });
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [] });
   state.chatNotice = '';
   const paint = () => render(state);
   const candidate = () => state.user.candidates[state.selected];
@@ -44,7 +44,18 @@ export function createLiveController({ render, api = createApi(), navigate = url
       /INJECTION|REJECTED/.test(code) ? '这段内容暂时无法处理，请调整后再试。' :
       `这次没有完成，请重试。${code ? `（${code}）` : ''}`;
   }
-  function profileFailure(code, coverage) {
+  let profileRetryTimer;
+  function profileFailure(code, coverage, sources, retryAfter) {
+    const seconds = Number(retryAfter);
+    const date = typeof retryAfter === 'string' ? Date.parse(retryAfter) : NaN;
+    const until = Number.isFinite(seconds) && seconds > 0 ? Date.now() + seconds * 1000 : date;
+    state.profileRetryAt = Number.isFinite(until) && until > Date.now() ? until : 0;
+    clearTimeout(profileRetryTimer);
+    if (state.profileRetryAt) {
+      profileRetryTimer = setTimeout(paint, Math.min(2147483647, state.profileRetryAt - Date.now() + 50));
+      profileRetryTimer.unref?.();
+    }
+    state.profileQuotaBlocked = code === 'ZHIHU_QUOTA_EXCEEDED';
     state.profileIssueCode = code;
     state.profileNeedsLogin = /^(OAUTH_REAUTH_REQUIRED|OAUTH_TOKEN_UNAVAILABLE|NOT_LOGGED_IN|UNAUTHENTICATED)$/.test(code);
     const messages = {
@@ -53,7 +64,9 @@ export function createLiveController({ render, api = createApi(), navigate = url
       OAUTH_TOKEN_UNAVAILABLE: '暂时无法读取知乎授权，请重新登录后再试。',
       NOT_LOGGED_IN: '登录状态已失效，请重新登录后同步背景。',
       UNAUTHENTICATED: '登录状态已失效，请重新登录后同步背景。',
-      ZHIHU_RATE_LIMITED: '知乎服务暂时繁忙，请稍后重新同步背景。',
+      ZHIHU_RATE_LIMITED: '知乎读取触发频率限制，请等待后再同步背景。',
+      ZHIHU_QUOTA_EXCEEDED: '知乎接口可用额度已耗尽，恢复时间以知乎为准。可以先手动补充背景。',
+      ZHIHU_ACCESS_SECRET_REJECTED: '知乎连接配置暂不可用，请稍后再试。你可以先手动补充背景。',
       insufficient_footprints: '近期可用的公开创作和收藏不足以整理背景。你可以先补充自己的近期背景。',
       profile_evidence_rejected: '现有足迹还不足以可靠地介绍你。你可以先补充自己的近期背景。',
       SHORT_RATE_LIMITED: '同步太频繁了，请稍后再试。',
@@ -63,19 +76,23 @@ export function createLiveController({ render, api = createApi(), navigate = url
     state.profileNotice = messages[code] || (read
       ? '已读取你的知乎足迹，但暂时无法整理背景。可以稍后重新同步，或先手动补充。'
       : '这次没能同步背景。可以重新同步，或先手动补充背景。');
+    if (sources?.creation === 'read' && sources?.collection === 'failed') {
+      state.profileNotice = `已读取创作中的 ${coverage?.creations || 0} 条可用资料，收藏暂未读取。${state.profileNotice}`;
+    }
+    if (state.profileRetryAt) state.profileNotice += ` 最早可于 ${new Date(state.profileRetryAt).toLocaleTimeString('zh-CN', { hour12: false })} 再试。`;
   }
   async function syncProfile() {
-    state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false;
+    state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false;
     try {
       const profile = await api.json('/api/profile/summary', { useAuthorizedFootprints: true });
       if (profile.status === 'ready' && profile.profile) {
         Object.assign(state.user, { role: profile.profile.role, impression: profile.profile.impression,
           recentFocus: profile.profile.recentFocus, profileReady: true });
-      } else profileFailure(profile.reasonCode || 'PROFILE_UNAVAILABLE', profile.coverage);
-    } catch (error) { profileFailure(error?.code || error?.message || 'PROFILE_UNAVAILABLE', error?.coverage); }
+      } else profileFailure(profile.reasonCode || 'PROFILE_UNAVAILABLE', profile.coverage, profile.sources, profile.retryAfterSeconds);
+    } catch (error) { profileFailure(error?.code || error?.message || 'PROFILE_UNAVAILABLE', error?.coverage, error?.sources, error?.retryAfter); }
   }
   async function retryProfile() {
-    if (!state.sessionReady || state.localDevelopment || state.user.profileReady) return;
+    if (state.busy || !state.sessionReady || state.localDevelopment || state.user.profileReady || state.profileRetryAt > Date.now()) return;
     state.busy = true; paint();
     try { await syncProfile(); } finally { state.busy = false; paint(); }
   }
@@ -234,7 +251,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (action === 'switch-sample' || action === 'skip-sample' || action === 'replay-chat') return;
       base.action(action, id);
       if (action === 'save-profile' && state.user.profileReady) {
-        state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false; paint();
+        state.profileNotice = ''; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false; paint();
       }
     }
   };

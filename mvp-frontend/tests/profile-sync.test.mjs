@@ -71,3 +71,24 @@ test('API failure retains only code and counts, never footprint text or tokens',
     return true;
   });
 });
+
+test('partial frequency failure preserves progress and blocks retries during Retry-After', async () => {
+  const actualNow=Date.now; let now=actualNow(); Date.now=()=>now;
+  try {
+    const h=harness([Response.json({success:false,data:{status:'unavailable',reasonCode:'ZHIHU_RATE_LIMITED',coverage:{creations:3,collections:0},sources:{creation:'read',collection:'failed'}}},{status:503,headers:{'Retry-After':'60'}}),ready]);
+    await h.c.action('start');
+    assert.match(h.html,/已读取创作中的 3 条可用资料，收藏暂未读取/);assert.match(h.html,/频率限制/);
+    assert.match(h.html,/data-action="retry-profile" disabled/);assert.doesNotMatch(h.html,/知乎授权已失效|公开创作和收藏不足/);
+    await h.c.action('retry-profile');assert.equal(h.syncCalls,1);
+    now+=60001;await h.c.action('retry-profile');assert.equal(h.syncCalls,2);assert.equal(h.c.getState().user.profileReady,true);
+  } finally {Date.now=actualNow;}
+});
+test('quota exhaustion does not claim a reset time or ask for login', async () => {
+  const h=harness([Response.json({success:false,data:{status:'unavailable',reasonCode:'ZHIHU_QUOTA_EXCEEDED',retryAfterSeconds:900}},{status:503})]);
+  await h.c.action('start');assert.match(h.html,/可用额度已耗尽/);assert.match(h.html,/恢复时间以知乎为准/);assert.doesNotMatch(h.html,/频率限制|明天恢复|知乎授权已失效/);
+  await h.c.action('retry-profile');assert.equal(h.syncCalls,1);
+});
+test('server credential rejection does not ask users to log in again', async () => {
+  const h=harness([Response.json({success:false,data:{status:'unavailable',reasonCode:'ZHIHU_ACCESS_SECRET_REJECTED'}},{status:503})]);
+  await h.c.action('start');assert.match(h.html,/连接配置暂不可用/);assert.doesNotMatch(h.html,/重新登录知乎/);
+});

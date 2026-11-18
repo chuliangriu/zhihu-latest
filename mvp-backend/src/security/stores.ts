@@ -1,10 +1,12 @@
 import { createClient } from "redis";
+import { InMemoryProfileRequestGate, RedisProfileRequestGate, type ProfileRequestGate } from "../profile/request-gate.js";
 import type { AppConfig } from "../config.js";
 import { InMemoryMonitoringStore, RedisMonitoringStore, type MonitoringStore } from "./monitoring-store.js";
 import { InMemoryProtectionStore, RedisProtectionStore, type ProtectionStore } from "./protection-store.js";
 
 export interface SecurityStores {
   protectionStore: ProtectionStore;
+  profileRequestGate: ProfileRequestGate;
   monitoringStore: MonitoringStore;
   close(): Promise<void>;
 }
@@ -13,6 +15,7 @@ export async function createSecurityStores(config: AppConfig): Promise<SecurityS
   if (config.securityStore.mode === "memory") {
     return {
       protectionStore: new InMemoryProtectionStore(),
+      profileRequestGate: new InMemoryProfileRequestGate(),
       monitoringStore: new InMemoryMonitoringStore(),
       async close() {}
     };
@@ -25,6 +28,7 @@ export async function createSecurityStores(config: AppConfig): Promise<SecurityS
   await client.connect();
   return {
     protectionStore: new RedisProtectionStore(client, config.securityStore.redisPrefix),
+    profileRequestGate: new RedisProfileRequestGate(client, config.securityStore.redisPrefix),
     monitoringStore: new RedisMonitoringStore(
       client,
       config.monitoring.retentionDays,
