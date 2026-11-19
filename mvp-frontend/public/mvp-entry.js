@@ -241,6 +241,5 @@ export function entryView(state) {
     .replace('Demo 评论预览 · Enter 发布', '点击后前往知乎原文，文字不会自动发布。');
   if (state.error) html += `<div class="mvp-live-status" role="alert">${esc(state.error)}</div>`;
   else if (state.busy && !['chat', 'deposit'].includes(state.screen)) html += `<div class="mvp-live-status" role="status">${state.phase === 'profile_summary' ? '正在读取你的知乎足迹，生成你专属的背景介绍……' : state.phase === 'session' ? '正在确认登录状态……' : '正在处理……'}</div>`;
-  if (state.screen === 'chat' && !state.busy) html += `<div class="mvp-paper-tools"><button data-action="leave-paper">留一张自己的纸条</button><button data-action="open-mailbox">我的纸条与交流</button></div>`;
   return html;
 }

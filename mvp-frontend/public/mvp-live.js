@@ -8,7 +8,7 @@ const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什
 export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
   const base = createEntryController({ render, schedule, cancel });
   const state = base.getState();
-  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileSource: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true} });
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, discoveryDiagnostic: null, sessionReady: false, authRequired: false, accountNotice: '', profileSource: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true} });
   state.profileSource = '';
   state.chatNotice = '';
   const paint = () => render(state);
@@ -128,7 +128,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
   }
   function clearAccount() {
     base.stop(); clearTimeout(profileRetryTimer);
-    Object.assign(state, { user: initialUser(), sampleScenario: null, conversationId: null, discoveryId: null,
+    Object.assign(state, { user: initialUser(), sampleScenario: null, conversationId: null, discoveryId: null, discoveryDiagnostic: null,
       sessionReady: false, localDevelopment: false, selected: null, paper: null, paperEdit: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true},
       chatDraft: '', queuedChat: '', privateDraft: '', privateMessages: [], publicDraft: '', publicReplies: [],
       profileDraft: '', nameDraft: '', roleDraft: '', profileOpen: false, profileError: '',
@@ -172,9 +172,26 @@ export function createLiveController({ render, api = createApi(), navigate = url
     }
     finally { state.busy = false; state.phase = null; paint(); }
   }
+  function showDiscoveryOutcome(text, { status = 'unavailable', reasonCode, requestId, stage = 'matching' } = {}) {
+    const safeId = value => typeof value === 'string' && /^[A-Za-z0-9_.:-]{1,160}$/.test(value) ? value : null;
+    state.discoveryDiagnostic = { status, reasonCode: safeId(reasonCode), requestId: safeId(requestId), stage };
+    state.chatNotice = '';
+    state.user.discoveryChat = [];
+    const invitation = '要不要把刚才聊到的事留成一张纸条？我会先整理给你看，由你修改、确认后再放进信箱。';
+    state.user.chat.push({ role: 'agent', text: `${text}\n\n${invitation}`, paragraphs: [text, invitation], offerPaper: true,
+      copyDiscoveryDiagnostic: status === 'unavailable' });
+    state.stage = state.user.chat.length;
+  }
+  function discoveryFailureNotice(code) {
+    if (/zhihu_quota_exceeded/i.test(code || '')) return '知乎搜索额度暂不可用，这次匹配没有完成。刚才的聊天已保留。';
+    if (/zhihu_rate_limited/i.test(code || '')) return '知乎搜索触发频率限制，这次匹配没有完成。请稍后再试，刚才的聊天已保留。';
+    if (/RATE_LIMITED|CONCURRENCY/i.test(code || '')) return '这次查找的请求过于频繁，或已有请求正在处理。刚才的聊天已保留，可以稍后再试。';
+    if (/BUDGET/i.test(code || '')) return '本站这次查找的调用额度暂不可用，刚才的聊天已保留。';
+    return '这次匹配暂时没有完成，刚才的聊天已保留。可以稍后再试。';
+  }
   async function send() {
     const text = state.chatDraft.trim(); if (!text || state.busy || !state.sessionReady) return;
-    base.stop(); state.error = ''; state.busy = true; state.phase = 'reply'; state.selected = null; state.paper = null;
+    base.stop(); state.error = ''; state.discoveryDiagnostic = null; state.busy = true; state.phase = 'reply'; state.selected = null; state.paper = null;
     state.user.chat = [...state.user.chat, ...state.user.discoveryChat, { role: 'user', text }]; state.user.discoveryChat = [];
     state.privateDraft = ''; state.publicDraft = ''; state.privateMessages = []; state.publicReplies = [];
     const answer = { role: 'agent', text: '' }; state.user.chat.push(answer);
@@ -184,7 +201,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
     try {
       const done = await api.chat(state.conversationId, text, chunk => { answer.text += chunk; paint(); }, controller.signal, completed => {
         state.conversationId = completed.conversationId;
-        state.chatNotice = '你可以接着说，我在看看有没有相关的表达。'; paint();
+        state.chatNotice = '刚才的回复已完成，你可以继续说。'; paint();
       });
       state.conversationId = done.conversationId;
       if (done.discovery?.eligible && !state.queuedChat) {
@@ -197,18 +214,23 @@ export function createLiveController({ render, api = createApi(), navigate = url
           state.discoveryId = result.discoveryId;
           const display = discoveryView(result, state.user.name);
           state.user.candidates = display.candidates; state.user.discoveryChat = display.messages;
-          if (!display.messages.length) state.chatNotice = result.status === 'unavailable'
-            ? /zhihu_quota_exceeded/i.test(result.reasonCode) ? '知乎搜索额度暂不可用，这次匹配没有完成。刚才的聊天已保留。'
-              : /zhihu_rate_limited/i.test(result.reasonCode) ? '知乎搜索触发频率限制，这次匹配没有完成。请稍后再试，刚才的聊天已保留。'
-              : '这次匹配暂时没有完成，刚才的聊天已保留。可以稍后再试。'
-            : result.status === 'not_eligible' ? '我们先接着聊聊刚才的事。' : '这次暂时没有找到有具体关联的表达。我们可以接着聊。';
-          else state.chatNotice = '';
-        } catch {
-          // Discovery is an optional follow-up. The streamed chat answer has
-          // already completed and must remain usable if a JSON-only matching
-          // stage rejects a provider response.
-          state.chatNotice = '这次没能整理出相关的纸条，但刚才的聊天已经完成。你可以继续说。';
+          if (!display.messages.length) {
+            const status = ['no_match', 'not_eligible'].includes(result.status) ? result.status : 'unavailable';
+            const notice = status === 'unavailable' ? discoveryFailureNotice(result.reasonCode)
+              : status === 'not_eligible' ? '这轮暂未进入匹配，我们可以接着聊聊刚才的事。'
+              : '这次暂时没有找到有具体关联的表达。我们可以接着聊。';
+            showDiscoveryOutcome(notice, { status, reasonCode: result.reasonCode, requestId: result.requestId });
+          } else state.chatNotice = '';
+        } catch (error) {
+          if (/^(NOT_LOGGED_IN|UNAUTHENTICATED)$/.test(error?.code || error?.message || '')) { fail(error); return; }
+          const stopped = controller?.signal.aborted;
+          const notice = stopped ? '已停止这次查找，刚才的聊天已保留。'
+            : error?.code ? discoveryFailureNotice(error.code)
+            : '这次没能整理出相关的纸条，但刚才的聊天已经完成。你可以继续说。';
+          showDiscoveryOutcome(notice, { status: stopped ? 'cancelled' : 'unavailable', reasonCode: stopped ? 'REQUEST_CANCELLED' : error?.code || 'DISCOVERY_REQUEST_FAILED', requestId: error?.requestId });
         }
+      } else if (!state.queuedChat && /unavailable|REJECTED/.test(done.discovery?.reasonCode || '')) {
+        showDiscoveryOutcome('刚才的聊天已完成，但这次暂时没能判断是否适合查找相关表达。', { reasonCode: done.discovery.reasonCode, stage: 'topic' });
       } else state.chatNotice = '';
     } catch (error) { fail(error); }
     finally {

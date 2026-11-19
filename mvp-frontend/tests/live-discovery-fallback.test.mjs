@@ -44,7 +44,55 @@ for (const [reasonCode,notice] of [
   };
   const c=createLiveController({api,render:()=>{}});c.initialize();await c.action('start');await c.action('enter-chat');
   c.input('chatDraft','我想聊聊最近正在做的一件事。');await c.action('send-chat');
-  assert.ok(c.getState().chatNotice.includes(notice));
-  assert.doesNotMatch(c.getState().chatNotice,/没有找到有具体关联/);
+  const outcome=c.getState().user.chat.at(-1);
+  assert.ok(outcome.text.includes(notice));assert.equal(outcome.offerPaper,true);
+  assert.doesNotMatch(outcome.text,/没有找到有具体关联/);
+  assert.equal(c.getState().discoveryDiagnostic.reasonCode,reasonCode);
+  assert.ok(entryView(c.getState()).includes('data-action="copy-discovery-diagnostic"'));
   assert.ok(c.getState().user.chat.some(m=>m.text==='已经完成的聊天。'));
+});
+
+
+function outcomeHarness({result,eligible=true,reasonCode='first_topic_allowed',error}={}) {
+  let html='';const frames=[];const c=createLiveController({render:s=>{html=entryView(s);frames.push(html);},api:{
+    async json(path){
+      if(path==='/api/auth-me')return {success:true,localDevelopment:true,user:{id:'test-outcome',display_name:'测试用户'}};
+      if(path.includes('/discovery')){if(error)throw error;return result;}
+      throw Error('Unexpected route '+path);
+    },
+    async chat(_id,_text,onDelta,_signal,onAnswerComplete){onDelta('已经认真听完你的表达。');onAnswerComplete({conversationId:'conversation-1'});return {conversationId:'conversation-1',assistantMessageId:'assistant-1',discovery:{eligible,reasonCode,topicKey:'making-something'}};}
+  }});
+  return {c,frames,get html(){return html;},async send(){await c.action('start');await c.action('enter-chat');c.input('chatDraft','我做了一个自己的项目，但迟迟不敢给别人看。');await c.action('send-chat');}};
+}
+
+test('no match becomes a visible Kanshan invitation and opens the original paper consent flow',async()=>{
+  const h=outcomeHarness({result:{status:'no_match',reasonCode:'no_reliable_relation',matches:{situationClose:null,structureRelated:null}}});await h.send();
+  const log=h.html.slice(0,h.html.indexOf('<div class="kanshan-composer">'));
+  assert.match(log,/这次暂时没有找到有具体关联的表达/);assert.match(log,/要不要把刚才聊到的事留成一张纸条/);
+  assert.match(log,/data-action="leave-paper"/);assert.doesNotMatch(h.html,/mvp-paper-tools|data-action="open-mailbox"/);
+  assert.equal(h.c.getState().chatNotice,'');assert.equal(h.c.getState().discoveryDiagnostic.status,'no_match');
+  await h.c.action('leave-paper');assert.equal(h.c.getState().screen,'consent');assert.match(h.html,/mailbox-consent-card/);
+});
+
+test('answer completion does not claim to be searching when the topic is not eligible',async()=>{
+  const h=outcomeHarness({eligible:false,reasonCode:'not_personal_situation'});await h.send();
+  assert.equal(h.c.getState().discoveryDiagnostic,null);assert.doesNotMatch(h.frames.join(''),/我在看看有没有相关|我再找找|data-action="leave-paper"/);
+});
+
+test('a topic-assessment failure also offers a paper without claiming a search succeeded',async()=>{
+  const h=outcomeHarness({eligible:false,reasonCode:'topic_assessment_unavailable'});await h.send();
+  assert.equal(h.c.getState().discoveryDiagnostic.stage,'topic');assert.match(h.html,/暂时没能判断/);assert.match(h.html,/data-action="leave-paper"/);
+});
+
+test('HTTP upstream limits retain a safe request ID and remain distinct from a successful empty search',async()=>{
+  const h=outcomeHarness({error:Object.assign(Error('upstream error'),{code:'zhihu_rate_limited',requestId:'test-request-42'})});await h.send();
+  assert.match(h.html,/知乎搜索触发频率限制/);assert.doesNotMatch(h.html,/这次暂时没有找到有具体关联/);
+  assert.deepEqual(h.c.getState().discoveryDiagnostic,{status:'unavailable',reasonCode:'zhihu_rate_limited',requestId:'test-request-42',stage:'matching'});
+});
+
+
+test('matching diagnostics do not retain arbitrary exception messages or private response data',async()=>{
+  const h=outcomeHarness({error:Object.assign(Error('private-response-token-should-not-survive'),{raw:'private-content'})});await h.send();
+  assert.equal(h.c.getState().discoveryDiagnostic.reasonCode,'DISCOVERY_REQUEST_FAILED');
+  assert.doesNotMatch(JSON.stringify(h.c.getState().discoveryDiagnostic),/private-response|private-content/);
 });

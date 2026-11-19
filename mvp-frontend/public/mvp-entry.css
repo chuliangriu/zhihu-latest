@@ -23,8 +23,8 @@ body[data-screen="home"] header::after { content: none; }
 .mailbox-delivered > .synthetic-label { display: block; margin-top: 14px; }
 .queued-message-note { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
 .sample-skip { padding: 0 0 1px; margin-left: 8px; border: 0; border-bottom: 1px solid currentColor; border-radius: 0; background: transparent; color: var(--blue); font: inherit; }
-.mvp-live-status, .mvp-paper-tools { position: fixed; bottom: 12px; left: 24px; z-index: 100; padding: 10px 16px; background: #f5f1e8; color: #514c45; border: 1px solid #d8d0c2; border-radius: 8px; font-size: 13px; max-width: calc(100vw - 48px); }
-.mvp-live-status button, .mvp-paper-tools button { border: 0; background: transparent; color: var(--blue); padding: 4px 8px; cursor: pointer; }
+.mvp-live-status { position: fixed; bottom: 12px; left: 24px; z-index: 100; padding: 10px 16px; background: #f5f1e8; color: #514c45; border: 1px solid #d8d0c2; border-radius: 8px; font-size: 13px; max-width: calc(100vw - 48px); }
+.mvp-live-status button { border: 0; background: transparent; color: var(--blue); padding: 4px 8px; cursor: pointer; }
 .local-delivery-note { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 45; color: #596463; background: var(--paper); padding: 2px 8px; font-size: 10px; white-space: nowrap; }
 @media (max-width: 760px) { .profile-recovery { right: 22px; bottom: 14px; } }
 @media (max-width: 480px) {

@@ -23,8 +23,8 @@ const controller = createLiveController({
       const textarea = existingWindow.querySelector('#kanshan-message');
       if (textarea.value !== state.chatDraft) textarea.value = state.chatDraft;
       existingWindow.querySelector('[data-action="send-chat"]').disabled = !state.chatDraft.trim();
-      app.querySelectorAll('.mvp-live-status, .mvp-paper-tools').forEach(node => node.remove());
-      next.querySelectorAll('.mvp-live-status, .mvp-paper-tools').forEach(node => app.append(node));
+      app.querySelectorAll('.mvp-live-status').forEach(node => node.remove());
+      next.querySelectorAll('.mvp-live-status').forEach(node => app.append(node));
     } else app.innerHTML = html;
     app.querySelectorAll('button[data-action]').forEach(button => {
       if (button.dataset.action === 'send-chat') button.disabled = !state.chatDraft.trim();
@@ -62,6 +62,13 @@ const controller = createLiveController({
 app.addEventListener('click', async event => {
   const button = event.target.closest('[data-action]');
   if (!button || button.disabled) return;
+  if (button.dataset.action === 'copy-discovery-diagnostic') {
+    const diagnostic = controller.getState().discoveryDiagnostic;
+    if (!diagnostic) return;
+    try { await navigator.clipboard.writeText(JSON.stringify(diagnostic, null, 2)); button.textContent = '诊断已复制'; }
+    catch { button.textContent = '复制失败，请稍后重试'; }
+    return;
+  }
   if (button.dataset.action === 'copy-profile-diagnostic') {
     const diagnostic = controller.getState().profileDiagnostic;
     if (!diagnostic) return;

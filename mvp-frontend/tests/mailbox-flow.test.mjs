@@ -25,7 +25,7 @@ test('without any match a user can preview, edit and independently confirm a pap
     throw Error('Unexpected route '+path);
   });
   await h.c.action('start');await h.c.action('enter-chat');
-  assert.match(h.html,/留一张自己的纸条/);assert.match(h.html,/我的纸条与交流/);
+  assert.doesNotMatch(h.html,/mvp-paper-tools|data-action="open-mailbox"/);
   await h.c.action('leave-paper');assert.match(h.c.getState().chatNotice,/先和看山聊聊/);
   h.c.getState().conversationId=id();await h.c.action('leave-paper');assert.match(h.html,/没有匹配/);
   await h.c.action('confirm-consent');assert.equal(h.c.getState().screen,'share');assert.match(h.html,/确认留下，即同意/);assert.match(h.html,/share-paper-content/);assert.doesNotMatch(h.html,/type="checkbox"|<select|由你决定分享范围/);

@@ -25,7 +25,7 @@ function chatMessage({ message, characterLimit }, index, messages) {
   const continuation = message.role === 'agent' && messages[index - 1]?.message.role === 'agent';
   const discoveryClass = message.discovery ? ` discovery-${message.discovery}` : '';
   const streamingClass = characterLimit !== Infinity ? ' is-streaming' : '';
-  return `<div class="kanshan-message ${message.role}${continuation ? ' continuation' : ''}${discoveryClass}${streamingClass}">${message.role === 'agent' && !continuation ? '<span class="kanshan-speaker">看山</span>' : ''}${messageBody(message, characterLimit)}</div>`;
+  return `<div class="kanshan-message ${message.role}${continuation ? ' continuation' : ''}${discoveryClass}${streamingClass}">${message.role === 'agent' && !continuation ? '<span class="kanshan-speaker">看山</span>' : ''}${messageBody(message, characterLimit)}${state.live && !state.busy && message.offerPaper && index === messages.length - 1 ? `<button class="text-btn" data-action="leave-paper">留一张自己的纸条</button>${message.copyDiscoveryDiagnostic ? '<button class="sample-skip" data-action="copy-discovery-diagnostic">复制匹配诊断</button>' : ''}` : ''}</div>`;
 }
 
 function header() {
@@ -124,7 +124,7 @@ function depositOverlay() {
 
 function deliveredOverlay(candidate) {
   if (!candidate || (state.live && candidate.sourceType === 'authorized_private' && !state.delivery)) {
-    return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit mailbox-delivered" role="dialog" aria-modal="true" aria-labelledby="delivery-title">${mailboxIcon()}<h1 id="delivery-title">纸条已投入信箱。</h1><p>未来 7 天，相关的人有机会读到它。</p><button class="primary" data-action="finish-delivery">继续和看山聊聊</button><button class="text-btn" data-action="open-mailbox">查看我的纸条</button></section></div>`;
+    return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit mailbox-delivered" role="dialog" aria-modal="true" aria-labelledby="delivery-title">${mailboxIcon()}<h1 id="delivery-title">纸条已投入信箱。</h1><p>未来 7 天，相关的人有机会读到它。</p><button class="primary" data-action="finish-delivery">继续和看山聊聊</button></section></div>`;
   }
   if (state.live && candidate.synthetic) {
     return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit mailbox-delivered" role="dialog" aria-modal="true" aria-labelledby="delivery-title">${mailboxIcon()}<h1 id="delivery-title">纸条已投入信箱。</h1><p>你可以停在这里，也可以继续看看。</p><button class="primary" data-action="continue-private">继续和 ${esc(candidate.name)} 聊聊</button><button class="text-btn" data-action="finish-delivery">不聊了</button><small class="synthetic-label">对方为非真人，后续交流仅作预览。</small></section></div>`;
