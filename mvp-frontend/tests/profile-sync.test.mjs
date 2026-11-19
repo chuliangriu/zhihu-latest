@@ -53,7 +53,7 @@ test('missing backend integration is visible instead of a silent placeholder', a
 test('insufficient footprints does not pretend the profile synchronized; manual recovery clears notice', async () => {
   const h = harness([{ status: 'needs_input', reasonCode: 'insufficient_footprints', profile: null, coverage: { creations: 0, collections: 0 } }]);
   await h.c.action('start');
-  assert.match(h.html, /共 0 条，尚不足 2 条/);
+  assert.match(h.html, /暂未读到可用的知乎创作或收藏/);
   assert.equal(h.c.getState().user.profileReady, false);
   h.c.input('profileDraft', '【有限背景】\n这是我愿意介绍的近期背景。');
   await h.c.action('save-profile');
@@ -95,7 +95,7 @@ test('server credential rejection does not ask users to log in again', async () 
 
 test('model evidence shortage and incomplete generation have different recovery messages',async()=>{
  const h=harness([{status:'needs_input',reasonCode:'profile_insufficient_evidence',coverage:{creations:2,collections:1}},{status:'unavailable',reasonCode:'profile_output_incomplete',coverage:{creations:2,collections:1}}]);
- await h.c.action('start');assert.match(h.html,/已读取足够数量/);assert.doesNotMatch(h.html,/尚不足 2 条/);
+ await h.c.action('start');assert.match(h.html,/这次暂未生成背景/);assert.doesNotMatch(h.html,/尚不足 2 条/);
  await h.c.action('retry-profile');assert.match(h.html,/这次背景整理不完整/);assert.doesNotMatch(h.html,/尚不足 2 条/);
 });
 test('account changes clear previous private profile, conversations, candidates and drafts',async()=>{
@@ -174,4 +174,44 @@ test('an incomplete summary after correction retains missing-field diagnostics a
   assert.match(h.html, /data-action="retry-profile"/);
   assert.deepEqual(h.c.getState().profileDiagnostic.diagnostics.schemaIssues, [{path:'background',code:'too_small',minimum:2},{path:'recentFocus',code:'invalid_type'}]);
   assert.doesNotMatch(h.c.getState().profileNotice, /尚不足 2 条|重新登录/);
+});
+
+
+test('one source-based paragraph is ready without a required focus section and stays editable', async () => {
+  const h = harness([{status:'ready',reasonCode:'profile_summary_from_footprints',profile:{role:'你的近期背景',impression:['这个人近期在知乎收藏过《旅行》。'],recentFocus:''}}]);
+  await h.c.action('start');
+  assert.equal(h.c.getState().user.profileReady, true);
+  assert.match(h.html, /收藏过《旅行》/);
+  assert.match(h.html, /已按读取到的资料生成简要背景/);
+  assert.doesNotMatch(h.html, /class="impression-focus"|尚不足|重新同步背景/);
+  await h.c.action('open-profile');
+  assert.doesNotMatch(h.html, /maxlength="1600"/);
+  h.c.input('profileDraft', '【有限背景】\n' + '自己的完整背景。'.repeat(300));
+  await h.c.action('save-profile');
+  assert.equal(h.c.getState().user.impression.join('').length, '自己的完整背景。'.repeat(300).length);
+  assert.equal(h.c.getState().user.recentFocus, '');
+  assert.doesNotMatch(h.html, /已按读取到的资料生成简要背景|class="impression-focus"/);
+});
+
+test('all confirmed background paragraphs reach paper drafting without silent truncation', async () => {
+  const background = ['第一段：' + '近期表达。'.repeat(70), '第二段：' + '收藏讨论。'.repeat(70), '第三段：' + '其他近况。'.repeat(70)];
+  let captured;
+  const c = createLiveController({ render:()=>{}, api:{ async json(path,body) {
+    if (path === '/api/auth-me') return session;
+    if (path === '/api/profile/summary') return {status:'ready',profile:{role:'你的近期背景',impression:background,recentFocus:''}};
+    assert.equal(path, '/api/papers/drafts'); captured=body;
+    return {id:'test-paper',status:'draft',subject:'近况',quote:'这里是纸条正文',context:'近期表达',background:'这里是背景'};
+  }}});
+  await c.action('start');
+  c.getState().conversationId='11111111-1111-4111-8111-111111111111';
+  await c.action('leave-paper'); await c.action('confirm-consent');
+  assert.deepEqual(captured.confirmedProfile, {background,recentFocus:null});
+  assert.equal(c.getState().error, '');
+});
+
+test('generated text remains escaped after removing stylistic text gates', async () => {
+  const h = harness([{status:'ready',profile:{role:'你的近期背景',impression:['<script>不会执行</script>'],recentFocus:''}}]);
+  await h.c.action('start');
+  assert.match(h.html, /&lt;script&gt;/);
+  assert.doesNotMatch(h.html, /<script>/);
 });

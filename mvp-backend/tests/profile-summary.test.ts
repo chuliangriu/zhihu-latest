@@ -8,6 +8,7 @@ import { LlmProviderError } from "../src/llm/provider.js";
 import { MockLlmProvider } from "../src/llm/mock-provider.js";
 import { KANSHAN_PROFILE_PROMPT, PROFILE_SUMMARY_SYSTEM_PROMPT, PROFILE_SUMMARY_OUTPUT_SCHEMA } from "../src/prompts/profile-summary.js";
 import { OpenAiCompatibleProvider } from "../src/llm/openai-compatible-provider.js";
+import { paperDraftRequestSchema } from "../src/workflow/contracts.js";
 import { profileModelSchema } from "../src/profile/contracts.js";
 import type { Footprint } from "../src/profile/contracts.js";
 import { createApp } from "../src/api/app.js";
@@ -77,17 +78,18 @@ describe("profile generation", () => {
   it("does not use a collection as evidence for a personal identity", async () => {
     const bad = structuredClone(output); bad.background[0]!.kind = "self_report";
     const {result} = await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:bad})).generate(userId);
-    expect(result.status).toBe("unavailable"); expect(result.profile).toBeNull();
-    expect(result.reasonCode).toBe("profile_evidence_rejected");
+    expect(result.status).toBe("ready");
+    expect(result.reasonCode).toBe("profile_summary_from_footprints");
+    expect(result.diagnostics.fallbackReason).toBe("profile_evidence_rejected");
+    expect(result.profile?.impression.every(text => text.includes("收藏过"))).toBe(true);
   });
-  it("rejects invented citations and executable markup", async () => {
-    for (const change of ["quote","markup"]) {
-      const bad=structuredClone(output);
-      if(change==="quote") bad.recentFocus.citations[0]!.quote="原文不存在这段话";
-      else bad.recentFocus.text="<script>alert(1)</script>";
-      const {result}=await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:bad})).generate(userId);
-      expect(result.profile).toBeNull();
-    }
+  it("never displays a fabricated quote when model evidence repeatedly fails", async () => {
+    const bad=structuredClone(output); bad.recentFocus.citations[0]!.quote="原文不存在这段话";
+    const {result}=await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:bad})).generate(userId);
+    expect(result.status).toBe("ready");
+    expect(result.reasonCode).toBe("profile_summary_from_footprints");
+    expect(JSON.stringify(result.profile)).not.toContain("原文不存在这段话");
+    expect(result.profile?.recentFocus).toBe("");
   });
   it("empty or injection-contaminated input falls back without spending a model call", async () => {
     const llm = new MockLlmProvider({profile_summary:output});
@@ -95,21 +97,22 @@ describe("profile generation", () => {
     const {result}=await new ProfileSummaryService(source,()=>llm).generate(userId);
     expect(result.status).toBe("needs_input"); expect(llm.calls).toEqual([]);
   });
-  it("a model may decline to infer a profile", async () => {
+  it("a model declining inference still yields a grounded description of the available actions", async () => {
     const {result}=await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:{insufficientEvidence:true,background:[],recentFocus:null,unknown:[]}})).generate(userId);
-    expect(result.status).toBe("needs_input"); expect(result.profile).toBeNull();
+    expect(result.status).toBe("ready"); expect(result.profile?.impression).toHaveLength(2);
+    expect(result.diagnostics).toMatchObject({ generationMode: "source_excerpt", fallbackReason: "profile_empty_output" });
   });
 });
 describe("schema correction for profile summaries", () => {
-  it("uses one JSON-only prompt with all runtime field limits",()=>{
+  it("allows flexible text and metadata while preserving grounded citation structure",()=>{
     expect(PROFILE_SUMMARY_SYSTEM_PROMPT).not.toContain("【有限背景】");
-    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.unknown.items.enum).toEqual(["年龄","职业","学校","城市","关系状态","健康情况"]);
-    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.background.items.properties.citations.items.properties.quote).toMatchObject({minLength:2,maxLength:300});
-    expect(profileModelSchema.safeParse({...output,unknown:["无"]}).success).toBe(false);
-    expect(profileModelSchema.safeParse({...output,background:[{...output.background[0],text:"长".repeat(81)}]}).success).toBe(false);
+    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.background.items.properties.text).not.toHaveProperty("maxLength");
+    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.background).not.toHaveProperty("minItems");
+    expect(profileModelSchema.parse({...output,unknown:["无"]}).unknown).toEqual([]);
+    expect(profileModelSchema.safeParse({...output,background:[{...output.background[0],text:"长".repeat(800)}]}).success).toBe(true);
   });
   it("corrects a GLM JSON schema failure once, counts both calls, and reads footprints only once",async()=>{
-    const invalid={...output,unknown:["无"]};
+    const invalid={...output,unknown:{private:"无"}};
     const fetcher=vi.fn().mockResolvedValueOnce(Response.json({choices:[{message:{content:JSON.stringify(invalid)},finish_reason:"stop"}],usage:{prompt_tokens:100,completion_tokens:50}}))
       .mockResolvedValueOnce(Response.json({choices:[{message:{content:JSON.stringify(output)},finish_reason:"stop"}],usage:{prompt_tokens:120,completion_tokens:60}}));
     vi.stubGlobal("fetch",fetcher);
@@ -118,37 +121,37 @@ describe("schema correction for profile summaries", () => {
       const source={load:vi.fn(async()=>footprints)};
       const detail=await new ProfileSummaryService(source,()=>new OpenAiCompatibleProvider(config.llm)).generate(userId);
       expect(detail.result.status).toBe("ready");expect(detail.result.diagnostics.schemaCorrectionAttempted).toBe(true);
-      expect(detail.result.diagnostics.schemaIssues).toEqual([{path:"unknown.0",code:"invalid_enum_value"}]);
+      expect(detail.result.diagnostics.schemaIssues).toEqual([{path:"unknown",code:"invalid_type"}]);
       expect(fetcher).toHaveBeenCalledTimes(2);expect(source.load).toHaveBeenCalledTimes(1);
       const stages=detail.trace.stages.filter(s=>s.name==="profile_summary");expect(stages).toHaveLength(2);
       expect(stages.map(s=>s.usage?.requests)).toEqual([1,1]);
       expect(stages.reduce((n,s)=>n+(s.usage?.inputTokens??0),0)).toBe(220);
       const body=JSON.parse(fetcher.mock.calls[1]![1].body);const payload=JSON.parse(body.messages[1].content.split("\n").slice(1).join("\n"));
-      expect(body.messages[0].content).toContain('字段错误：[{"path":"unknown.0","code":"invalid_enum_value"}]');
+      expect(body.messages[0].content).toContain('字段错误：[{"path":"unknown","code":"invalid_type"}]');
       expect(payload).not.toHaveProperty("formatCorrection");
       expect(payload.footprints).toEqual(footprints);expect(body).toMatchObject({max_tokens:4096,reasoning_effort:"low"});
     } finally {vi.unstubAllGlobals();}
   });
   it("stops after one correction and returns only safe schema issue metadata",async()=>{
-    const invalid={...output,unknown:["private-response-do-not-record"]};
+    const invalid={...output,unknown:{private:"private-response-do-not-record"}};
     const llm=new MockLlmProvider({profile_summary:invalid});
     const detail=await new ProfileSummaryService({load:async()=>footprints},()=>llm).generate(userId);
-    expect(detail.result.reasonCode).toBe("LLM_SCHEMA_INVALID");expect(llm.calls).toEqual(["profile_summary","profile_summary"]);
-    expect(detail.result.diagnostics).toMatchObject({usableCount:2,modelCalled:true,stage:"model",schemaCorrectionAttempted:true,schemaIssues:[{path:"unknown.0",code:"invalid_enum_value"}]});
+    expect(detail.result.reasonCode).toBe("profile_summary_from_footprints");expect(llm.calls).toEqual(["profile_summary","profile_summary"]);
+    expect(detail.result.diagnostics).toMatchObject({usableCount:2,modelCalled:true,stage:"complete",schemaCorrectionAttempted:true,schemaIssues:[{path:"unknown",code:"invalid_type"}]});
     expect(detail.trace.stages.filter(s=>s.name==="profile_summary").map(s=>s.usage?.requests)).toEqual([1,1]);
     expect(JSON.stringify(detail.result)).not.toContain("private-response-do-not-record");
   });
   it.each(["LLM_HTTP_401","LLM_HTTP_429","LLM_TIMEOUT_OR_ABORTED","LLM_OUTPUT_LIMIT_REACHED"])("never retries %s as a format error",async(code)=>{
     const llm=new MockLlmProvider({profile_summary:output});const complete=vi.spyOn(llm,"completeJson").mockRejectedValue(new LlmProviderError(code,"synthetic failure"));
     const detail=await new ProfileSummaryService({load:async()=>footprints},()=>llm).generate(userId);
-    expect(detail.result.reasonCode).toBe(code);expect(complete).toHaveBeenCalledTimes(1);expect(detail.result.diagnostics.schemaCorrectionAttempted).toBeUndefined();
+    expect(detail.result.reasonCode).toBe(code === "LLM_OUTPUT_LIMIT_REACHED" ? "profile_summary_from_footprints" : code);expect(complete).toHaveBeenCalledTimes(1);expect(detail.result.diagnostics.schemaCorrectionAttempted).toBeUndefined();
   });
   it("a format correction still rejects invented citations",async()=>{
     const bad=structuredClone(output);bad.recentFocus.citations[0]!.quote="不在资料里的引文";
     const llm=new MockLlmProvider({profile_summary:bad});
     const complete=vi.spyOn(llm,"completeJson").mockRejectedValueOnce(new LlmProviderError("LLM_SCHEMA_INVALID","synthetic schema failure"));
     const detail=await new ProfileSummaryService({load:async()=>footprints},()=>llm).generate(userId);
-    expect(detail.result.reasonCode).toBe("profile_evidence_rejected");expect(detail.result.profile).toBeNull();expect(complete).toHaveBeenCalledTimes(2);
+    expect(detail.result.diagnostics.fallbackReason).toBe("profile_evidence_rejected");expect(detail.result.profile).not.toBeNull();expect(complete).toHaveBeenCalledTimes(2);
   });
 });
 it("reserves the format correction before any upstream read and accounts for both model calls",async()=>{
@@ -170,71 +173,53 @@ it("reserves the format correction before any upstream read and accounts for bot
   expect(events.events.find(e=>e.quotaDecision==="allowed")?.llm.requests).toBe(2);
   await allowed.call("profile-schema-after-budget").expect(429);expect(allowed.load).toHaveBeenCalledTimes(1);
 });
-describe("profile output completeness contract", () => {
-  const usage = { inputTokens: 100, outputTokens: 50, requests: 1, retries: 0 };
-  const incompleteCases = [
-    { name: "no background paragraphs", draft: { ...output, background: [] }, path: "background", code: "too_small" },
-    { name: "one background paragraph", draft: { ...output, background: output.background.slice(0, 1) }, path: "background", code: "too_small" },
-    { name: "three background paragraphs", draft: { ...output, background: [...output.background, output.background[0]!] }, path: "background", code: "too_big" },
-    { name: "null recent focus", draft: { ...output, recentFocus: null }, path: "recentFocus", code: "invalid_type" },
-    { name: "missing recent focus", draft: { ...output, recentFocus: undefined }, path: "recentFocus", code: "invalid_type" },
-    { name: "declined result with leftover background", draft: { ...output, insufficientEvidence: true, recentFocus: null }, path: "background", code: "too_big" },
-    { name: "declined result with leftover focus", draft: { ...output, insufficientEvidence: true, background: [] }, path: "recentFocus", code: "invalid_type" }
-  ];
-  it.each(incompleteCases)("corrects $name once and never rereads the four original footprints", async ({ draft, path, code }) => {
-    expect(profileModelSchema.safeParse(draft).success).toBe(false);
-    const records: Footprint[] = [
-      { ...footprints[0]!, kind: "creation" }, footprints[1]!,
-      { ...footprints[0]!, id: "f3" }, { ...footprints[1]!, id: "f4" }
-    ];
-    const source = { load: vi.fn(async () => records) };
-    const llm = new MockLlmProvider({ profile_summary: output });
-    // A provider that bypasses its own validation is still checked by the service.
-    const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: draft, usage });
+describe("flexible profile generation", () => {
+  it.each(["creation", "collection"] as const)("generates from exactly one %s with no focus or unknown fields", async kind => {
+    const record = { ...footprints[0]!, kind };
+    const source = { load: vi.fn(async () => [record]) };
+    const llm = new MockLlmProvider({ profile_summary: { background: [output.background[0]] } });
     const detail = await new ProfileSummaryService(source, () => llm).generate(userId);
-    expect(detail.result).toMatchObject({ status: "ready", coverage: { creations: 1, collections: 3 },
-      diagnostics: { schemaCorrectionAttempted: true, stage: "complete", usableCount: 4 } });
-    expect(detail.result.diagnostics.schemaIssues).toContainEqual(expect.objectContaining({ path, code }));
-    expect(complete).toHaveBeenCalledTimes(2); expect(source.load).toHaveBeenCalledTimes(1);
-    expect(complete.mock.calls[1]![0].payload).toMatchObject({ footprints: records });
-    expect(complete.mock.calls[1]![0].systemPrompt).toContain("格式纠正");
-    expect(detail.trace.stages.filter(s => s.name === "profile_summary").map(s => s.usage?.requests)).toEqual([1, 1]);
+    expect(detail.result).toMatchObject({ status: "ready", profile: { impression: [output.background[0]!.text], recentFocus: "" }, diagnostics: { usableCount: 1 } });
+    expect(llm.calls).toHaveLength(1); expect(source.load).toHaveBeenCalledTimes(1);
+    expect(detail.result.profile?.markdown).not.toContain("【最近最明显的一条线】");
   });
-  it("repeated incomplete GLM output returns explicit fields after exactly one correction", async () => {
-    const draft = { ...output, background: [], recentFocus: null };
-    const fetcher = vi.fn().mockImplementation(async () => Response.json({ choices: [{ message: { content: JSON.stringify(draft) }, finish_reason: "stop" }], usage: { prompt_tokens: 100, completion_tokens: 50 } }));
-    vi.stubGlobal("fetch", fetcher);
-    try {
-      const config = loadConfig({ NODE_ENV: "test", LLM_MODE: "live", LLM_MODEL: "glm-5.3", LLM_API_KEY: "synthetic-test-key", LLM_MAX_RETRIES: "0" });
-      const source = { load: vi.fn(async () => footprints) };
-      const detail = await new ProfileSummaryService(source, () => new OpenAiCompatibleProvider(config.llm)).generate(userId);
-      expect(detail.result).toMatchObject({ status: "unavailable", reasonCode: "profile_output_incomplete", profile: null,
-        diagnostics: { stage: "model", schemaCorrectionAttempted: true } });
-      expect(detail.result.diagnostics.schemaIssues).toEqual([
-        { path: "background", code: "too_small", minimum: 2 },
-        { path: "recentFocus", code: "invalid_type" }
-      ]);
-      expect(fetcher).toHaveBeenCalledTimes(2); expect(source.load).toHaveBeenCalledTimes(1);
-      expect(JSON.stringify(detail.result)).not.toContain(footprints[0]!.title);
-    } finally { vi.unstubAllGlobals(); }
-  });
-  it("an incomplete result followed by bad evidence cannot start a third call", async () => {
-    const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "不在原文里的引用";
-    const llm = new MockLlmProvider({ profile_summary: bad });
-    const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: { ...output, recentFocus: null }, usage });
+  it("keeps three long paragraphs without imposing the former 80/90 character limits", async () => {
+    const paragraphs = Array.from({ length: 3 }, (_, i) => ({ ...output.background[0]!, text: `第${i}段：` + "这个人近期关注过客厅与公共空间的讨论。".repeat(30) }));
+    const llm = new MockLlmProvider({ profile_summary: { background: paragraphs, recentFocus: null } });
     const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
-    expect(detail.result.reasonCode).toBe("profile_evidence_rejected"); expect(detail.result.profile).toBeNull();
-    expect(complete).toHaveBeenCalledTimes(2); expect(detail.result.diagnostics.schemaCorrectionAttempted).toBe(true);
-    expect(detail.result.diagnostics.evidenceCorrectionAttempted).toBeUndefined();
+    expect(detail.result.status).toBe("ready"); expect(detail.result.profile?.impression).toEqual(paragraphs.map(c => c.text));
+    expect(llm.calls).toHaveLength(1);
   });
-  it("bad evidence followed by an incomplete result cannot start a third call", async () => {
-    const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "不在原文里的引用";
-    const llm = new MockLlmProvider({ profile_summary: { ...output, background: [] } });
-    const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: bad, usage });
-    const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
-    expect(detail.result.reasonCode).toBe("profile_output_incomplete"); expect(detail.result.profile).toBeNull();
-    expect(complete).toHaveBeenCalledTimes(2); expect(detail.result.diagnostics.evidenceCorrectionAttempted).toBe(true);
-    expect(detail.result.diagnostics.schemaCorrectionAttempted).toBeUndefined();
+  it("accepts focus-only output and does not discard grounded text because of an old insufficientEvidence flag", async () => {
+    for (const draft of [{ recentFocus: output.recentFocus }, { insufficientEvidence: true, background: [output.background[0]] }]) {
+      const llm = new MockLlmProvider({ profile_summary: draft });
+      const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
+      expect(detail.result.status).toBe("ready"); expect(detail.result.reasonCode).toBe("profile_summary_generated");
+      expect(llm.calls).toHaveLength(1);
+    }
+  });
+  it.each([{}, { insufficientEvidence: true, background: [], recentFocus: null }])("uses a single title-only collection when model prose is empty or declined", async draft => {
+    const record = { ...footprints[0]!, title: "旅行", summary: "" };
+    const llm = new MockLlmProvider({ profile_summary: draft });
+    const detail = await new ProfileSummaryService({ load: async () => [record] }, () => llm).generate(userId);
+    expect(detail.result).toMatchObject({ status: "ready", reasonCode: "profile_summary_from_footprints", profile: { impression: ["这个人近期在知乎收藏过《旅行》。"], recentFocus: "" } });
+    expect(llm.calls).toHaveLength(1);
+  });
+  it("a one-character summary can be quoted without a minimum richness threshold", async () => {
+    const record = { ...footprints[0]!, kind: "creation" as const, title: "", summary: "忙" };
+    const draft = { background: [{ text: "这个人近期写下了忙这个字。", kind: "interest_observation", citations: [{ refId: record.id, quote: "忙" }] }] };
+    const detail = await new ProfileSummaryService({ load: async () => [record] }, () => new MockLlmProvider({ profile_summary: draft })).generate(userId);
+    expect(detail.result.status).toBe("ready"); expect(detail.result.reasonCode).toBe("profile_summary_generated");
+  });
+  it("a confirmed background passes to paper drafting without a two-paragraph or 160-character gate", () => {
+    const background = Array.from({ length: 3 }, (_, i) => `第${i}段：` + "近期关注和公开表达。".repeat(50));
+    const parsed = paperDraftRequestSchema.parse({ conversationId: "11111111-1111-4111-8111-111111111111", confirmedProfile: { background, recentFocus: null } });
+    expect(parsed.confirmedProfile?.background).toEqual(background);
+  });
+  it("one available footprint is sufficient for inspection without creating a model", async () => {
+    const llm = vi.fn();
+    const detail = await new ProfileSummaryService({ load: async () => footprints.slice(0, 1) }, llm).inspect(userId);
+    expect(detail.result.reasonCode).toBe("profile_footprints_available"); expect(llm).not.toHaveBeenCalled();
   });
 });
 describe("profile evidence correction and diagnostics", () => {
@@ -265,7 +250,7 @@ describe("profile evidence correction and diagnostics", () => {
   ])("retains only field and code for %s and never accepts a repeated invalid result", async (code, path) => {
     const bad = structuredClone(output);
     let records = footprints;
-    if (code === "claim_text_invalid") bad.recentFocus.text = "<private-model-text>";
+    if (code === "claim_text_invalid") bad.recentFocus.text = "private-model-text https://example.invalid";
     if (code === "citation_ref_unknown") bad.recentFocus.citations[0]!.refId = "private-invalid-ref";
     if (code === "self_report_requires_creation") bad.recentFocus.kind = "self_report";
     if (code === "self_report_requires_summary_quote") {
@@ -275,28 +260,28 @@ describe("profile evidence correction and diagnostics", () => {
     if (code === "citation_quote_not_found") bad.recentFocus.citations[0]!.quote = "private-invalid-quote";
     const llm = new MockLlmProvider({ profile_summary: bad });
     const detail = await new ProfileSummaryService({ load: async () => records }, () => llm).generate(userId);
-    expect(detail.result).toMatchObject({ status: "unavailable", reasonCode: "profile_evidence_rejected", profile: null,
-      diagnostics: { stage: "evidence", evidenceCorrectionAttempted: true, evidenceIssues: [{ path, code }] } });
+    expect(detail.result).toMatchObject({ status: "ready", reasonCode: "profile_summary_from_footprints",
+      diagnostics: { stage: "complete", fallbackReason: "profile_evidence_rejected", evidenceCorrectionAttempted: true, evidenceIssues: [{ path, code }] } });
     expect(llm.calls).toHaveLength(2);
     expect(JSON.stringify(detail.result)).not.toMatch(/private-model-text|private-invalid-ref|private-invalid-quote/);
-    expect(JSON.stringify(detail.result)).not.toContain(footprints[1]!.title);
+    expect(JSON.stringify(detail.result.diagnostics)).not.toContain(footprints[1]!.title);
   });
   it("shares the single correction allowance with schema validation in both directions", async () => {
     const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "原文不存在的引用";
-    const llm = new MockLlmProvider({ profile_summary: { ...output, unknown: ["无"] } });
+    const llm = new MockLlmProvider({ profile_summary: { ...output, unknown: { private: "无" } } });
     const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: bad, usage });
     const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
-    expect(detail.result.reasonCode).toBe("LLM_SCHEMA_INVALID"); expect(complete).toHaveBeenCalledTimes(2);
+    expect(detail.result.diagnostics.fallbackReason).toBe("LLM_SCHEMA_INVALID"); expect(complete).toHaveBeenCalledTimes(2);
     expect(detail.result.diagnostics.evidenceCorrectionAttempted).toBe(true);
     expect(detail.result.diagnostics.schemaCorrectionAttempted).toBeUndefined();
-    expect(detail.result.diagnostics.schemaIssues).toContainEqual({ path: "unknown.0", code: "invalid_enum_value" });
+    expect(detail.result.diagnostics.schemaIssues).toContainEqual({ path: "unknown", code: "invalid_type" });
   });
   it("allows a correction to decline insufficient evidence without inventing a profile", async () => {
     const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "原文不存在的引用";
     const llm = new MockLlmProvider({ profile_summary: { insufficientEvidence: true, background: [], recentFocus: null, unknown: [] } });
     const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: bad, usage });
     const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
-    expect(detail.result).toMatchObject({ status: "needs_input", reasonCode: "profile_insufficient_evidence", profile: null });
+    expect(detail.result).toMatchObject({ status: "ready", reasonCode: "profile_summary_from_footprints" });
     expect(complete).toHaveBeenCalledTimes(2);
   });
   it("preserves the real upstream error when the correction hits a model rate limit", async () => {
@@ -310,21 +295,15 @@ describe("profile evidence correction and diagnostics", () => {
   });
 });
 describe("profile result diagnostics", () => {
-  it("separates insufficient count, model evidence and incomplete model output", async () => {
-    const provider = vi.fn(() => new MockLlmProvider({profile_summary:output}));
-    const short = await new ProfileSummaryService({load:async()=>footprints.slice(0,1)},provider).generate(userId);
-    expect(short.result.reasonCode).toBe("insufficient_footprints");
-    expect(short.result.diagnostics).toEqual({usableCount:1,modelCalled:false,stage:"filtering"});
-    expect(short.result.sources).toEqual({creation:"read",collection:"read"});
-    expect(short.result.requestId).toBe(short.trace.requestId);expect(provider).not.toHaveBeenCalled();
-    for (const [modelOutput, reasonCode, status] of [
-      [{insufficientEvidence:true,background:[],recentFocus:null,unknown:[]},"profile_insufficient_evidence","needs_input"],
-      [{...output,background:[]},"profile_output_incomplete","unavailable"]
-    ] as const) {
-      const detail=await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:modelOutput})).generate(userId);
-      expect(detail.result).toMatchObject({reasonCode,status,profile:null,diagnostics:{usableCount:2,modelCalled:true,stage:reasonCode === "profile_output_incomplete" ? "model" : "evidence"}});
-      expect(JSON.stringify(detail.result)).not.toContain(footprints[0]!.title);
-    }
+  it("zero available records require input; sparse model output uses the existing records", async () => {
+    const provider = vi.fn(() => new MockLlmProvider({ profile_summary: output }));
+    const empty = await new ProfileSummaryService({ load: async () => [] }, provider).generate(userId);
+    expect(empty.result.reasonCode).toBe("insufficient_footprints");
+    expect(empty.result.diagnostics).toEqual({ usableCount: 0, modelCalled: false, stage: "filtering" });
+    expect(provider).not.toHaveBeenCalled();
+    const detail = await new ProfileSummaryService({ load: async () => footprints }, () => new MockLlmProvider({ profile_summary: {} })).generate(userId);
+    expect(detail.result).toMatchObject({ status: "ready", reasonCode: "profile_summary_from_footprints", diagnostics: { usableCount: 2, modelCalled: true, stage: "complete" } });
+    expect(JSON.stringify(detail.result.diagnostics)).not.toContain(footprints[0]!.title);
   });
   it("an upstream failure stays distinct from an empty successful read", async()=>{
     const llm=vi.fn(()=>new MockLlmProvider({profile_summary:output}));
@@ -625,4 +604,19 @@ describe("upstream limit recovery", () => {
     const events=await monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:20,cursor:0});
     expect(events.events.find(x=>x.quotaDecision==="allowed")?.llm.requests).toBe(0);expect(events.events.find(x=>x.quotaDecision==="allowed")?.zhihu.userDataRequests).toBe(1);
   });
+});
+
+
+it("one collection returns a successful source-based profile and safe monitoring when the model declines", async () => {
+  const config = loadConfig({ NODE_ENV:"test", AUTH_MODE:"session", SUPABASE_URL:"https://project.supabase.co", SUPABASE_SERVICE_ROLE_KEY:"synthetic-key", CORS_ORIGINS:"https://app.example", IP_HASH_SECRET:"test-ip-hash-secret-with-32-characters" });
+  const monitoringStore = new InMemoryMonitoringStore();
+  const service = new ProfileSummaryService({ load:async()=>footprints.slice(0,1) }, ()=>new MockLlmProvider({profile_summary:{insufficientEvidence:true}}));
+  const app = createApp({ config, runtime:{evaluateDetailed:vi.fn()}, profileService:service, monitoringStore,
+    sessionResolver:async()=>({userId,sessionId:"test-session",role:"user",status:"active"}) });
+  const response = await request(app).post("/api/profile/summary").set("Origin","https://app.example").set("Cookie","wjr_session=test").set("Idempotency-Key","one-source-profile").send({useAuthorizedFootprints:true}).expect(200);
+  expect(response.body).toMatchObject({success:true,data:{status:"ready",reasonCode:"profile_summary_from_footprints",coverage:{creations:0,collections:1}}});
+  const events = await monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:10,cursor:0});
+  expect(events.events.find(e=>e.quotaDecision==="allowed")?.llm.requests).toBe(1);
+  expect(events.events.find(e=>e.quotaDecision==="allowed")?.profile).toMatchObject({generationMode:"source_excerpt",fallbackReason:"profile_empty_output"});
+  expect(JSON.stringify(events)).not.toContain(footprints[0]!.title);
 });

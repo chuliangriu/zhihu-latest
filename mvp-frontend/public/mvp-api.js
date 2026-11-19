@@ -97,6 +97,8 @@ export function profileDiagnostic(value = {}) {
       ...(schemaIssues ? { schemaIssues } : {}),
       ...(typeof value.diagnostics.evidenceCorrectionAttempted === 'boolean' ? { evidenceCorrectionAttempted: value.diagnostics.evidenceCorrectionAttempted } : {}),
       ...(evidenceIssues ? { evidenceIssues } : {}),
+      ...(['model', 'source_excerpt'].includes(value.diagnostics.generationMode) ? { generationMode: value.diagnostics.generationMode } : {}),
+      ...(safeId(value.diagnostics.fallbackReason) ? { fallbackReason: value.diagnostics.fallbackReason } : {}),
     } : null,
   };
 }

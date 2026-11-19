@@ -1,13 +1,12 @@
 import { z } from "zod";
-const citation = z.object({ refId: z.string().min(1).max(80), quote: z.string().min(2).max(300) }).strict();
-const claim = z.object({ text: z.string().trim().min(1).max(80), kind: z.enum(["self_report", "interest_observation"]), citations: z.array(citation).min(1).max(6) }).strict();
-const recentFocus = claim.extend({ text: z.string().trim().min(1).max(90) });
-const unknown = z.array(z.enum(["年龄", "职业", "学校", "城市", "关系状态", "健康情况"])).max(6);
-// Ready and insufficient-evidence responses have different, explicit structures.
-export const profileModelSchema = z.discriminatedUnion("insufficientEvidence", [
-  z.object({ insufficientEvidence: z.literal(false), background: z.array(claim).length(2), recentFocus, unknown }).strict(),
-  z.object({ insufficientEvidence: z.literal(true), background: z.array(claim).length(0), recentFocus: z.null(), unknown }).strict()
-]);
+const citation = z.object({ refId: z.string().trim().min(1), quote: z.string().min(1) }).strict();
+const claim = z.object({ text: z.string().trim().min(1), kind: z.enum(["self_report", "interest_observation"]), citations: z.array(citation).min(1) }).strict();
+// Missing optional sections and any number of grounded paragraphs are valid.
+export const profileModelSchema = z.object({
+  insufficientEvidence: z.boolean().default(false), background: z.array(claim).default([]),
+  recentFocus: claim.nullish().transform(value => value ?? null),
+  unknown: z.array(z.string()).default([]).transform(values => values.map(v => v.trim()).filter(v => v && v !== "无"))
+}).strict();
 export type ProfileModelOutput = z.infer<typeof profileModelSchema>;
 export interface ProfileEvidenceIssue {
   path: string;
@@ -32,6 +31,8 @@ export interface ProfileDiagnostics {
   schemaCorrectionAttempted?: boolean;
   evidenceIssues?: ProfileEvidenceIssue[];
   evidenceCorrectionAttempted?: boolean;
+  generationMode?: "model" | "source_excerpt";
+  fallbackReason?: string;
   usableCount: number;
   modelCalled: boolean;
   stage: "reading" | "filtering" | "model" | "evidence" | "complete";

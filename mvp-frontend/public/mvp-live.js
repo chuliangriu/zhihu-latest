@@ -8,7 +8,8 @@ const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什
 export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
   const base = createEntryController({ render, schedule, cancel });
   const state = base.getState();
-  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true} });
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileSource: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true} });
+  state.profileSource = '';
   state.chatNotice = '';
   const paint = () => render(state);
   const candidate = () => state.user.candidates[state.selected];
@@ -75,8 +76,8 @@ export function createLiveController({ render, api = createApi(), navigate = url
       ZHIHU_RATE_LIMITED: '知乎读取触发频率限制，请等待后再同步背景。',
       ZHIHU_QUOTA_EXCEEDED: '知乎接口可用额度已耗尽，恢复时间以知乎为准。可以先手动补充背景。',
       ZHIHU_ACCESS_SECRET_REJECTED: '知乎连接配置暂不可用，请稍后再试。你可以先手动补充背景。',
-      insufficient_footprints: `近两年可用的公开创作和收藏共 ${(coverage?.creations || 0) + (coverage?.collections || 0)} 条，尚不足 2 条。你可以补充知乎内容后再同步，或手动补充背景。`,
-      profile_insufficient_evidence: '已读取足够数量的知乎资料，但内容还不足以可靠地整理你的背景。你可以先手动补充背景。',
+      insufficient_footprints: '暂未读到可用的知乎创作或收藏。可以先手动补充背景。',
+      profile_insufficient_evidence: '这次暂未生成背景。可以重新同步，或先手动补充背景。',
       profile_output_incomplete: '知乎资料已读取，但这次背景整理不完整。请重新同步，或先手动补充背景。',
       profile_evidence_rejected: '知乎足迹已读取，但这次生成的背景内容或引用未通过核验。可以重新同步，或先手动补充背景。',
       SHORT_RATE_LIMITED: '同步太频繁了，请稍后再试。',
@@ -103,11 +104,12 @@ export function createLiveController({ render, api = createApi(), navigate = url
     if (state.profileRetryAt) state.profileNotice += ` 最早可于 ${new Date(state.profileRetryAt).toLocaleTimeString('zh-CN', { hour12: false })} 再试。`;
   }
   async function syncProfile() {
-    state.profileNotice = ''; state.profileDiagnostic = null; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false;
+    state.profileSource = ''; state.profileNotice = ''; state.profileDiagnostic = null; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false;
     state.phase = 'profile_summary'; paint();
     try {
       const profile = await api.json('/api/profile/summary', { useAuthorizedFootprints: true });
       if (profile.status === 'ready' && profile.profile) {
+        state.profileSource = profile.reasonCode === 'profile_summary_from_footprints' ? 'footprints' : 'model';
         Object.assign(state.user, { role: profile.profile.role, impression: profile.profile.impression,
           recentFocus: profile.profile.recentFocus, profileReady: true });
       } else {
@@ -131,7 +133,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       sessionReady: false, localDevelopment: false, selected: null, paper: null, paperEdit: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true},
       chatDraft: '', queuedChat: '', privateDraft: '', privateMessages: [], publicDraft: '', publicReplies: [],
       profileDraft: '', nameDraft: '', roleDraft: '', profileOpen: false, profileError: '',
-      accountNotice: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
+      accountNotice: '', profileSource: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
       stage: 0, typewriterStage: null, typedChars: 0, chatNotice: '' });
   }
   async function logout() {
@@ -226,7 +228,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
     state.busy = true; state.error = ''; paint();
     try {
       const paper = await api.json('/api/papers/drafts', { conversationId: state.conversationId,
-        confirmedProfile: state.user.profileReady ? { background: state.user.impression.slice(0, 2).map(x => x.slice(0,160)), recentFocus: state.user.recentFocus.slice(0,180) } : null });
+        confirmedProfile: state.user.profileReady ? { background: [...state.user.impression], recentFocus: state.user.recentFocus || null } : null });
       state.paper = paper; state.user.sharePaper = paper; state.paperOrigin = '由看山根据刚才的对话整理'; state.screen = 'share';
     } catch (error) { fail(error); }
     finally { state.busy = false; paint(); }
@@ -393,6 +395,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (action === 'switch-sample' || action === 'skip-sample' || action === 'replay-chat') return;
       base.action(action, id);
       if (action === 'save-profile' && state.user.profileReady) {
+        state.profileSource = '';
         state.profileNotice = ''; state.profileDiagnostic = null; state.profileIssueCode = ''; state.profileNeedsLogin = false; state.profileRetryAt = 0; state.profileQuotaBlocked = false; paint();
       }
     }

@@ -37,7 +37,7 @@ function login() {
   const user = current();
   const background = user.impression.slice(0, -1).map((item) => `<p>${esc(item)}</p>`).join('');
   const recentFocus = user.impression.at(-1);
-  return `<main class="login-page"><button class="back" data-action="back-home">← 返回首页</button><div class="login-card"><div class="login-person">${avatar(user, 'large')}<div><p class="eyebrow">你的近期背景</p><h1>${esc(user.name)}</h1><p class="login-role">${esc(user.role)}</p></div></div><div class="impression-copy">${background}</div><section class="impression-focus"><span>最近最明显的一条线</span><p>${esc(recentFocus)}</p></section><p class="impression-caveat">这是你目前的有限背景。接下来，可以和刘看山聊聊最近正在想的事。</p><button class="primary login-button" data-action="enter-chat">进入与看山的聊天 <b>→</b></button></div></main>`;
+  return `<main class="login-page"><button class="back" data-action="back-home">← 返回首页</button><div class="login-card"><div class="login-person">${avatar(user, 'large')}<div><p class="eyebrow">你的近期背景</p><h1>${esc(user.name)}</h1><p class="login-role">${esc(user.role)}</p></div></div><div class="impression-copy">${background}</div>${recentFocus ? `<section class="impression-focus"><span>最近关注</span><p>${esc(recentFocus)}</p></section>` : ''}<p class="impression-caveat">${state.profileSource === 'footprints' ? '已按读取到的资料生成简要背景，你可以修改补充。' : '这是你目前的有限背景。接下来，可以和刘看山聊聊最近正在想的事。'}</p><button class="primary login-button" data-action="enter-chat">进入与看山的聊天 <b>→</b></button></div></main>`;
 }
 
 function zhihuBackdrop() {

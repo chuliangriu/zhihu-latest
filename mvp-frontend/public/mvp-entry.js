@@ -201,7 +201,7 @@ function profileImport(state) {
     <div class="actions"><button class="ghost" data-action="copy-profile-prompt">复制提示词</button><a href="https://www.zhihu.com/" target="_blank" rel="noopener noreferrer">打开知乎 ↗</a></div>
     <label>昵称<input data-field="nameDraft" maxlength="40" value="${esc(state.nameDraft)}" placeholder="怎么称呼你"/></label>
     <label>一句背景<input data-field="roleDraft" maxlength="80" value="${esc(state.roleDraft)}" placeholder="只写你愿意介绍的部分"/></label>
-    <label>刘看山整理的内容<textarea data-field="profileDraft" maxlength="1600" rows="7" placeholder="粘贴后可以删改……">${esc(state.profileDraft)}</textarea></label>
+    <label>刘看山整理的内容<textarea data-field="profileDraft" rows="7" placeholder="粘贴后可以删改……">${esc(state.profileDraft)}</textarea></label>
     <p class="impression-caveat">只保留你愿意带入的内容。这不会自动投入信箱。</p>
     <p role="status">${esc(state.profileError)}</p><button class="primary" data-action="save-profile">保存到我的背景</button>
   </div></dialog>`;

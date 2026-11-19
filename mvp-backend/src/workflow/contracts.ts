@@ -10,8 +10,8 @@ export const ownPaperModelSchema = z.object({
 export const paperDraftRequestSchema = z.object({
   conversationId: z.string().uuid(),
   confirmedProfile: z.object({
-    background: z.array(z.string().trim().min(1).max(160)).max(2),
-    recentFocus: z.string().trim().min(1).max(180).nullable()
+    background: z.array(z.string().trim().min(1)),
+    recentFocus: z.string().trim().min(1).nullable()
   }).strict().nullable().default(null)
 }).strict();
 

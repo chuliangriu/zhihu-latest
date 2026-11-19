@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ApiError, createApi } from '../public/mvp-api.js';
+import { ApiError, createApi, profileDiagnostic } from '../public/mvp-api.js';
 
 test('JSON API errors preserve status, stable code, Retry-After and request ID', async () => {
   const api = createApi(async () => new Response(JSON.stringify({ error: { code: 'SHORT_RATE_LIMITED' } }), {
@@ -63,4 +63,12 @@ test('profile evidence failures retain safe field codes without quotes, IDs or r
     assert.doesNotMatch(JSON.stringify(error), /private-do-not-copy|private-field|unrecognized-private-code/);
     return true;
   });
+});
+
+
+test('source-based summary diagnostics expose the fallback reason without raw model content', async () => {
+  const diagnostic = profileDiagnostic({diagnostics:{stage:'complete',usableCount:1,modelCalled:true,generationMode:'source_excerpt',fallbackReason:'profile_empty_output',raw:'private-do-not-copy'}});
+  assert.equal(diagnostic.diagnostics.generationMode, 'source_excerpt');
+  assert.equal(diagnostic.diagnostics.fallbackReason, 'profile_empty_output');
+  assert.doesNotMatch(JSON.stringify(diagnostic), /private-do-not-copy/);
 });
