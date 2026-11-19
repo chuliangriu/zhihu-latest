@@ -21,6 +21,8 @@ export interface ProfileConnectionDiagnostic {
   hint?: "application_mismatch" | "oauth_rejected" | "access_secret_rejected" | "permission_denied" | "unspecified";
 }
 export interface ProfileDiagnostics {
+  schemaIssues?: import("../llm/provider.js").SchemaIssueDiagnostic[];
+  schemaCorrectionAttempted?: boolean;
   usableCount: number;
   modelCalled: boolean;
   stage: "reading" | "filtering" | "model" | "evidence" | "complete";

@@ -1,4 +1,4 @@
-import type { ZodType } from "zod";
+import type { ZodType, ZodIssue } from "zod";
 
 export type LlmTask =
   | "normal_reply"
@@ -47,10 +47,22 @@ export interface LlmProvider {
   streamText(input: StreamTextInput): Promise<TextStream>;
 }
 
+export interface SchemaIssueDiagnostic { path: string; code: string; minimum?: number; maximum?: number; }
+export function schemaIssueDiagnostics(issues: ZodIssue[]): SchemaIssueDiagnostic[] {
+  const fields = new Set(['insufficientEvidence', 'background', 'recentFocus', 'unknown', 'text', 'kind', 'citations', 'refId', 'quote']);
+  return issues.slice(0, 6).map(issue => ({
+    path: issue.path.map(part => typeof part === 'number' ? String(part) : fields.has(part) ? part : '*').join('.') || '$',
+    code: issue.code,
+    ...('minimum' in issue && typeof issue.minimum === 'number' ? { minimum: issue.minimum } : {}),
+    ...('maximum' in issue && typeof issue.maximum === 'number' ? { maximum: issue.maximum } : {}),
+  }));
+}
+
 export class LlmProviderError extends Error {
   constructor(
     public readonly code: string,
-    message: string
+    message: string,
+    public readonly details?: { schemaIssues: SchemaIssueDiagnostic[]; usage: LlmUsage }
   ) {
     super(message);
     this.name = "LlmProviderError";

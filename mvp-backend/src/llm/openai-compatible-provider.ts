@@ -1,6 +1,7 @@
 import type { AppConfig } from "../config.js";
 import {
   LlmProviderError,
+  schemaIssueDiagnostics,
   type CompleteJsonInput,
   type LlmCompletion,
   type LlmProvider,
@@ -54,6 +55,8 @@ export class OpenAiCompatibleProvider implements LlmProvider {
     }
 
     if (lastError instanceof LlmProviderError) {
+      if (lastError.details) lastError.details.usage = { ...lastError.details.usage,
+        ...(attempt > 1 ? { inputTokens: null, outputTokens: null } : {}), requests: attempt, retries: attempt - 1 };
       throw lastError;
     }
     throw new LlmProviderError("LLM_REQUEST_FAILED", "LLM request failed");
@@ -213,7 +216,9 @@ export class OpenAiCompatibleProvider implements LlmProvider {
 
     const parsed = input.schema.safeParse(decoded);
     if (!parsed.success) {
-      throw new LlmProviderError("LLM_SCHEMA_INVALID", "LLM JSON failed runtime schema validation");
+      throw new LlmProviderError("LLM_SCHEMA_INVALID", "LLM JSON failed runtime schema validation", {
+        schemaIssues: schemaIssueDiagnostics(parsed.error.issues), usage: readUsage(payload)
+      });
     }
 
     return { data: parsed.data, usage: readUsage(payload) };

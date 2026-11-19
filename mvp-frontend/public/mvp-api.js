@@ -71,6 +71,14 @@ export class ApiError extends Error {
 export function profileDiagnostic(value = {}) {
   const count = n => Number.isInteger(n) && n >= 0 && n <= 30 ? n : null;
   const stages = ['reading', 'filtering', 'model', 'evidence', 'complete'];
+  const schemaFields = new Set(['insufficientEvidence', 'background', 'recentFocus', 'unknown', 'text', 'kind', 'citations', 'refId', 'quote', '*', '$']);
+  const schemaCodes = new Set(['invalid_type', 'invalid_literal', 'custom', 'invalid_union', 'invalid_union_discriminator', 'invalid_enum_value', 'unrecognized_keys', 'invalid_arguments', 'invalid_return_type', 'invalid_date', 'invalid_string', 'too_small', 'too_big', 'invalid_intersection_types', 'not_multiple_of', 'not_finite']);
+  const schemaIssues = Array.isArray(value.diagnostics?.schemaIssues) ? value.diagnostics.schemaIssues.slice(0, 6).filter(issue => issue && schemaCodes.has(issue.code)).map(issue => ({
+    path: typeof issue.path === 'string' ? issue.path.split('.').slice(0, 8).map(part => schemaFields.has(part) || /^[0-9]{1,2}$/.test(part) ? part : '*').join('.') : '$',
+    code: issue.code,
+    ...(Number.isInteger(issue.minimum) && issue.minimum >= 0 && issue.minimum <= 1000 ? { minimum: issue.minimum } : {}),
+    ...(Number.isInteger(issue.maximum) && issue.maximum >= 0 && issue.maximum <= 1000 ? { maximum: issue.maximum } : {}),
+  })) : null;
   const safeId = id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(id) ? id : null;
   return {
     reasonCode: safeId(value.reasonCode) || 'PROFILE_UNAVAILABLE',
@@ -80,6 +88,8 @@ export function profileDiagnostic(value = {}) {
       usableCount: count(value.diagnostics.usableCount),
       modelCalled: typeof value.diagnostics.modelCalled === 'boolean' ? value.diagnostics.modelCalled : null,
       stage: stages.includes(value.diagnostics.stage) ? value.diagnostics.stage : null,
+      ...(typeof value.diagnostics.schemaCorrectionAttempted === 'boolean' ? { schemaCorrectionAttempted: value.diagnostics.schemaCorrectionAttempted } : {}),
+      ...(schemaIssues ? { schemaIssues } : {}),
     } : null,
   };
 }

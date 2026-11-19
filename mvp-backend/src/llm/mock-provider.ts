@@ -1,5 +1,5 @@
 import type { LlmTask } from "./provider.js";
-import { LlmProviderError, type CompleteJsonInput, type LlmCompletion, type LlmProvider, type StreamTextInput, type TextStream } from "./provider.js";
+import { LlmProviderError, schemaIssueDiagnostics, type CompleteJsonInput, type LlmCompletion, type LlmProvider, type StreamTextInput, type TextStream } from "./provider.js";
 
 export class MockLlmProvider implements LlmProvider {
   readonly mode = "mock" as const;
@@ -22,7 +22,10 @@ export class MockLlmProvider implements LlmProvider {
 
     const parsed = input.schema.safeParse(output);
     if (!parsed.success) {
-      throw new LlmProviderError("LLM_SCHEMA_INVALID", "Mock LLM output failed schema validation");
+      throw new LlmProviderError("LLM_SCHEMA_INVALID", "Mock LLM output failed schema validation", {
+        schemaIssues: schemaIssueDiagnostics(parsed.error.issues),
+        usage: { inputTokens: null, outputTokens: null, requests: 1, retries: 0 }
+      });
     }
 
     return {

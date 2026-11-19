@@ -6,7 +6,9 @@ import { ProfileSummaryService } from "../src/profile/summary-service.js";
 import { ZhihuFootprintSource, decryptProfileToken, ProfileDataError } from "../src/profile/zhihu-footprints.js";
 import { LlmProviderError } from "../src/llm/provider.js";
 import { MockLlmProvider } from "../src/llm/mock-provider.js";
-import { KANSHAN_PROFILE_PROMPT } from "../src/prompts/profile-summary.js";
+import { KANSHAN_PROFILE_PROMPT, PROFILE_SUMMARY_SYSTEM_PROMPT, PROFILE_SUMMARY_OUTPUT_SCHEMA } from "../src/prompts/profile-summary.js";
+import { OpenAiCompatibleProvider } from "../src/llm/openai-compatible-provider.js";
+import { profileModelSchema } from "../src/profile/contracts.js";
 import type { Footprint } from "../src/profile/contracts.js";
 import { createApp } from "../src/api/app.js";
 import { loadConfig } from "../src/config.js";
@@ -97,6 +99,76 @@ describe("profile generation", () => {
     const {result}=await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:{insufficientEvidence:true,background:[],recentFocus:null,unknown:[]}})).generate(userId);
     expect(result.status).toBe("needs_input"); expect(result.profile).toBeNull();
   });
+});
+describe("schema correction for profile summaries", () => {
+  it("uses one JSON-only prompt with all runtime field limits",()=>{
+    expect(PROFILE_SUMMARY_SYSTEM_PROMPT).not.toContain("【有限背景】");
+    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.unknown.items.enum).toEqual(["年龄","职业","学校","城市","关系状态","健康情况"]);
+    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.background.items.properties.citations.items.properties.quote).toMatchObject({minLength:2,maxLength:300});
+    expect(profileModelSchema.safeParse({...output,unknown:["无"]}).success).toBe(false);
+    expect(profileModelSchema.safeParse({...output,background:[{...output.background[0],text:"长".repeat(81)}]}).success).toBe(false);
+  });
+  it("corrects a GLM JSON schema failure once, counts both calls, and reads footprints only once",async()=>{
+    const invalid={...output,unknown:["无"]};
+    const fetcher=vi.fn().mockResolvedValueOnce(Response.json({choices:[{message:{content:JSON.stringify(invalid)},finish_reason:"stop"}],usage:{prompt_tokens:100,completion_tokens:50}}))
+      .mockResolvedValueOnce(Response.json({choices:[{message:{content:JSON.stringify(output)},finish_reason:"stop"}],usage:{prompt_tokens:120,completion_tokens:60}}));
+    vi.stubGlobal("fetch",fetcher);
+    try {
+      const config=loadConfig({NODE_ENV:"test",LLM_MODE:"live",LLM_MODEL:"glm-5.3",LLM_API_KEY:"synthetic-test-key",LLM_MAX_RETRIES:"0"});
+      const source={load:vi.fn(async()=>footprints)};
+      const detail=await new ProfileSummaryService(source,()=>new OpenAiCompatibleProvider(config.llm)).generate(userId);
+      expect(detail.result.status).toBe("ready");expect(detail.result.diagnostics.schemaCorrectionAttempted).toBe(true);
+      expect(detail.result.diagnostics.schemaIssues).toEqual([{path:"unknown.0",code:"invalid_enum_value"}]);
+      expect(fetcher).toHaveBeenCalledTimes(2);expect(source.load).toHaveBeenCalledTimes(1);
+      const stages=detail.trace.stages.filter(s=>s.name==="profile_summary");expect(stages).toHaveLength(2);
+      expect(stages.map(s=>s.usage?.requests)).toEqual([1,1]);
+      expect(stages.reduce((n,s)=>n+(s.usage?.inputTokens??0),0)).toBe(220);
+      const body=JSON.parse(fetcher.mock.calls[1]![1].body);const payload=JSON.parse(body.messages[1].content.split("\n").slice(1).join("\n"));
+      expect(body.messages[0].content).toContain('字段错误：[{"path":"unknown.0","code":"invalid_enum_value"}]');
+      expect(payload).not.toHaveProperty("formatCorrection");
+      expect(payload.footprints).toEqual(footprints);expect(body).toMatchObject({max_tokens:4096,reasoning_effort:"low"});
+    } finally {vi.unstubAllGlobals();}
+  });
+  it("stops after one correction and returns only safe schema issue metadata",async()=>{
+    const invalid={...output,unknown:["private-response-do-not-record"]};
+    const llm=new MockLlmProvider({profile_summary:invalid});
+    const detail=await new ProfileSummaryService({load:async()=>footprints},()=>llm).generate(userId);
+    expect(detail.result.reasonCode).toBe("LLM_SCHEMA_INVALID");expect(llm.calls).toEqual(["profile_summary","profile_summary"]);
+    expect(detail.result.diagnostics).toMatchObject({usableCount:2,modelCalled:true,stage:"model",schemaCorrectionAttempted:true,schemaIssues:[{path:"unknown.0",code:"invalid_enum_value"}]});
+    expect(detail.trace.stages.filter(s=>s.name==="profile_summary").map(s=>s.usage?.requests)).toEqual([1,1]);
+    expect(JSON.stringify(detail.result)).not.toContain("private-response-do-not-record");
+  });
+  it.each(["LLM_HTTP_401","LLM_HTTP_429","LLM_TIMEOUT_OR_ABORTED","LLM_OUTPUT_LIMIT_REACHED"])("never retries %s as a format error",async(code)=>{
+    const llm=new MockLlmProvider({profile_summary:output});const complete=vi.spyOn(llm,"completeJson").mockRejectedValue(new LlmProviderError(code,"synthetic failure"));
+    const detail=await new ProfileSummaryService({load:async()=>footprints},()=>llm).generate(userId);
+    expect(detail.result.reasonCode).toBe(code);expect(complete).toHaveBeenCalledTimes(1);expect(detail.result.diagnostics.schemaCorrectionAttempted).toBeUndefined();
+  });
+  it("a format correction still rejects invented citations",async()=>{
+    const bad=structuredClone(output);bad.recentFocus.citations[0]!.quote="不在资料里的引文";
+    const llm=new MockLlmProvider({profile_summary:bad});
+    const complete=vi.spyOn(llm,"completeJson").mockRejectedValueOnce(new LlmProviderError("LLM_SCHEMA_INVALID","synthetic schema failure"));
+    const detail=await new ProfileSummaryService({load:async()=>footprints},()=>llm).generate(userId);
+    expect(detail.result.reasonCode).toBe("profile_evidence_rejected");expect(detail.result.profile).toBeNull();expect(complete).toHaveBeenCalledTimes(2);
+  });
+});
+it("reserves the format correction before any upstream read and accounts for both model calls",async()=>{
+  const setup=(limit:string)=>{
+    const config=loadConfig({NODE_ENV:"test",AUTH_MODE:"session",SUPABASE_URL:"https://project.supabase.co",SUPABASE_SERVICE_ROLE_KEY:"synthetic-key",CORS_ORIGINS:"https://app.example",IP_HASH_SECRET:"test-ip-hash-secret-with-32-characters",LLM_MAX_RETRIES:"0",DAILY_USER_LLM_REQUESTS:limit,RATE_USER_MAX:"10"});
+    const monitoringStore=new InMemoryMonitoringStore();
+    const llm=new MockLlmProvider({profile_summary:output});
+    vi.spyOn(llm,"completeJson").mockRejectedValueOnce(new LlmProviderError("LLM_SCHEMA_INVALID","synthetic schema failure"));
+    const load=vi.fn(async()=>footprints),service=new ProfileSummaryService({load},()=>llm);
+    const app=createApp({config,runtime:{evaluateDetailed:vi.fn()},profileService:service,monitoringStore,
+      sessionResolver:async()=>({userId,sessionId:"test-session",role:"user",status:"active"})});
+    const call=(key:string)=>request(app).post("/api/profile/summary").set("Origin","https://app.example").set("Cookie","wjr_session=test").set("Idempotency-Key",key).send({useAuthorizedFootprints:true});
+    return{load,monitoringStore,call};
+  };
+  const denied=setup("1");await denied.call("profile-schema-denied").expect(429);expect(denied.load).not.toHaveBeenCalled();
+  const allowed=setup("2");const r=await allowed.call("profile-schema-allowed").expect(200);
+  expect(r.body.data.status).toBe("ready");expect(allowed.load).toHaveBeenCalledTimes(1);
+  const events=await allowed.monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:10,cursor:0});
+  expect(events.events.find(e=>e.quotaDecision==="allowed")?.llm.requests).toBe(2);
+  await allowed.call("profile-schema-after-budget").expect(429);expect(allowed.load).toHaveBeenCalledTimes(1);
 });
 describe("profile result diagnostics", () => {
   it("separates insufficient count, model evidence and incomplete model output", async () => {

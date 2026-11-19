@@ -39,3 +39,11 @@ test('profile API errors retain only the allowed diagnostic metadata',async()=>{
   assert.equal(error.requestId,'safe-request-03');assert.deepEqual(error.diagnostics,{stage:'model',modelCalled:true,usableCount:5});assert.doesNotMatch(JSON.stringify(error),/do-not-retain|private-content/);return true;
  });
 });
+
+test('profile schema issues show fields and limits without exposing rejected values',async()=>{
+ const api=createApi(async()=>Response.json({success:false,data:{reasonCode:'LLM_SCHEMA_INVALID',diagnostics:{stage:'model',usableCount:4,modelCalled:true,schemaCorrectionAttempted:true,schemaIssues:[{path:'background.0.text',code:'too_big',maximum:80,received:'private-do-not-copy',message:'private-do-not-copy'},{path:'private-field-do-not-copy',code:'unrecognized_keys',keys:['private-do-not-copy']}]}}},{status:503}));
+ await assert.rejects(()=>api.json('/api/profile/summary',{}),error=>{
+  assert.deepEqual(error.diagnostics,{stage:'model',usableCount:4,modelCalled:true,schemaCorrectionAttempted:true,schemaIssues:[{path:'background.0.text',code:'too_big',maximum:80},{path:'*',code:'unrecognized_keys'}]});
+  assert.doesNotMatch(JSON.stringify(error),/private-do-not-copy|private-field/);return true;
+ });
+});

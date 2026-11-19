@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { ProfileDataError } from "./zhihu-footprints.js";
 import { PROFILE_FOOTPRINT_LIMIT_PER_KIND, PROFILE_FOOTPRINT_LOOKBACK_YEARS } from "./footprint-policy.js";
-import type { LlmProvider } from "../llm/provider.js";
+import { LlmProviderError, type LlmProvider } from "../llm/provider.js";
 import type { PipelineTrace } from "../pipeline/discovery-pipeline.js";
 import { containsForbiddenModelArtifact, scanConversationForPromptInjection } from "../security/prompt-injection.js";
 import { PROFILE_SUMMARY_SYSTEM_PROMPT } from "../prompts/profile-summary.js";
@@ -18,7 +18,7 @@ export class ProfileSummaryService {
       coverage: { creations: 0, collections: 0, browsingAvailable: false, likedHistoryAvailable: false } };
     let userDataRequests = 0;
     const started = Date.now();
-    const signal = AbortSignal.timeout(25000);
+    const signal = AbortSignal.timeout(50000);
     try {
       const raw = await this.source.load(userId, signal, () => { userDataRequests++; });
       const footprints = raw.filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0).slice(0, PROFILE_FOOTPRINT_LIMIT_PER_KIND * 2);
@@ -32,14 +32,36 @@ export class ProfileSummaryService {
         return { result, trace, userDataRequests };
       }
       if (footprints.length < 2) return { result, trace, userDataRequests };
-      const stage = { name: "profile_summary", durationMs: 0 };
-      trace.stages.push(stage);
       const llm = this.createLlm();
       result.diagnostics.stage = "model";
-      result.diagnostics.modelCalled = true;
-      const completion = await llm.completeJson({ task: "profile_summary", systemPrompt: PROFILE_SUMMARY_SYSTEM_PROMPT,
-        payload: { footprints, availableSources: ["creation", "collection"], lookbackYears: PROFILE_FOOTPRINT_LOOKBACK_YEARS }, schema: profileModelSchema, signal });
-      Object.assign(stage, { durationMs: Date.now()-started, usage: completion.usage });
+      const payload = { footprints, availableSources: ["creation", "collection"], lookbackYears: PROFILE_FOOTPRINT_LOOKBACK_YEARS };
+      const complete = async (correction: boolean) => {
+        signal.throwIfAborted();
+        const stage: PipelineTrace["stages"][number] = { name: "profile_summary", durationMs: 0 };
+        trace.stages.push(stage);
+        const modelStarted = Date.now();
+        result.diagnostics.modelCalled = true;
+        try {
+          const completion = await llm.completeJson({ task: "profile_summary",
+            systemPrompt: correction ? `${PROFILE_SUMMARY_SYSTEM_PROMPT}\n\n格式纠正：上次输出未通过 JSON Schema 校验。请依据以下字段错误重新输出，遵守全部证据规则，不补造身份、引用或事实。字段错误：${JSON.stringify(result.diagnostics.schemaIssues ?? [])}` : PROFILE_SUMMARY_SYSTEM_PROMPT,
+            payload,
+            schema: profileModelSchema, signal });
+          stage.usage = completion.usage;
+          return completion;
+        } catch (error) {
+          stage.usage = error instanceof LlmProviderError && error.details ? { ...error.details.usage }
+            : { inputTokens: null, outputTokens: null, requests: 1, retries: 0 };
+          throw error;
+        } finally { stage.durationMs = Date.now() - modelStarted; }
+      };
+      let completion: Awaited<ReturnType<typeof complete>>;
+      try { completion = await complete(false); }
+      catch (error) {
+        if (!(error instanceof LlmProviderError) || error.code !== "LLM_SCHEMA_INVALID" || signal.aborted) throw error;
+        if (error.details) result.diagnostics.schemaIssues = error.details.schemaIssues;
+        result.diagnostics.schemaCorrectionAttempted = true;
+        completion = await complete(true);
+      }
       const output = profileModelSchema.parse(completion.data);
       result.diagnostics.stage = "evidence";
       if (output.insufficientEvidence) {
@@ -69,6 +91,7 @@ export class ProfileSummaryService {
     } catch (error) {
       const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "PROFILE_UNAVAILABLE";
       result.status = "unavailable"; result.reasonCode = code;
+      if (error instanceof LlmProviderError && error.details) result.diagnostics.schemaIssues = error.details.schemaIssues;
       if (error instanceof ProfileDataError) {
         const accepted = (error.progress?.footprints ?? []).filter(f => scanConversationForPromptInjection({ messages: [{ id: f.id, role: "user", content: `${f.title}\n${f.summary}` }] }).length === 0);
         result.diagnostics.usableCount = accepted.length;

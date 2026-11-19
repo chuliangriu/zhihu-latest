@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadConfig } from "../src/config.js";
 import { discoveryIntentOutputSchema } from "../src/contracts/schemas.js";
+import { profileModelSchema } from "../src/profile/contracts.js";
 import { OpenAiCompatibleProvider } from "../src/llm/openai-compatible-provider.js";
 
 const config = loadConfig({
@@ -130,4 +131,17 @@ describe("reasoning model compatibility", () => {
     await expect(new OpenAiCompatibleProvider(glm).completeJson({ task: "discovery_intent", systemPrompt: "JSON", payload: {}, schema: discoveryIntentOutputSchema, signal: new AbortController().signal })).rejects.toMatchObject({ code: "LLM_OUTPUT_LIMIT_REACHED" });
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+});
+
+it("schema diagnostics exclude response values and arbitrary field names",async()=>{
+  const fetcher=vi.fn().mockResolvedValue(Response.json({choices:[{message:{content:JSON.stringify({insufficientEvidence:true,background:[],recentFocus:null,unknown:["private-value-do-not-record"],"private-key-do-not-record":"secret-do-not-record"})}}],usage:{prompt_tokens:10,completion_tokens:5}}));
+  vi.stubGlobal("fetch",fetcher);
+  try {
+    await new OpenAiCompatibleProvider(config.llm).completeJson({task:"profile_summary",systemPrompt:"JSON",payload:{},schema:profileModelSchema,signal:new AbortController().signal});
+    throw new Error("Expected schema rejection");
+  } catch(error:any) {
+    expect(error.code).toBe("LLM_SCHEMA_INVALID");expect(error.details.schemaIssues).toContainEqual({path:"unknown.0",code:"invalid_enum_value"});
+    expect(error.details.usage).toEqual({inputTokens:10,outputTokens:5,requests:1,retries:0});
+    expect(JSON.stringify(error)).not.toMatch(/private-value|private-key|secret-do-not-record/);
+  }
 });
