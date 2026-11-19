@@ -91,7 +91,10 @@ function candidateOverlay(candidate) {
 }
 
 function consentOverlay(candidate) {
-  if (candidate.publicReference) {
+  if (!candidate) {
+    return `<div class="candidate-overlay-layer mailbox-overlay-layer"><article class="mailbox-consent-card" role="dialog" aria-modal="true" aria-labelledby="mailbox-consent-title"><button class="back" data-action="back">← 回到刚才的聊天</button><p class="mailbox-kicker">${mailboxIcon()}<span>看山们的信箱</span></p><h1 id="mailbox-consent-title">要不要也留下一张纸？</h1><div class="mailbox-consent-copy"><p>没有匹配，也可以把刚才聊到的事留在信箱。</p><p>看山会整理成一张纸，由你修改并确认。未来 7 天，它只会被带给真正相关的人；不会公开完整聊天，也可以随时收回。</p></div><button class="primary mailbox-confirm" data-action="confirm-consent">${state.error ? '重新整理纸条' : '整理纸条草稿'}</button></article></div>`;
+  }
+  if (candidate.publicReference || candidate.sourceType === 'public') {
     return `<div class="candidate-overlay-layer mailbox-overlay-layer"><article class="mailbox-consent-card" role="dialog" aria-modal="true" aria-labelledby="mailbox-consent-title"><button class="back" data-action="back">← 回到原讨论</button><p class="mailbox-kicker">${mailboxIcon()}<span>看山们的信箱</span></p><h1 id="mailbox-consent-title">回到知乎回应之前，要不要也留下一张纸？</h1><div class="mailbox-consent-copy"><p>刚才那句话来自知乎的公开讨论。</p><p>如果愿意，你也可以留下关于“${esc(current().sharePaper.subject)}”的纸条，让信箱里的人看见。未来 7 天，看山也会把它带给相关的人；不会公开完整聊天，也可以随时收回。</p></div><button class="primary mailbox-confirm" data-action="confirm-consent">${state.live && state.error ? '重新整理纸条' : '确认'}</button></article></div>`;
   }
   return `<div class="candidate-overlay-layer mailbox-overlay-layer"><article class="mailbox-consent-card" role="dialog" aria-modal="true" aria-labelledby="mailbox-consent-title"><button class="back" data-action="back">← 回到 ${esc(candidate.name)}</button><p class="mailbox-kicker">${mailboxIcon()}<span>看山们的信箱</span></p><h1 id="mailbox-consent-title">在去见 ${esc(candidate.name)} 之前，要不要也留下一张纸？</h1><div class="mailbox-consent-copy"><p>${candidate.synthetic ? '这张纸条里，也有一段尚未说完的近况。' : `你能看见 ${esc(candidate.name)}，是因为他允许这句话在遇到相关的人时被带出来。`}</p><p>如果愿意，你也可以把刚才聊到的事整理成一张纸。未来 7 天，它只会被带给真正相关的人；不会公开完整聊天，也可以随时收回。</p></div><button class="primary mailbox-confirm" data-action="confirm-consent">${state.live && state.error ? '重新整理纸条' : '确认'}</button></article></div>`;
@@ -101,6 +104,9 @@ function sharePaperOverlay() {
   const user = current();
   const paper = user.sharePaper;
   const candidate = user.candidates[state.selected];
+  if (state.live) {
+    return `<div class="candidate-overlay-layer mailbox-overlay-layer"><article class="candidate-overlay-card share-paper-card" role="dialog" aria-modal="true" aria-labelledby="share-paper-name"><div class="candidate-head">${avatar(user, 'candidate')}<div><p class="eyebrow">准备投入看山们的信箱</p><h1 id="share-paper-name">确认这张纸条</h1><p>看看有没有想调整的地方，再把它放进信箱。</p></div></div><article class="share-paper-content" aria-label="准备留下的纸条"><h2>${esc(paper.subject)}</h2><blockquote class="quote">“${esc(paper.quote)}”</blockquote><div class="candidate-profile"><p>${esc(paper.background)}</p></div></article><p class="mailbox-scope-line">确认留下，即同意看山在未来 7 天将纸条带给相关的人，使用你的知乎昵称展示，并允许围绕纸条交流。只有你和实际匹配到它的人可以阅读；不会共享完整聊天。可随时撤回，到期停止新匹配，已有交流继续。</p><div class="actions"><button class="primary" data-action="deposit">确认并留下纸条</button><button class="ghost" data-action="edit-paper">修改文字</button></div></article></div>`;
+  }
   const recipient = esc(candidate.name);
   const scope = candidate.publicReference ? '纸条可在信箱中浏览；未来 7 天，看山也会把它带给相关的人。不会共享完整聊天，可随时收回。' : '未来 7 天，只在具体关联成立时由对方的看山带回；不会共享完整聊天。';
   return `<div class="candidate-overlay-layer mailbox-overlay-layer"><article class="candidate-overlay-card share-paper-card" role="dialog" aria-modal="true" aria-labelledby="share-paper-name"><button class="back" data-action="back">← 返回授权说明</button><div class="candidate-head">${avatar(user, 'candidate')}<div><p class="eyebrow">准备投入看山们的信箱</p><h1 id="share-paper-name">${esc(user.name)}</h1><p>${esc(paper.context)}</p></div></div><blockquote class="quote">“${esc(paper.quote)}”</blockquote><p class="source">${esc(state.paperOrigin || '由看山根据刚才的对话整理')}</p><div class="candidate-profile"><p>${esc(paper.background)}</p></div><p class="mailbox-scope-line"><span>可发现范围</span>${scope}</p><div class="actions"><button class="primary" data-action="deposit">${candidate.publicReference || (state.live && candidate.synthetic) ? '投入看山们的信箱' : `投入信箱，也递给 ${recipient}`}</button><button class="ghost" data-action="back">再看一遍授权说明</button></div></article></div>`;
@@ -108,17 +114,22 @@ function sharePaperOverlay() {
 
 function depositOverlay() {
   const user = current();
-  if (state.live && user.candidates[state.selected].synthetic) {
-    return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit" role="status"><div class="mailbox-stage" aria-hidden="true"><div class="deposit-paper"><span>${esc(user.name.toUpperCase())}</span><i>${esc(user.sharePaper.subject)}</i></div><div class="shared-mailbox"><div class="mailbox-slot"></div><div class="mailbox-box"><span>看山们的信箱</span></div></div><img class="deposit-kanshan" src="/paper-assets/kanshan-letter.png" alt=""/></div><h1>正在把这张纸投入信箱……</h1><p>把刚才的话留下，让相关的人有机会看见。</p></section></div>`;
-  }
-  return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit" role="status" aria-live="polite"><div class="mailbox-stage" aria-hidden="true"><div class="deposit-paper"><span>${esc(user.name.toUpperCase())}</span><i>${esc(user.sharePaper.subject)}</i></div><div class="shared-mailbox"><div class="mailbox-slot"></div><div class="mailbox-box"><span>看山们的信箱</span></div></div><img class="deposit-kanshan" src="/paper-assets/kanshan-letter.png" alt=""/></div><h1>正在把这张纸投入信箱……</h1><p>${user.candidates[state.selected].publicReference ? '把这份好奇留下，让相关的人有机会看见。' : `也在把它递给 ${esc(user.candidates[state.selected].name)}。`}</p></section></div>`;
+  const candidate = user.candidates[state.selected];
+  const realDelivery = state.live && candidate?.sourceType === 'authorized_private' && state.delivery;
+  const notice = state.live
+    ? realDelivery ? `也在把它递给 ${esc(candidate.name)}。` : '把刚才的话留下，让相关的人有机会看见。'
+    : candidate?.publicReference ? '把这份好奇留下，让相关的人有机会看见。' : `也在把它递给 ${esc(candidate?.name)}。`;
+  return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit" role="status" aria-live="polite"><div class="mailbox-stage" aria-hidden="true"><div class="deposit-paper"><span>${esc(user.name.toUpperCase())}</span><i>${esc(user.sharePaper.subject)}</i></div><div class="shared-mailbox"><div class="mailbox-slot"></div><div class="mailbox-box"><span>看山们的信箱</span></div></div><img class="deposit-kanshan" src="/paper-assets/kanshan-letter.png" alt=""/></div><h1>正在把这张纸投入信箱……</h1><p>${notice}</p></section></div>`;
 }
 
 function deliveredOverlay(candidate) {
+  if (!candidate || (state.live && candidate.sourceType === 'authorized_private' && !state.delivery)) {
+    return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit mailbox-delivered" role="dialog" aria-modal="true" aria-labelledby="delivery-title">${mailboxIcon()}<h1 id="delivery-title">纸条已投入信箱。</h1><p>未来 7 天，相关的人有机会读到它。</p><button class="primary" data-action="finish-delivery">继续和看山聊聊</button><button class="text-btn" data-action="open-mailbox">查看我的纸条</button></section></div>`;
+  }
   if (state.live && candidate.synthetic) {
     return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit mailbox-delivered" role="dialog" aria-modal="true" aria-labelledby="delivery-title">${mailboxIcon()}<h1 id="delivery-title">纸条已投入信箱。</h1><p>你可以停在这里，也可以继续看看。</p><button class="primary" data-action="continue-private">继续和 ${esc(candidate.name)} 聊聊</button><button class="text-btn" data-action="finish-delivery">不聊了</button><small class="synthetic-label">对方为非真人，后续交流仅作预览。</small></section></div>`;
   }
-  if (candidate.publicReference) {
+  if (candidate.publicReference || candidate.sourceType === 'public') {
     return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit mailbox-delivered" role="dialog" aria-modal="true" aria-labelledby="delivery-title">${mailboxIcon()}<h1 id="delivery-title">纸条已投入信箱。</h1><p>这份好奇可以被更多相关的人看见。<br/>现在，要不要回到知乎，把话接下去？</p><button class="primary" data-action="continue-public">回到知乎原文回应</button><button class="text-btn" data-action="finish-delivery">先不回应</button></section></div>`;
   }
   return `<div class="candidate-overlay-layer mailbox-overlay-layer"><section class="mailbox-deposit mailbox-delivered" role="dialog" aria-modal="true" aria-labelledby="delivery-title">${mailboxIcon()}<h1 id="delivery-title">纸条已投入信箱，也已递给 ${esc(candidate.name)}。</h1><p>你可以停在这里，也可以再聊几句。</p><button class="primary" data-action="continue-private">继续和 ${esc(candidate.name)} 聊聊</button><button class="text-btn" data-action="finish-delivery">不聊了</button></section></div>`;
@@ -145,6 +156,23 @@ function privateChat(candidate) {
     </section></main>`;
 }
 
+function persistedDiscussion(thread) {
+  const user = current();
+  const peer = [thread.paper, thread.introduction].find(p => !p.own);
+  const name = peer?.displayName || '对方';
+  const person = own => own ? user : { name };
+  const stamp = value => new Date(value).toLocaleString('zh-CN', {hour12:false});
+  const paper = p => `<div class="zh-private-row${p.own ? '' : ' is-incoming'}"><article class="zh-private-paper"><span>来自看山们的信箱${p.status === 'expired' ? ' · 已停止新匹配' : ''}</span><h2>${esc(p.own ? '你的纸条' : `${p.displayName} 的纸条`)}</h2><small>${esc(p.subject)}</small>${p.status === 'withdrawn' ? '<p>这张纸条已撤回，正文不再展示。</p>' : `<blockquote>“${esc(p.quote)}”</blockquote><p>${esc(p.background)}</p>`}</article>${avatar(person(p.own))}</div>`;
+  return `<main class="kanshan-scene zh-private-scene">${zhihuBackdrop()}<div class="zh-haze" aria-hidden="true"></div><div class="zh-private-shade" aria-hidden="true"></div>
+    <section class="zh-private-window" role="dialog" aria-modal="true" aria-labelledby="discussion-title">
+      <header class="zh-private-title"><h1 id="discussion-title">${esc(name)}</h1><button data-action="close-discussion" aria-label="关闭交流">×</button></header>
+      <div class="zh-private-history" role="log" aria-label="当前讨论的回复" aria-live="polite"><p class="zh-private-notice">只有这段交流的两位参与者可以阅读和回复。<button class="sample-skip" data-action="refresh-discussion">刷新交流</button></p>${paper(thread.paper)}${paper(thread.introduction)}
+        ${thread.messages.length ? thread.messages.map(m => `<div class="zh-private-row${m.own ? '' : ' is-incoming'}"><div class="zh-private-reply"><small>${esc(stamp(m.createdAt))}</small><p class="zh-private-bubble">${esc(m.content)}</p></div>${avatar(person(m.own))}</div>`).join('') : '<p class="zh-private-notice">还没有回复，可以从一句话开始。</p>'}
+      </div>
+      ${thread.canReply ? `<div class="zh-private-composer"><div class="zh-private-tools" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14c2 3 6 3 8 0M8 9h.1M16 9h.1"/></svg><svg viewBox="0 0 24 24"><path d="M13 20H4V4h16v9M4 17l5-5 4 4 3-3M19 16v6M16 19h6"/><circle cx="9" cy="8" r="1.5"/></svg></div><div class="zh-private-entry"><textarea id="discussion-message" maxlength="2000" aria-label="接着说几句" aria-describedby="discussion-guidance" placeholder="想接着对 ${esc(name)} 说些什么？">${esc(state.replyDraft)}</textarea><aside class="private-compose-hint" aria-label="写消息提示"><span class="private-hint-kanshan" role="img" aria-label="侧身指向前方的纸绘刘看山"></span><div class="private-hint-bubble" id="discussion-guidance"><strong>现在轮到你了。</strong><p>写一句只想让 ${esc(name)} 看见的话。他可以接受，也可以不回应。</p></div></aside></div><div class="zh-private-sendbar"><span>仅这段交流可见 · Enter 发送</span><button data-action="send-discussion"${state.replyDraft.trim() ? '' : ' disabled'}>发送</button></div></div>` : `<div class="zh-private-closed" role="status">${thread.closedReason === 'paper_withdrawn' ? '有纸条已撤回，这段讨论停止新回复，已有回复仍保留。' : '这段讨论暂不接受新回复。'}</div>`}
+    </section></main>`;
+}
+
 function publicDiscussion(candidate, preview = false) {
   const user = current();
   const source = candidate.publicReference;
@@ -165,5 +193,5 @@ function publicDiscussion(candidate, preview = false) {
 }
 
 
-return { header, login, chat, candidateOverlay, consentOverlay, sharePaperOverlay, depositOverlay, deliveredOverlay, privateChat, publicDiscussion, messageLength, mailboxIcon };
+return { header, login, chat, candidateOverlay, consentOverlay, sharePaperOverlay, depositOverlay, deliveredOverlay, privateChat, persistedDiscussion, publicDiscussion, messageLength, mailboxIcon };
 }

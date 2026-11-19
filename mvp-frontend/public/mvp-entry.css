@@ -141,17 +141,26 @@ body[data-screen="home"] header::after { content: none; }
 .mailbox-panel textarea { width: 100%; box-sizing: border-box; min-height: 90px; border: 1px solid #c6c2b9; border-radius: 8px; padding: 12px; font: inherit; background: #fffdf7; }
 .mailbox-history-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 12px 0; border-bottom: 1px solid #ded9ce; }
 .mailbox-history-row small { color: #6d706f; }
-.mailbox-thread-paper { border-left: 2px solid #b3b9b3; padding: 12px 16px; margin: 18px 0; }
-.mailbox-thread-paper h2 { margin-top: 8px; }
-.mailbox-thread-paper blockquote { margin: 10px 0; white-space: pre-wrap; }
-.mailbox-reply { padding: 12px 16px; border-radius: 10px; background: #eceee7; margin: 12px 0; }
-.mailbox-reply.own { background: #e3ebe8; }
-.mailbox-reply p { white-space: pre-wrap; overflow-wrap: anywhere; }
-.mailbox-choices { display: grid; gap: 14px; border: 1px solid #d3cfc5; margin: 20px 0; padding: 16px; }
-.mailbox-choices label { display: block; line-height: 1.6; }
-.mailbox-choices input[type="checkbox"] { width: auto; margin-right: 8px; }
 
 /* Keep live progress beside Kanshan’s latest response, inside the chat log. */
 .kanshan-waiting { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; color: var(--muted); font-size: 13px; line-height: 1.8; }
 .kanshan-waiting > p { margin: 0; }
 .kanshan-waiting > .sample-skip { margin-left: 0; cursor: pointer; }
+
+/* The live workflow reuses the approved Demo scenes and paper palette. */
+.share-paper-content { margin: 0 0 22px; padding: 25px 26px 22px; border: 1px solid var(--line); border-radius: 4px 8px 5px 3px; background: linear-gradient(#faf8f0ed, #faf8f0ed), url('/paper-assets/grain.svg') repeat; box-shadow: 0 5px 16px #3e49300a; }
+.share-paper-content h2 { margin: 0 0 20px; color: var(--ink); font-size: 16px; font-weight: 500; line-height: 1.6; }
+.share-paper-content .quote { white-space: pre-wrap; }
+.share-paper-content .candidate-profile { margin: 22px 0 0; padding-top: 17px; border-top: 1px solid var(--line); }
+.share-paper-card .mailbox-scope-line { font-size: 11px; line-height: 1.9; }
+.mailbox-panel { font-size: 13px; line-height: 1.85; }
+.mailbox-panel > h1 { font-size: 24px; font-weight: 500; }
+.mailbox-panel .quote { margin-top: 20px; }
+.mailbox-history-row > button:not(.text-btn) { border: 0; padding: 0; background: transparent; color: var(--blue); font: inherit; cursor: pointer; text-align: left; }
+.zh-private-row.is-incoming { flex-direction: row-reverse; justify-content: flex-end; }
+.zh-private-row.is-incoming .zh-private-bubble { background: #f3f4f5; }
+.zh-private-reply { max-width: 75%; }
+.zh-private-reply > small { display: block; margin-bottom: 4px; color: #8590a6; font-size: 10px; }
+.zh-private-reply .zh-private-bubble { max-width: 100%; }
+.zh-private-closed { padding: 20px 26px; color: #8590a6; font-size: 12px; line-height: 1.8; }
+@media (max-width: 480px) { .share-paper-content { padding: 20px 17px; } }

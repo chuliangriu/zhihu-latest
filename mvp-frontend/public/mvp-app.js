@@ -44,12 +44,12 @@ const controller = createLiveController({
         if (event.target === dialog && (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom)) controller.action(closeAction);
       });
     }
-    const log = app.querySelector('.kanshan-body');
+    const log = app.querySelector('.zh-private-history, .kanshan-body');
     if (log) log.scrollTop = log.scrollHeight;
     const restored = fieldId ? document.getElementById(fieldId) : null;
     if (restored && !dialog && restored !== document.activeElement) { restored.focus(); if (selection != null) restored.setSelectionRange(selection, selection); }
     if (lastScreen !== state.screen && !dialog) {
-      app.querySelector('#private-message, #public-response, #kanshan-message')?.focus();
+      app.querySelector('#discussion-message, #private-message, #public-response, #kanshan-message')?.focus();
     }
     if (wasHomeExampleOpen && !state.homeExampleOpen && state.screen === 'home') {
       document.getElementById(`home-paper-${state.homeExampleTrigger}`)?.focus();

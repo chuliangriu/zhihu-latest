@@ -1,4 +1,4 @@
-import { mailboxView, discussionView, ownPaperView, livePaperOverlay } from './mvp-mailbox.js';
+import { mailboxView, discussionView, ownPaperView } from './mvp-mailbox.js';
 import { createDemoViews } from './mvp-demo-views.js';
 import { initialUser, parseProfile, KANSHAN_PROFILE_PROMPT } from './mvp-profile.js';
 import { localChatTurn } from './mvp-local-flow.js';
@@ -219,10 +219,9 @@ function renderEntry(state) {
     return views.header() + views.login() + accountNotice + syncNotice + `<button class="profile-recovery" data-action="open-profile">${state.user.profileReady ? '修改背景' : '资料未同步'}</button>` + (state.profileOpen ? profileImport(state) : '');
   }
   if (state.live && state.screen === 'mailbox') return views.chat(mailboxView(state));
-  if (state.live && state.screen === 'discussion') return views.chat(discussionView(state));
+  if (state.live && state.screen === 'discussion') return state.discussion ? views.persistedDiscussion(state.discussion) : views.chat(discussionView(state));
   if (state.live && state.screen === 'own-paper') return views.chat(ownPaperView(state));
   const selected = flowUser(state).candidates[state.selected];
-  if (state.live && ['consent','share','deposit','delivered'].includes(state.screen) && !selected?.synthetic) return views.chat(livePaperOverlay(state));
   if (state.screen === 'chat') return views.chat();
   const overlay = { card: () => views.candidateOverlay(selected), consent: () => views.consentOverlay(selected), share: views.sharePaperOverlay,
     deposit: views.depositOverlay, delivered: () => views.deliveredOverlay(selected) }[state.screen];
@@ -241,7 +240,7 @@ export function entryView(state) {
     .replace('仅当前页面保存 · Enter 发送', '点击后前往知乎继续联系，文字不会自动发送。')
     .replace('Demo 评论预览 · Enter 发布', '点击后前往知乎原文，文字不会自动发布。');
   if (state.error) html += `<div class="mvp-live-status" role="alert">${esc(state.error)}</div>`;
-  else if (state.busy && state.screen !== 'chat') html += `<div class="mvp-live-status" role="status">${state.phase === 'profile_summary' ? '正在读取你的知乎足迹，生成你专属的背景介绍……' : state.phase === 'session' ? '正在确认登录状态……' : '正在处理……'}</div>`;
+  else if (state.busy && !['chat', 'deposit'].includes(state.screen)) html += `<div class="mvp-live-status" role="status">${state.phase === 'profile_summary' ? '正在读取你的知乎足迹，生成你专属的背景介绍……' : state.phase === 'session' ? '正在确认登录状态……' : '正在处理……'}</div>`;
   if (state.screen === 'chat' && !state.busy) html += `<div class="mvp-paper-tools"><button data-action="leave-paper">留一张自己的纸条</button><button data-action="open-mailbox">我的纸条与交流</button></div>`;
   return html;
 }

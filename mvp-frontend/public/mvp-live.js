@@ -234,7 +234,9 @@ export function createLiveController({ render, api = createApi(), navigate = url
   }
   async function deposit() {
     if (!state.paper) return;
-    const target = candidate(); state.busy = true; state.error = ''; paint();
+    const target = candidate();
+    state.paperOptions = {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true};
+    state.busy = true; state.error = ''; paint();
     try {
       const result = await api.json(`/api/papers/${state.paper.id}/confirm`, { expectedVersion: state.paper.version,
         discoverableDays: 7, ...state.paperOptions,
@@ -245,7 +247,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       }
       state.activePapers = [...state.activePapers.filter(p => p.id !== result.paper.id), result.paper];
       state.screen = 'deposit'; paint();
-      state.timer = schedule(() => { state.timer = null; state.screen = 'delivered'; state.busy = false; paint(); }, 1200);
+      state.timer = schedule(() => { state.timer = null; state.screen = 'delivered'; state.busy = false; paint(); }, 8400);
     } catch (error) { state.busy = false; fail(error); paint(); }
   }
   async function loadMailbox() {
@@ -324,8 +326,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
     base.initialize();
     if (loginReturn) return start({ redirectGuest: false });
   }, input(field, value) {
-    if (['matchingAllowed','identityDisclosure','contactAllowed'].includes(field)) { state.paperOptions[field] = value; paint(); }
-    else if (field === 'replyDraft') state.replyDraft = value;
+    if (field === 'replyDraft') state.replyDraft = value;
     else if (field.startsWith('paper-') && state.paperEdit) state.paperEdit[field.slice(6)] = value;
     else base.input(field, value);
   }, getState: base.getState,
