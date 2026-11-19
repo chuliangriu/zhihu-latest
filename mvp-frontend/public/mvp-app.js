@@ -1,5 +1,6 @@
 import { entryView, KANSHAN_PROFILE_PROMPT, SCENE_SCREENS } from './mvp-entry.js';
 import { createLiveController } from './mvp-live.js';
+import { consumeLoginReturn } from './mvp-auth.js';
 
 // The default entry uses the real business API. Frozen samples stay in qiaomen.
 const app = document.querySelector('#app');
@@ -97,4 +98,4 @@ app.addEventListener('keydown', event => {
     event.preventDefault(); controller.action(entry[1]);
   }
 });
-controller.initialize();
+controller.initialize({ loginReturn: consumeLoginReturn() });

@@ -41,3 +41,12 @@ export async function readSession(fetchImpl = globalThis.fetch) {
     return { status: 'error', reason: 'unavailable' };
   }
 }
+
+// The return marker never authenticates anyone. Consume it once, then verify the server session.
+export function consumeLoginReturn(location = globalThis.location, history = globalThis.history) {
+  const url = new URL(location.href);
+  if (url.searchParams.get('login') !== 'success') return false;
+  url.searchParams.delete('login');
+  history.replaceState(history.state, '', url.pathname + url.search + url.hash);
+  return true;
+}

@@ -108,7 +108,7 @@ test('account changes clear previous private profile, conversations, candidates 
  assert.equal(state.conversationId,null);assert.equal(state.discoveryId,null);assert.deepEqual(state.user.chat,[]);assert.deepEqual(state.user.candidates,{});assert.deepEqual(state.user.sharePaper,{});assert.equal(state.profileDraft,'');assert.equal(state.privateDraft,'');assert.equal(state.paperEdit,null);assert.deepEqual(state.activePapers,[]);
 });
 test('expired site sessions clear old private data and logout clears the current page',async()=>{
- let expired=false;const c=createLiveController({render:()=>{},api:{async json(path){if(path==='/api/logout')return{success:true};if(path==='/api/auth-me'){if(expired)throw new Error('NOT_LOGGED_IN');return session;}return ready;}}});
+ let expired=false;const c=createLiveController({render:()=>{},navigate:()=>{},api:{async json(path){if(path==='/api/logout')return{success:true};if(path==='/api/auth-me'){if(expired)throw new Error('NOT_LOGGED_IN');return session;}return ready;}}});
  await c.action('start');c.getState().privateDraft='old-private';expired=true;await c.action('start');
  assert.equal(c.getState().sessionReady,false);assert.equal(c.getState().user.profileReady,false);assert.equal(c.getState().privateDraft,'');assert.equal(c.getState().authRequired,true);
  expired=false;await c.action('start');await c.action('logout');assert.equal(c.getState().screen,'home');assert.equal(c.getState().sessionReady,false);assert.equal(c.getState().user.profileReady,false);

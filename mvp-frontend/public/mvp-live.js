@@ -142,7 +142,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
     } catch { state.error = '退出未完成，请稍后重试。'; }
     finally { state.busy = false; paint(); }
   }
-  async function start() {
+  async function start({ redirectGuest = true } = {}) {
     state.screen = 'login'; state.busy = true; state.phase = 'session'; state.error = ''; paint();
     try {
       const session = await api.json('/api/auth-me', undefined, 'GET');
@@ -157,10 +157,16 @@ export function createLiveController({ render, api = createApi(), navigate = url
         await syncProfile();
       }
     } catch (error) {
-      if (/NOT_LOGGED|UNAUTHENTICATED/.test(error?.message || '')) {
+      if (/^(NOT_LOGGED_IN|UNAUTHENTICATED)$/.test(error?.code || error?.message || '')) {
         clearAccount();
         state.authRequired = true;
         state.error = '';
+        // Start OAuth in this window after an explicit entry click; Safari need not allow pop-ups.
+        // A callback marker is only a hint: if its session is missing, show the link instead of looping.
+        if (redirectGuest) {
+          try { navigate('/api/zhihu-login'); }
+          catch { state.error = '未能打开知乎登录，请点击下方按钮重试。'; }
+        } else state.error = '暂未确认登录成功，请点击下方按钮重新登录知乎。';
       } else fail(error);
     }
     finally { state.busy = false; state.phase = null; paint(); }
@@ -301,7 +307,10 @@ export function createLiveController({ render, api = createApi(), navigate = url
     } catch (error) { fail(error); }
     finally { state.busy = false; paint(); }
   }
-  return { initialize: base.initialize, input(field, value) {
+  return { initialize({ loginReturn = false } = {}) {
+    base.initialize();
+    if (loginReturn) return start({ redirectGuest: false });
+  }, input(field, value) {
     if (['matchingAllowed','identityDisclosure','contactAllowed'].includes(field)) { state.paperOptions[field] = value; paint(); }
     else if (field === 'replyDraft') state.replyDraft = value;
     else if (field.startsWith('paper-') && state.paperEdit) state.paperEdit[field.slice(6)] = value;
