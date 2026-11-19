@@ -61,7 +61,7 @@ export function createLocalBackend(origin) {
   } };
   const app = createApp({ config, runtime, workflowStore,
     chatService: new ChatService(workflowStore, llm), workflowService: new WorkflowService(workflowStore, llm) });
-  const allowedRoutes = /^(?:\/api\/chat\/reply|\/api\/profile\/summary|\/api\/conversations\/[a-f0-9-]+\/discovery|\/api\/papers\/drafts|\/api\/papers\/[a-f0-9-]+(?:\/confirm|\/withdraw)?|\/api\/handoffs)$/i;
+  const allowedRoutes = /^(?:\/api\/chat\/reply|\/api\/profile\/summary|\/api\/mailbox|\/api\/conversations\/[a-f0-9-]+(?:\/discovery)?|\/api\/discoveries\/[a-f0-9-]+\/candidates\/[a-f0-9-]+|\/api\/discussions(?:\/[a-f0-9-]+(?:\/replies)?)?|\/api\/papers\/drafts|\/api\/papers\/[a-f0-9-]+(?:\/confirm|\/withdraw)?|\/api\/handoffs)$/i;
   return (request, response) => {
     const url = new URL(request.url, origin);
     const json = (status, body) => { response.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); response.end(JSON.stringify(body)); };

@@ -27,7 +27,12 @@ describe("chat, paper and handoff workflow",()=>{
     const workflow=new WorkflowService(store,()=>new WorkflowMockProvider());
     const drafted=await workflow.draftPaper(owner,conversation.id,null,new AbortController().signal);
     const edited=await workflow.editPaper(owner,drafted.paper.id,1,{subject:"还要不要继续写",quote:"我仍然想写完它，只是没有人看见时，我越来越不知道这份重要还算不算数。",context:"持续写作 · 等待回声",background:"这个人持续写着一部对自己重要的作品；让他动摇的不是不想写，而是作品一直没有抵达别人。"});
-    const recipient="33333333-3333-4333-8333-333333333333";
+    const targetConversation=await store.createConversation(other);
+    const targetDraft=await store.createPaperDraft({ownerId:other,conversationId:targetConversation.id,
+      subject:"等待回应",quote:"我也还在写作，只是迟迟没有等到具体的回应。",context:"持续写作",background:"这个人仍在写作，也在等待更具体的读者回应。"});
+    const targetPaper=await store.confirmPaper({id:targetDraft.id,ownerId:other,expectedVersion:1,
+      discoverableUntil:new Date(Date.now()+7*86400000).toISOString(),identityDisclosure:"anonymous",contactAllowed:true});
+    const recipient=targetPaper.expressionId!;
     const discovery=await store.saveDiscovery(owner,conversation.id,discoveryResult("authorized_private",true,null,"https://www.zhihu.com/people/example",recipient));
     const confirmed=await workflow.confirmPaper({ownerId:owner,id:edited.id,expectedVersion:edited.version,discoverableDays:7,identityDisclosure:"nickname",contactAllowed:true,target:{kind:"selected_private",discoveryId:discovery.id,candidateId:recipient}});
     expect(confirmed.paper).toMatchObject({status:"active",version:3});expect(confirmed.delivery?.status).toBe("delivered");

@@ -56,7 +56,14 @@ export class WorkflowService {
     const expectedVersion=current.status==="active"?current.version-1:current.version;
     const common={id:input.id,ownerId:input.ownerId,expectedVersion,
       discoverableUntil:new Date(Date.now()+input.discoverableDays*86_400_000).toISOString(),identityDisclosure:input.identityDisclosure,contactAllowed:input.contactAllowed,matchingAllowed:input.matchingAllowed??true};
-    if(input.target.kind==="selected_private"&&!fixturePrivate)return this.store.confirmPaperAndDeliver({...common,discoveryId:input.target.discoveryId,candidateId:input.target.candidateId});
+    if(input.target.kind==="selected_private"&&!fixturePrivate){
+      const result=await this.store.confirmPaperAndDeliver({...common,discoveryId:input.target.discoveryId,candidateId:input.target.candidateId});
+      // A confirmed delivery must be visible in the recipient's mailbox even
+      // when the sender leaves this page without opening the discussion.
+      // The existing open RPC is idempotent; a retry after either commit is safe.
+      await this.store.openDiscussion(input.ownerId,input.target.discoveryId,input.target.candidateId);
+      return result;
+    }
     if(input.target.kind==="synthetic_demo"||fixturePrivate)return {paper:await this.store.confirmPaper({...common,contactAllowed:false}),delivery:null};
     return {paper:await this.store.confirmPaper(common),delivery:null};
   }

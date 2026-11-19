@@ -279,7 +279,19 @@ export function createLiveController({ render, api = createApi(), navigate = url
     try { const pending = state.replyPending;
       state.discussion = await api.json(`/api/discussions/${thread.id}/replies`, {content:pending.content,clientMessageId:pending.clientMessageId});
       state.replyDraft = ''; state.replyPending = null;
-    } catch(error) { fail(error); if (error?.code === 'DISCUSSION_CLOSED') { thread.canReply = false; thread.closedReason = 'paper_withdrawn'; } }
+    } catch(error) {
+      fail(error);
+      if (error?.code === 'DISCUSSION_CLOSED') {
+        // The cached paper may have been withdrawn after it was opened.
+        // Read the current redacted view; do not leave old private text visible.
+        state.discussion = null;
+        try { state.discussion = await api.json(`/api/discussions/${thread.id}`, undefined, 'GET'); }
+        catch(refreshError) {
+          state.mailbox = null; state.screen = 'mailbox';
+          if (/^(NOT_LOGGED_IN|UNAUTHENTICATED)$/.test(refreshError?.code || refreshError?.message || '')) fail(refreshError);
+        }
+      }
+    }
     finally { state.busy = false; paint(); }
   }
   async function readCandidate(id) {

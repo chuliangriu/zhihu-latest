@@ -7,6 +7,7 @@ import {InMemoryWorkflowStore} from "../src/workflow/store.js";
 import {WorkflowService} from "../src/workflow/service.js";
 import {ChatService} from "../src/chat/service.js";
 import {WorkflowMockProvider} from "../src/llm/workflow-mock-provider.js";
+import {BusinessStoreError} from "../src/chat/store.js";
 import type {DiscoveryResult} from "../src/contracts/schemas.js";
 
 const token="mailbox-test-token-with-at-least-32-characters",signing="mailbox-signing-secret-with-at-least-32-characters";
@@ -57,6 +58,30 @@ describe("persisted mailbox API and access rules",()=>{
     const outsider=await h.call("get","/api/mailbox",stranger);expect(outsider.body.data.papers).toEqual([]);expect(outsider.body.data.conversations).toEqual([]);
     const restored=await h.call("get",`/api/conversations/${h.convB.id}`);expect(restored.body.data.messages[0].content).toContain("一直没等到反馈");
     await h.call("get",`/api/conversations/${h.convB.id}`,stranger).expect(403);
+  });
+  it("a selected real-paper confirmation appears in both histories before either participant opens it",async()=>{
+    const h=await setup(),draft=await h.paper(reader,h.convB.id,false);
+    const body={expectedVersion:draft.version,discoverableDays:7,matchingAllowed:false,identityDisclosure:"anonymous",contactAllowed:true,target:{kind:"selected_private",discoveryId:h.discovery.id,candidateId:h.original.expressionId}};
+    const confirmed=await h.call("post",`/api/papers/${draft.id}/confirm`,reader,body);
+    expect(confirmed.status).toBe(200);
+    const inbox=await h.call("get","/api/mailbox",author),sent=await h.call("get","/api/mailbox",reader);
+    expect(inbox.body.data.discussions).toHaveLength(1);
+    expect(sent.body.data.discussions).toHaveLength(1);
+    expect(inbox.body.data.discussions[0].introduction.id).toBe(draft.id);
+    expect(sent.body.data.discussions[0].id).toBe(inbox.body.data.discussions[0].id);
+    const retried=await h.call("post",`/api/papers/${draft.id}/confirm`,reader,body);
+    expect(retried.status).toBe(200);expect(retried.body.data.delivery.id).toBe(confirmed.body.data.delivery.id);
+    expect((await h.call("get","/api/mailbox",author)).body.data.discussions).toHaveLength(1);
+    expect((await h.call("get","/api/mailbox",stranger)).body.data.discussions).toEqual([]);
+  });
+  it("can recover discussion creation after confirmation was already committed",async()=>{
+    const h=await setup(),draft=await h.paper(reader,h.convB.id,false);
+    const open=vi.spyOn(h.store,"openDiscussion");open.mockRejectedValueOnce(new BusinessStoreError("UNAVAILABLE"));
+    const body={expectedVersion:1,contactAllowed:true,target:{kind:"selected_private",discoveryId:h.discovery.id,candidateId:h.original.expressionId}};
+    await h.call("post",`/api/papers/${draft.id}/confirm`,reader,body).expect(503);
+    expect((await h.store.getPaper(draft.id,reader)).status).toBe("active");
+    await h.call("post",`/api/papers/${draft.id}/confirm`,reader,body).expect(200);
+    expect((await h.call("get","/api/mailbox",author)).body.data.discussions).toHaveLength(1);
   });
   it("persists both participants' replies; retries and concurrent duplicates produce one reply",async()=>{
     const h=await setup();await h.paper(reader,h.convB.id);const opened=await h.open(),id=opened.body.data.id;

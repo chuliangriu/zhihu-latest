@@ -5,7 +5,7 @@ const wrap = (title, body, back = 'close-mailbox') => `<div class="candidate-ove
 
 export function mailboxView(state) {
   const box = state.mailbox;
-  if (!box) return wrap('我的纸条与交流', '<p>正在读取历史……</p>');
+  if (!box) return wrap('我的纸条与交流', state.busy ? '<p role="status">正在读取历史……</p>' : '<p>这次未能读取历史，请稍后重试。</p><button class="ghost" data-action="refresh-mailbox">重新读取历史</button>');
   return wrap('我的纸条与交流', `<button class="ghost" data-action="refresh-mailbox">刷新</button>
     <h2>我的纸条</h2>${box.papers.length ? box.papers.map(p => `<article class="mailbox-history-row"><button data-action="open-paper" data-id="${esc(p.id)}">${esc(p.subject)}</button><small>${status(p.status)} · ${esc(time(p.confirmedAt || p.createdAt))}${p.matchingAllowed === false ? ' · 不参与新匹配' : ''}</small>${['active','expired'].includes(p.status) ? `<button class="text-btn" data-action="withdraw-paper" data-id="${esc(p.id)}">收回</button>` : ''}</article>`).join('') : '<p>你还没有留下纸条。没有匹配，也可以留下一张。</p>'}
     <h2>围绕纸条的交流</h2>${box.discussions.length ? box.discussions.map(t => `<article class="mailbox-history-row"><button data-action="open-discussion" data-id="${esc(t.id)}">${esc(t.paper.subject)}</button><small>${esc(time(t.updatedAt))}${t.canReply ? '' : ' · 已停止新回复'}</small></article>`).join('') : '<p>还没有交流。有人回应你的纸条后，会出现在这里。</p>'}

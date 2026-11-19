@@ -70,6 +70,13 @@ test('private frontend persists notes, participant replies, refresh history and 
   const confirmation=calls.find(x=>x.path.endsWith('/confirm'));
   const repeated=await api.json(confirmation.path,confirmation.body);
   assert.equal(repeated.delivery.id,s.delivery.id);
+  // Confirmation alone must put the note in the recipient's history.
+  // The sender may close the page instead of clicking into the discussion.
+  principal=recipientOwner;
+  const deliveredHistory=await api.json('/api/mailbox',undefined,'GET');
+  assert.equal(deliveredHistory.discussions.length,1);
+  assert.equal(deliveredHistory.discussions[0].introduction.id,s.paper.id);
+  principal=owner;
   await c.action('continue-private');assert.equal(s.screen,'discussion');
   c.input('replyDraft','这是一段保存在站内的真实回复');await c.action('send-discussion');
   assert.equal(s.error,'');assert.deepEqual(navigation,[]);assert.equal(s.discussion.messages.length,1);

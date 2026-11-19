@@ -67,3 +67,35 @@ test('history and discussion escape stored content, and a failed authorization c
   assert.match(entryView(s),/&lt;img/);assert.doesNotMatch(entryView(s),/<img src=x/);
   await h.c.action('refresh-discussion');assert.equal(s.discussion,null);assert.equal(s.mailbox,null);assert.equal(s.screen,'login');assert.equal(s.authRequired,true);assert.match(h.html,/href="\/api\/zhihu-login"/);
 });
+
+
+test('a mailbox read failure has a retry action and does not stay in a loading state',async()=>{
+  const h=harness(async()=>{throw Object.assign(Error('STORE_UNAVAILABLE'),{code:'STORE_UNAVAILABLE'});});
+  h.c.getState().sessionReady=true;
+  await h.c.action('open-mailbox');
+  assert.equal(h.c.getState().busy,false);
+  assert.match(h.html,/data-action="refresh-mailbox"/);
+  assert.doesNotMatch(h.html,/正在读取历史/);
+});
+
+test('a reply rejected after withdrawal refreshes the thread and removes the withdrawn cached text',async()=>{
+  const t=thread();t.paper.quote='已被对方撤回的私人正文';t.paper.background='对方的旧背景';
+  const h=harness(async(path)=>{
+    if(path.endsWith('/replies'))throw Object.assign(Error('DISCUSSION_CLOSED'),{code:'DISCUSSION_CLOSED'});
+    return {...t,canReply:false,closedReason:'paper_withdrawn',paper:{...t.paper,status:'withdrawn',subject:'已撤回的纸条',quote:null,background:null}};
+  });
+  const s=h.c.getState();s.screen='discussion';s.discussion=t;s.sessionReady=true;
+  h.c.input('replyDraft','这条回复没有发送');await h.c.action('send-discussion');
+  assert.equal(s.discussion.canReply,false);assert.equal(s.discussion.paper.quote,null);
+  assert.equal(s.replyDraft,'这条回复没有发送');
+  assert.doesNotMatch(h.html,/已被对方撤回的私人正文|对方的旧背景/);
+  assert.match(h.html,/已有回复仍保留/);
+});
+
+test('a closed reply with a failed refresh clears stale thread content and offers history recovery',async()=>{
+  const h=harness(async(path)=>{throw Object.assign(Error(path.endsWith('/replies')?'DISCUSSION_CLOSED':'STORE_UNAVAILABLE'),{code:path.endsWith('/replies')?'DISCUSSION_CLOSED':'STORE_UNAVAILABLE'});});
+  const s=h.c.getState();s.screen='discussion';s.discussion=thread();s.discussion.paper.quote='不应继续展示的旧正文';s.sessionReady=true;
+  h.c.input('replyDraft','仍未发送');await h.c.action('send-discussion');
+  assert.equal(s.discussion,null);assert.equal(s.screen,'mailbox');
+  assert.match(h.html,/data-action="refresh-mailbox"/);assert.doesNotMatch(h.html,/不应继续展示的旧正文|正在读取历史/);
+});
