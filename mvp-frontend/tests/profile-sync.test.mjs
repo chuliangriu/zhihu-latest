@@ -177,20 +177,24 @@ test('an incomplete summary after correction retains missing-field diagnostics a
 });
 
 
-test('one source-based paragraph is ready without a required focus section and stays editable', async () => {
+test('one source-based paragraph fills the fixed two-background and one-focus card and stays editable', async () => {
   const h = harness([{status:'ready',reasonCode:'profile_summary_from_footprints',profile:{role:'你的近期背景',impression:['这个人近期在知乎收藏过《旅行》。'],recentFocus:''}}]);
   await h.c.action('start');
   assert.equal(h.c.getState().user.profileReady, true);
   assert.match(h.html, /收藏过《旅行》/);
   assert.match(h.html, /已按读取到的资料生成简要背景/);
-  assert.doesNotMatch(h.html, /class="impression-focus"|尚不足|重新同步背景/);
+  assert.match(h.html, /class="impression-focus"/);
+  assert.doesNotMatch(h.html, /尚不足|重新同步背景/);
+  assert.equal(h.c.getState().user.impression.length, 2);
   await h.c.action('open-profile');
   assert.doesNotMatch(h.html, /maxlength="1600"/);
   h.c.input('profileDraft', '【有限背景】\n' + '自己的完整背景。'.repeat(300));
   await h.c.action('save-profile');
-  assert.equal(h.c.getState().user.impression.join('').length, '自己的完整背景。'.repeat(300).length);
-  assert.equal(h.c.getState().user.recentFocus, '');
-  assert.doesNotMatch(h.html, /已按读取到的资料生成简要背景|class="impression-focus"/);
+  assert.equal(h.c.getState().user.impression[0].length, '自己的完整背景。'.repeat(300).length);
+  assert.equal(h.c.getState().user.impression.length, 2);
+  assert.ok(h.c.getState().user.recentFocus);
+  assert.doesNotMatch(h.html, /已按读取到的资料生成简要背景/);
+  assert.match(h.html, /class="impression-focus"/);
 });
 
 test('all confirmed background paragraphs reach paper drafting without silent truncation', async () => {
@@ -205,7 +209,7 @@ test('all confirmed background paragraphs reach paper drafting without silent tr
   await c.action('start');
   c.getState().conversationId='11111111-1111-4111-8111-111111111111';
   await c.action('leave-paper'); await c.action('confirm-consent');
-  assert.deepEqual(captured.confirmedProfile, {background,recentFocus:null});
+  assert.deepEqual(captured.confirmedProfile, {background:[background[0],background.slice(1).join(' ')],recentFocus:'最近最明显的一条线仍待你补充。'});
   assert.equal(c.getState().error, '');
 });
 

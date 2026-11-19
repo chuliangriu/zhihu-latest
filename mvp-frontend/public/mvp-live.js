@@ -1,7 +1,7 @@
 import { createEntryController } from './mvp-entry.js';
 import { createApi, discoveryView, safeZhihuUrl, profileDiagnostic } from './mvp-api.js';
 import { decodeSession } from './mvp-auth.js';
-import { initialUser } from './mvp-profile.js';
+import { initialUser, profileCardSections } from './mvp-profile.js';
 
 const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什么、你为什么在意、现在卡在哪里，都可以慢慢说，不用一次讲完。等我真的听懂了，才有可能从看山们的信箱里，替你带回一张相关的纸 🦊';
 
@@ -110,8 +110,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       const profile = await api.json('/api/profile/summary', { useAuthorizedFootprints: true });
       if (profile.status === 'ready' && profile.profile) {
         state.profileSource = profile.reasonCode === 'profile_summary_from_footprints' ? 'footprints' : 'model';
-        Object.assign(state.user, { role: profile.profile.role, impression: profile.profile.impression,
-          recentFocus: profile.profile.recentFocus, profileReady: true });
+        Object.assign(state.user, { role: profile.profile.role, ...profileCardSections(profile.profile.impression, profile.profile.recentFocus), profileReady: true });
       } else {
         state.profileDiagnostic = profileDiagnostic(profile);
         profileFailure(profile.reasonCode || 'PROFILE_UNAVAILABLE', profile.coverage, profile.sources, profile.retryAfterSeconds);

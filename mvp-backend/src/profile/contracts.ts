@@ -1,11 +1,15 @@
 import { z } from "zod";
 const citation = z.object({ refId: z.string().trim().min(1), quote: z.string().min(1) }).strict();
 const claim = z.object({ text: z.string().trim().min(1), kind: z.enum(["self_report", "interest_observation"]), citations: z.array(citation).min(1) }).strict();
-// Missing optional sections and any number of grounded paragraphs are valid.
+// Accept sparse model drafts for assembly; the final card contract below always has two background paragraphs and one focus.
 export const profileModelSchema = z.object({
   insufficientEvidence: z.boolean().default(false), background: z.array(claim).default([]),
   recentFocus: claim.nullish().transform(value => value ?? null),
   unknown: z.array(z.string()).default([]).transform(values => values.map(v => v.trim()).filter(v => v && v !== "无"))
+}).strict();
+export const profileCardSchema = z.object({
+  role: z.string(), impression: z.array(z.string().trim().min(1)).length(2),
+  recentFocus: z.string().trim().min(1), markdown: z.string(), requiresConfirmation: z.literal(true)
 }).strict();
 export type ProfileModelOutput = z.infer<typeof profileModelSchema>;
 export interface ProfileEvidenceIssue {
