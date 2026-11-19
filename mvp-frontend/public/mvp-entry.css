@@ -150,3 +150,8 @@ body[data-screen="home"] header::after { content: none; }
 .mailbox-choices { display: grid; gap: 14px; border: 1px solid #d3cfc5; margin: 20px 0; padding: 16px; }
 .mailbox-choices label { display: block; line-height: 1.6; }
 .mailbox-choices input[type="checkbox"] { width: auto; margin-right: 8px; }
+
+/* Keep live progress beside Kanshan’s latest response, inside the chat log. */
+.kanshan-waiting { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.kanshan-waiting > p { margin: 0; }
+.kanshan-waiting > .sample-skip { margin-left: 0; cursor: pointer; }

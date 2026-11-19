@@ -57,6 +57,8 @@ function chat(overlayContent = '') {
     messages.push({ message: sequence[state.stage], characterLimit: state.typedChars });
   }
   const done = state.stage >= sequence.length;
+  const waiting = state.live && state.busy && ['reply', 'discovery'].includes(state.phase);
+  const waitingNotice = state.chatNotice || (state.phase === 'discovery' ? '我再找找有没有相关的表达。你可以接着说，不用等我。' : '看山正在回应，你也可以继续输入。');
   const hasChoices = Object.keys(user.candidates).length > 0;
   return `<main class="kanshan-scene ${state.chatOpen ? 'is-open' : 'is-collapsed'}">
     ${zhihuBackdrop()}<div class="zh-haze" aria-hidden="true"></div>
@@ -65,12 +67,12 @@ function chat(overlayContent = '') {
       <div class="kanshan-titlebar"><span class="kanshan-current">${avatar(user)}<span>${esc(user.name)}</span></span><h1>看山</h1><div><button data-action="replay-chat" aria-label="重新播放对话" title="重新播放">↻</button><button data-action="collapse-chat" aria-label="收起聊天窗" title="收起">⌄</button></div></div>
       <div class="kanshan-body" role="log" aria-label="与看山的聊天记录" aria-live="polite">
         <div class="kanshan-greeting"><span class="paper-kanshan" role="img" aria-label="纸绘刘看山"></span><div><h2>你好，${esc(user.name)}</h2><p>今天，有什么想聊聊的？</p></div></div>
-        <div class="kanshan-messages">${messages.map(chatMessage).join('')}${!done && state.typewriterStage === null ? '<div class="kanshan-typing">看山正在想<span>···</span></div>' : ''}</div>
+        <div class="kanshan-messages">${messages.map(chatMessage).join('')}${waiting ? `<div class="kanshan-waiting"><p role="status">${esc(waitingNotice)}</p><button class="sample-skip" data-action="cancel-reply">停止等待</button></div>` : ''}${!done && state.typewriterStage === null ? '<div class="kanshan-typing">看山正在想<span>···</span></div>' : ''}</div>
         ${state.queuedChat ? `<div class="kanshan-message user"><p>${esc(state.queuedChat)}</p><small class="queued-message-note">已暂存，上一轮处理完后发送</small></div>` : ''}
         ${done && hasChoices && !state.selected ? `<div class="kanshan-choices"><p>你想先听谁说下去？</p><div>${Object.keys(user.candidates).filter(key => key !== 'own').map(key => `<button class="${key === 'B' ? 'choice-primary' : 'choice-muted'}" data-action="view" data-id="${esc(key)}">${key === 'B' ? '第二个人' : '第一个人'}</button>`).join('')}</div></div>` : ''}
         ${done && state.selected && state.selected !== 'own' && !overlayContent ? `<p class="kanshan-choice-locked">你刚才选择了${state.selected === 'B' ? '第二个人' : '第一个人'}。这一次相遇已经继续向前了。</p>` : ''}
       </div>
-      <div class="kanshan-composer"><div class="kanshan-input"><textarea id="kanshan-message" aria-label="写下你想说的话" placeholder="畅所欲问" maxlength="2000">${esc(state.chatDraft)}</textarea><button data-action="send-chat" aria-label="发送"${state.chatDraft.trim() ? '' : ' disabled'}>↑</button></div><p>${esc(state.chatNotice)}${state.busy && state.phase ? ' <button class="sample-skip" data-action="cancel-reply">停止等待</button>' : ''}${state.sampleScenario && !done ? ' <button class="sample-skip" data-action="skip-sample">直接看选项 →</button>' : ''}</p></div>
+      <div class="kanshan-composer"><div class="kanshan-input"><textarea id="kanshan-message" aria-label="写下你想说的话" placeholder="畅所欲问" maxlength="2000">${esc(state.chatDraft)}</textarea><button data-action="send-chat" aria-label="发送"${state.chatDraft.trim() ? '' : ' disabled'}>↑</button></div><p>${waiting ? '' : esc(state.chatNotice)}${state.sampleScenario && !done ? ' <button class="sample-skip" data-action="skip-sample">直接看选项 →</button>' : ''}</p></div>
     </section>` : '<div class="kanshan-reopen-hint">点击右下角的看山，继续刚才的对话 ↘</div>'}
     <button class="kanshan-launcher" data-action="toggle-chat" aria-label="${state.chatOpen ? '收起看山' : '打开看山'}" aria-expanded="${state.chatOpen}"${overlayContent ? ' tabindex="-1" aria-hidden="true"' : ''}><img src="/chat-assets/kanshan-official.png" alt=""/></button>
     ${overlayContent}
