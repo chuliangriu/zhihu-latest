@@ -438,6 +438,9 @@ function publicQuotaError(code: string) {
 }
 
 function endpointForPath(path: string): EndpointId {
+  if (path === "/api/mailbox" || /^\/api\/conversations\/[^/]+$/.test(path) || path.startsWith("/api/discoveries/") || /^\/api\/discussions\/[^/]+$/.test(path)) return "mailbox.read";
+  if(path === "/api/discussions") return "discussion.open";
+  if(path.endsWith("/replies")) return "discussion.reply";
   if (path === "/api/chat/reply") return "chat.reply";
   if (path.includes("/discovery")) return "discovery.evaluate";
   if (path === "/api/papers/drafts") return "paper.draft";

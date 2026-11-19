@@ -15,7 +15,8 @@ import { handoffRequestSchema, paperConfirmRequestSchema, paperDraftRequestSchem
 import type { WorkflowService } from "../workflow/service.js";
 import { WorkflowServiceError, usageTrace } from "../workflow/service.js";
 import { LlmProviderError } from "../llm/provider.js";
-import type { WorkflowStore } from "../workflow/store.js";
+import { MailboxRuleError, type WorkflowStore } from "../workflow/store.js";
+import { openDiscussionRequestSchema, replyRequestSchema } from "../workflow/contracts.js";
 
 const discoveryRequestSchema = z.object({ assistantMessageId:z.string().uuid(),topicKey:z.string().trim().min(1).max(120) }).strict();
 const idempotencyKeyPattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]{15,127}$/;
@@ -23,6 +24,56 @@ const idempotencyKeyPattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]{15,127}$/;
 export function registerWorkflowRoutes(app:Express,deps:{config:AppConfig;runtime:Pick<DiscoveryRuntime,"evaluateDetailed">;
   sessionResolver?:SessionResolver;chatService:ChatService;workflowService:WorkflowService;workflowStore:WorkflowStore},protection:ProtectionService){
   const auth = deps.config.authMode === "session" ? requireSessionIdentity(deps.sessionResolver,deps.config.corsOrigins) : requireInternalIdentity(deps.config);
+
+  const persistent = (_request:Request,response:Response,next:NextFunction) => {
+    if(deps.config.authMode==="session"&&deps.config.businessStoreMode!=="supabase"){response.status(503).json({error:{code:"MAILBOX_PERSISTENCE_REQUIRED"}});return;}
+    next();
+  };
+
+  app.get("/api/mailbox",auth,persistent,async(request,response,next)=>{
+    const started=await begin(request,response,protection,deps.config,"mailbox.read",0,false);if(!started)return;
+    try { const owner=request.principal!.userId;
+      const [papers,discussions,conversations]=await Promise.all([deps.workflowStore.listPapers(owner),deps.workflowStore.listDiscussions(owner),deps.workflowStore.listConversations(owner)]);
+      await finishLow(protection,started.context,response,"mailbox_loaded");response.json({success:true,data:{papers,discussions,conversations}});
+    } catch(error){await fail(protection,started.context,response,error);next(error);}
+  });
+  app.get("/api/conversations/:conversationId",auth,persistent,async(request,response,next)=>{
+    const id=z.string().uuid().safeParse(request.params.conversationId);if(!id.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
+    const started=await begin(request,response,protection,deps.config,"mailbox.read",0,false);if(!started)return;
+    try{const owner=request.principal!.userId,conversation=await deps.workflowStore.getConversation(id.data,owner),messages=await deps.workflowStore.conversationHistory(id.data,owner);
+      await finishLow(protection,started.context,response,"conversation_restored");response.json({success:true,data:{conversation,messages}});
+    }catch(error){await fail(protection,started.context,response,error);next(error);}
+  });
+  app.get("/api/discoveries/:discoveryId/candidates/:candidateId",auth,persistent,async(request,response,next)=>{
+    const id=z.string().uuid().safeParse(request.params.discoveryId),candidate=z.string().min(1).max(80).safeParse(request.params.candidateId);
+    if(!id.success||!candidate.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
+    const started=await begin(request,response,protection,deps.config,"mailbox.read",0,false);if(!started)return;
+    try{const result=await deps.workflowStore.readMatchedPaper(request.principal!.userId,id.data,candidate.data);
+      await finishLow(protection,started.context,response,"matched_paper_loaded");response.json({success:true,data:result});
+    }catch(error){await fail(protection,started.context,response,error);next(error);}
+  });
+  app.post("/api/discussions",auth,persistent,async(request,response,next)=>{
+    const body=openDiscussionRequestSchema.safeParse(request.body);if(!body.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
+    const started=await begin(request,response,protection,deps.config,"discussion.open",0,false);if(!started)return;
+    try{const result=await deps.workflowStore.openDiscussion(request.principal!.userId,body.data.discoveryId,body.data.candidateId);
+      await finishLow(protection,started.context,response,"discussion_opened");response.json({success:true,data:result});
+    }catch(error){await fail(protection,started.context,response,error);next(error);}
+  });
+  app.get("/api/discussions/:discussionId",auth,persistent,async(request,response,next)=>{
+    const id=z.string().uuid().safeParse(request.params.discussionId);if(!id.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
+    const started=await begin(request,response,protection,deps.config,"mailbox.read",0,false);if(!started)return;
+    try{const result=await deps.workflowStore.getDiscussion(id.data,request.principal!.userId);
+      await finishLow(protection,started.context,response,"discussion_loaded");response.json({success:true,data:result});
+    }catch(error){await fail(protection,started.context,response,error);next(error);}
+  });
+  app.post("/api/discussions/:discussionId/replies",auth,persistent,async(request,response,next)=>{
+    const id=z.string().uuid().safeParse(request.params.discussionId),body=replyRequestSchema.safeParse(request.body);
+    if(!id.success||!body.success||/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/u.test(body.success?body.data.content:"")){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
+    const started=await begin(request,response,protection,deps.config,"discussion.reply",0,false);if(!started)return;
+    try{const result=await deps.workflowStore.replyDiscussion(id.data,request.principal!.userId,body.data.content,body.data.clientMessageId);
+      await finishLow(protection,started.context,response,"reply_saved");response.json({success:true,data:result});
+    }catch(error){await fail(protection,started.context,response,error);next(error);}
+  });
 
   app.post("/api/chat/reply",auth,async(request,response,next)=>{
     const parsed=chatRequestSchema.safeParse(request.body); if(!parsed.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
@@ -62,15 +113,24 @@ export function registerWorkflowRoutes(app:Express,deps:{config:AppConfig;runtim
       const detailed=await deps.runtime.evaluateDetailed({fixtureSet:"feedback-across-domains",conversation:{messages}},request.principal);
       let discovery=null;
       if(detailed.result.status==="matched"){
-        await deps.chatService.confirmDisplay({ownerId,conversationId:route.data,...body.data});
         discovery=await deps.workflowService.saveDiscovery(ownerId,route.data,detailed.result);
+        // Revalidate consent immediately before returning a real private card.
+        // A withdrawal during model analysis must not release a stale snapshot.
+        for(const candidate of discovery?.candidates??[]) {
+          if(candidate.sourceType!=="authorized_private"||!z.string().uuid().safeParse(candidate.candidateId).success)continue;
+          let active=false;
+          try{active=(await deps.workflowStore.readMatchedPaper(ownerId,discovery!.id,candidate.candidateId)).status==="active";}
+          catch(error){if(!(error instanceof BusinessStoreError&&error.code==="NOT_FOUND"))throw error;}
+          if(!active){Object.assign(detailed.result,{status:"no_match",reasonCode:"candidate_no_longer_available",shouldInvite:false,matches:{situationClose:null,structureRelated:null},inviteCopy:null,presentationCopy:null});discovery=null;break;}
+        }
+        if(detailed.result.status==="matched")await deps.chatService.confirmDisplay({ownerId,conversationId:route.data,...body.data});
       }
       await protection.finishDiscovery(started.context,{statusCode:200,businessStatus:detailed.result.status,reasonCode:detailed.result.reasonCode,trace:detailed.trace,conservative:detailed.result.status==="unavailable"});
       response.locals.monitoringRecorded=true;response.json({success:true,data:{...detailed.result,discoveryId:discovery?.id??null}});
     }catch(error){await fail(protection,started.context,response,error);next(error);}
   });
 
-  app.post("/api/papers/drafts",auth,async(request,response,next)=>{
+  app.post("/api/papers/drafts",auth,persistent,async(request,response,next)=>{
     const parsed=paperDraftRequestSchema.safeParse(request.body);if(!parsed.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
     const started=await begin(request,response,protection,deps.config,"paper.draft",1,true);if(!started)return;
     try{const output=await deps.workflowService.draftPaper(request.principal!.userId,parsed.data.conversationId,parsed.data.confirmedProfile,AbortSignal.timeout(deps.config.pipelineTimeoutMs));
@@ -79,7 +139,14 @@ export function registerWorkflowRoutes(app:Express,deps:{config:AppConfig;runtim
     }catch(error){await fail(protection,started.context,response,error);next(error);}
   });
 
-  app.patch("/api/papers/:paperId",auth,async(request,response,next)=>{
+  app.get("/api/papers/:paperId",auth,persistent,async(request,response,next)=>{
+    const id=z.string().uuid().safeParse(request.params.paperId);if(!id.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
+    const started=await begin(request,response,protection,deps.config,"mailbox.read",0,false);if(!started)return;
+    try{const paper=await deps.workflowStore.getPaper(id.data,request.principal!.userId);await finishLow(protection,started.context,response,"own_paper_loaded");response.json({success:true,data:paper});}
+    catch(error){await fail(protection,started.context,response,error);next(error);}
+  });
+
+  app.patch("/api/papers/:paperId",auth,persistent,async(request,response,next)=>{
     const id=z.string().uuid().safeParse(request.params.paperId),parsed=paperEditRequestSchema.safeParse(request.body);
     if(!id.success||!parsed.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
     const started=await begin(request,response,protection,deps.config,"paper.edit",0,false);if(!started)return;
@@ -88,7 +155,7 @@ export function registerWorkflowRoutes(app:Express,deps:{config:AppConfig;runtim
     }catch(error){await fail(protection,started.context,response,error);next(error);}
   });
 
-  app.post("/api/papers/:paperId/confirm",auth,async(request,response,next)=>{
+  app.post("/api/papers/:paperId/confirm",auth,persistent,async(request,response,next)=>{
     const id=z.string().uuid().safeParse(request.params.paperId),parsed=paperConfirmRequestSchema.safeParse(request.body);
     if(!id.success||!parsed.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
     const started=await begin(request,response,protection,deps.config,"paper.confirm",0,false);if(!started)return;
@@ -97,14 +164,14 @@ export function registerWorkflowRoutes(app:Express,deps:{config:AppConfig;runtim
     }catch(error){await fail(protection,started.context,response,error);next(error);}
   });
 
-  app.post("/api/papers/:paperId/withdraw",auth,async(request,response,next)=>{
+  app.post("/api/papers/:paperId/withdraw",auth,persistent,async(request,response,next)=>{
     const id=z.string().uuid().safeParse(request.params.paperId);if(!id.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
     const started=await begin(request,response,protection,deps.config,"paper.withdraw",0,false);if(!started)return;
     try{const paper=await deps.workflowService.withdrawPaper(request.principal!.userId,id.data);await finishLow(protection,started.context,response,"paper_withdrawn");response.json({success:true,data:paper});}
     catch(error){await fail(protection,started.context,response,error);next(error);}
   });
 
-  app.post("/api/handoffs",auth,async(request,response,next)=>{
+  app.post("/api/handoffs",auth,persistent,async(request,response,next)=>{
     const parsed=handoffRequestSchema.safeParse(request.body);if(!parsed.success){response.status(400).json({error:{code:"INVALID_REQUEST"}});return;}
     const started=await begin(request,response,protection,deps.config,"handoff.create",0,false);if(!started)return;
     try{const result=await deps.workflowService.handoff(request.principal!.userId,parsed.data.discoveryId,parsed.data.candidateId);
@@ -125,7 +192,7 @@ async function begin(request:Request,response:Response,protection:ProtectionServ
 async function finishLow(protection:ProtectionService,context:any,response:Response,reasonCode:string){await protection.finishDiscovery(context,{statusCode:200,businessStatus:"ready",reasonCode,conservative:false});response.locals.monitoringRecorded=true;}
 async function fail(protection:ProtectionService,context:any,response:Response,error:unknown){const statusCode=failureStatus(error);await protection.finishDiscovery(context,{statusCode,businessStatus:statusCode>=500?"unavailable":"rejected",reasonCode:errorCode(error),conservative:statusCode>=500}).catch(()=>undefined);response.locals.monitoringRecorded=true;}
 function errorCode(error:unknown){return error&&typeof error==="object"&&"code" in error&&typeof error.code==="string"?error.code:"WORKFLOW_FAILED";}
-function failureStatus(error:unknown){if(error instanceof LlmProviderError)return publicLlmFailure(error).status;if(error instanceof BusinessStoreError)return error.code==="NOT_FOUND"?404:error.code==="FORBIDDEN"?403:error.code==="CONFLICT"?409:503;if(error instanceof WorkflowServiceError||error instanceof ChatServiceError)return /INJECTION|REJECTED/.test(error.code)?400:/UNAVAILABLE/.test(error.code)?422:409;return 503;}
+function failureStatus(error:unknown){if(error instanceof MailboxRuleError)return error.code==="MAILBOX_SETUP_REQUIRED"?503:409;if(error instanceof LlmProviderError)return publicLlmFailure(error).status;if(error instanceof BusinessStoreError)return error.code==="NOT_FOUND"?404:error.code==="FORBIDDEN"?403:error.code==="CONFLICT"?409:503;if(error instanceof WorkflowServiceError||error instanceof ChatServiceError)return /INJECTION|REJECTED/.test(error.code)?400:/UNAVAILABLE/.test(error.code)?422:409;return 503;}
 function publicErrorCode(error:unknown){if(error instanceof LlmProviderError)return publicLlmFailure(error).code;const code=errorCode(error);return code==="LLM_ABORTED"?"REQUEST_CANCELLED":code;}
 // Expose only our stable categories, never provider messages, response bodies,
 // configuration, or arbitrary upstream codes. Failed requests remain failures.
@@ -141,6 +208,7 @@ function sse(event:string,data:unknown){return `event: ${event}\ndata: ${JSON.st
 export function workflowErrorMiddleware(error:unknown,_request:Request,response:Response,next:NextFunction){
   if(response.headersSent){next(error);return;}
   if(error instanceof LlmProviderError){const failure=publicLlmFailure(error);response.status(failure.status).json({error:{code:failure.code}});return;}
+  if(error instanceof MailboxRuleError){response.status(error.code==="MAILBOX_SETUP_REQUIRED"?503:409).json({error:{code:error.code}});return;}
   if(error instanceof BusinessStoreError){const status=error.code==="NOT_FOUND"?404:error.code==="FORBIDDEN"?403:error.code==="CONFLICT"?409:503;response.status(status).json({error:{code:`STORE_${error.code}`}});return;}
   if(error instanceof WorkflowServiceError||error instanceof ChatServiceError){const status=/INJECTION|REJECTED/.test(error.code)?400:/UNAVAILABLE/.test(error.code)?422:409;response.status(status).json({error:{code:error.code}});return;}
   next(error);

@@ -186,5 +186,5 @@ function topConsumers(values: Map<string, { requests: number; llmRequests: numbe
 }
 
 export function isEndpointId(value: string): value is EndpointId {
-  return ["health.read","chat.reply","chat.discovery-display","discovery.evaluate","profile.summarize","paper.draft","paper.edit","paper.confirm","paper.withdraw","handoff.create","internal.usage","internal.controls.llm-mode"].includes(value);
+  return ["health.read","chat.reply","chat.discovery-display","discovery.evaluate","profile.summarize","mailbox.read","discussion.open","discussion.reply","paper.draft","paper.edit","paper.confirm","paper.withdraw","handoff.create","internal.usage","internal.controls.llm-mode"].includes(value);
 }

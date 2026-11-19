@@ -49,3 +49,13 @@ describe("GLM reasoning defaults", () => {
     expect(llm.reasoningEffort).toBe("high");
   });
 });
+
+
+describe("persistent session workflow storage",()=>{
+  it("defaults authenticated site sessions to Supabase while keeping local signed fixtures in memory",()=>{
+    const env={AUTH_MODE:"session",SUPABASE_URL:"https://project.supabase.co",SUPABASE_SERVICE_ROLE_KEY:"synthetic-test-key"};
+    expect(loadConfig(env).businessStoreMode).toBe("supabase");
+    expect(loadConfig({}).businessStoreMode).toBe("memory");
+    expect(loadConfig({...env,BUSINESS_STORE_MODE:"memory"}).businessStoreMode).toBe("memory");
+  });
+});

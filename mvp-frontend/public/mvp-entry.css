@@ -134,3 +134,19 @@ body[data-screen="home"] header::after { content: none; }
 .profile-sync-status button, .profile-sync-status a { border: 0; border-bottom: 1px dotted currentColor; border-radius: 0; padding: 4px 0; background: transparent; color: var(--blue); font: inherit; cursor: pointer; }
 
 .candidate-overlay-card .candidate-public-source { text-align: right; font-size: 11px; }
+
+/* Persisted mailbox and discussions reuse the paper overlay and its typography. */
+.mailbox-panel { max-height: min(86vh, 880px); overflow-y: auto; }
+.mailbox-panel h2 { font-size: 1.12rem; margin-top: 1.5rem; }
+.mailbox-panel textarea { width: 100%; box-sizing: border-box; min-height: 90px; border: 1px solid #c6c2b9; border-radius: 8px; padding: 12px; font: inherit; background: #fffdf7; }
+.mailbox-history-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 12px 0; border-bottom: 1px solid #ded9ce; }
+.mailbox-history-row small { color: #6d706f; }
+.mailbox-thread-paper { border-left: 2px solid #b3b9b3; padding: 12px 16px; margin: 18px 0; }
+.mailbox-thread-paper h2 { margin-top: 8px; }
+.mailbox-thread-paper blockquote { margin: 10px 0; white-space: pre-wrap; }
+.mailbox-reply { padding: 12px 16px; border-radius: 10px; background: #eceee7; margin: 12px 0; }
+.mailbox-reply.own { background: #e3ebe8; }
+.mailbox-reply p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.mailbox-choices { display: grid; gap: 14px; border: 1px solid #d3cfc5; margin: 20px 0; padding: 16px; }
+.mailbox-choices label { display: block; line-height: 1.6; }
+.mailbox-choices input[type="checkbox"] { width: auto; margin-right: 8px; }

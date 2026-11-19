@@ -77,6 +77,9 @@ describe("chat, paper and handoff workflow",()=>{
   it("returns only a verified Zhihu destination and never transfers typed text",async()=>{
     const store=new InMemoryWorkflowStore();const conversation=await store.createConversation(owner);const workflow=new WorkflowService(store,()=>new WorkflowMockProvider());
     const publicDiscovery=await store.saveDiscovery(owner,conversation.id,discoveryResult("public",false,"https://www.zhihu.com/question/1/answer/2",null));
+    await expect(workflow.handoff(owner,publicDiscovery.id,"candidate-1")).rejects.toMatchObject({code:"OWN_PAPER_REQUIRED"});
+    const ownPaper=await store.createPaperDraft({ownerId:owner,conversationId:conversation.id,subject:"留下近况",quote:"我仍然想继续，只是暂时没有等到具体的回应。",context:"持续投入",background:"这个人仍然在投入一件重要的事，也在等待具体的回应。"});
+    await store.confirmPaper({id:ownPaper.id,ownerId:owner,expectedVersion:1,discoverableUntil:new Date(Date.now()+7*86400000).toISOString(),identityDisclosure:"anonymous",contactAllowed:true});
     expect(await workflow.handoff(owner,publicDiscovery.id,"candidate-1")).toEqual({redirectUrl:"https://www.zhihu.com/question/1/answer/2",textTransferred:false,deliveryClaimed:false,notice:"前往知乎继续；输入文字不会自动发送。"});
     const synthetic=await store.saveDiscovery(owner,conversation.id,discoveryResult("synthetic_private",false,null,null));
     await expect(workflow.handoff(owner,synthetic.id,"candidate-1")).rejects.toMatchObject({code:"HANDOFF_UNAVAILABLE"});

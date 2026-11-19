@@ -19,9 +19,10 @@ export const paperEditRequestSchema = ownPaperModelSchema.extend({ expectedVersi
 
 export const paperConfirmRequestSchema = z.object({
   expectedVersion: z.number().int().positive(),
-  discoverableDays: z.number().int().min(1).max(7).default(7),
+  discoverableDays: z.literal(7).default(7),
   identityDisclosure: z.enum(["anonymous", "nickname"]).default("nickname"),
   contactAllowed: z.boolean().default(true),
+  matchingAllowed: z.boolean().default(true),
   target: z.discriminatedUnion("kind", [
     z.object({ kind: z.literal("mailbox_only") }).strict(),
     z.object({ kind: z.literal("selected_private"), discoveryId: z.string().uuid(), candidateId: z.string().min(1).max(80) }).strict(),
@@ -60,6 +61,8 @@ export interface StoredPaper {
   id: string;
   ownerId: string;
   conversationId: string;
+  expressionId?: string | null;
+  matchingAllowed?: boolean;
   version: number;
   status: "draft" | "active" | "withdrawn" | "expired";
   subject: string;
@@ -85,3 +88,27 @@ export interface StoredDelivery {
   status: "delivered" | "cancelled";
   createdAt: string;
 }
+
+
+export const openDiscussionRequestSchema = handoffRequestSchema;
+export const replyRequestSchema = z.object({
+  content: z.string().trim().min(1).max(2000),
+  clientMessageId: z.string().uuid()
+}).strict();
+const paperPreviewSchema = z.object({
+  id: z.string().uuid(), status: z.enum(["active", "expired", "withdrawn"]),
+  subject: z.string(), quote: z.string().nullable(), background: z.string().nullable(),
+  displayName: z.string(), own: z.boolean()
+}).strict();
+export const discussionViewSchema = z.object({
+  id: z.string().uuid(), paper: paperPreviewSchema, introduction: paperPreviewSchema,
+  canReply: z.boolean(), closedReason: z.enum(["paper_withdrawn", "contact_disabled"]).nullable(),
+  createdAt: z.string(), updatedAt: z.string(),
+  messages: z.array(z.object({id:z.string().uuid(),own:z.boolean(),content:z.string(),createdAt:z.string()}).strict())
+}).strict();
+export type DiscussionView = z.infer<typeof discussionViewSchema>;
+export const matchedPaperViewSchema = z.object({
+  status: z.enum(["active", "expired", "withdrawn"]), paper: paperPreviewSchema.nullable(),
+  contactable: z.boolean(), discussionId: z.string().uuid().nullable()
+}).strict();
+export type MatchedPaperView = z.infer<typeof matchedPaperViewSchema>;

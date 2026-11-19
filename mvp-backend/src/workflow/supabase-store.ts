@@ -1,5 +1,7 @@
 import { z } from "zod";
 import type { TopicAssessment, StoredConversation, StoredMessage, StoredTopicDisplay } from "../chat/contracts.js";
+import { MailboxRuleError } from "./store.js";
+import { discussionViewSchema, matchedPaperViewSchema } from "./contracts.js";
 import { BusinessStoreError } from "../chat/store.js";
 import type { DiscoveryResult } from "../contracts/schemas.js";
 import type { StoredDelivery, StoredDiscovery, StoredPaper } from "./contracts.js";
@@ -13,7 +15,7 @@ const assessmentRow=z.object({assistant_message_id:uuid,conversation_id:uuid,own
 const displayRow=z.object({id:uuid,conversation_id:uuid,owner_id:uuid,assistant_message_id:uuid,topic_key:z.string(),created_at:timestamp});
 const discoveryRow=z.object({id:uuid,owner_id:uuid,conversation_id:uuid,pipeline_request_id:uuid,created_at:timestamp,expires_at:timestamp});
 const candidateRow=z.object({candidate_ref:z.string(),path:z.enum(["situationClose","structureRelated"]),source_type:z.enum(["public","authorized_private","synthetic_private"]),source_url:z.string().nullable(),author_profile_url:z.string().nullable(),contactable:z.boolean(),published_at:timestamp,excerpt_snapshot:z.string(),relation_snapshot:z.string()});
-const paperRow=z.object({id:uuid,owner_id:uuid,conversation_id:uuid,current_version:z.number().int(),status:z.enum(["draft","active","withdrawn","expired"]),subject:z.string(),quote:z.string(),context:z.string(),background:z.string(),discoverable_until:timestamp.nullable(),identity_disclosure:z.enum(["anonymous","nickname"]),contact_allowed:z.boolean(),confirmed_at:timestamp.nullable(),withdrawn_at:timestamp.nullable(),created_at:timestamp,updated_at:timestamp});
+const paperRow=z.object({id:uuid,owner_id:uuid,conversation_id:uuid,current_version:z.number().int(),status:z.enum(["draft","active","withdrawn","expired"]),subject:z.string(),quote:z.string(),context:z.string(),background:z.string(),discoverable_until:timestamp.nullable(),identity_disclosure:z.enum(["anonymous","nickname"]),contact_allowed:z.boolean(),matching_allowed:z.boolean().default(true),expression_id:uuid.nullable().optional(),confirmed_at:timestamp.nullable(),withdrawn_at:timestamp.nullable(),created_at:timestamp,updated_at:timestamp});
 const deliveryRow=z.object({id:uuid,paper_id:uuid,paper_version:z.number().int(),sender_id:uuid,discovery_id:uuid,candidate_ref:z.string(),status:z.enum(["delivered","cancelled"]),created_at:timestamp});
 
 export class SupabaseWorkflowStore implements WorkflowStore{
@@ -24,8 +26,11 @@ export class SupabaseWorkflowStore implements WorkflowStore{
     if(!this.serviceKey.startsWith("sb_secret_"))headers.Authorization=`Bearer ${this.serviceKey}`;
     if(body!==undefined)headers["Content-Type"]="application/json";if(prefer)headers.Prefer=prefer;
     let response:Response;try{response=await this.fetcher(url,{method,headers,...(body===undefined?{}:{body:JSON.stringify(body)}),redirect:"error",signal:AbortSignal.timeout(8000)});}catch{throw new BusinessStoreError("UNAVAILABLE");}
-    if(!response.ok){let code="";try{const payload=await response.json() as {code?:unknown};code=typeof payload.code==="string"?payload.code:"";}catch{}
-      if(response.status===409||["40001","22023","P0002","23505"].includes(code))throw new BusinessStoreError("CONFLICT");throw new BusinessStoreError("UNAVAILABLE");}
+    if(!response.ok){let code="",message="";try{const payload=await response.json() as {code?:unknown;message?:unknown};code=typeof payload.code==="string"?payload.code:"";message=typeof payload.message==="string"?payload.message:"";}catch{}
+      if(["OWN_PAPER_REQUIRED","DISCUSSION_CLOSED"].includes(message))throw new MailboxRuleError(message as "OWN_PAPER_REQUIRED"|"DISCUSSION_CLOSED");
+      if(["PGRST202","PGRST205","42703"].includes(code))throw new MailboxRuleError("MAILBOX_SETUP_REQUIRED");
+      if(code==="P0002")throw new BusinessStoreError("NOT_FOUND");
+      if(response.status===409||["40001","22023","23505"].includes(code))throw new BusinessStoreError("CONFLICT");throw new BusinessStoreError("UNAVAILABLE");}
     if(response.status===204||prefer?.includes("return=minimal"))return null;try{return await response.json();}catch{throw new BusinessStoreError("UNAVAILABLE");}
   }
   async createConversation(ownerId:string){uuid.parse(ownerId);const rows=z.array(conversationRow).parse(await this.request("conversations","POST",{owner_id:ownerId},"return=representation"));return mapConversation(rows[0]!);}
@@ -58,13 +63,40 @@ export class SupabaseWorkflowStore implements WorkflowStore{
   async createPaperDraft(input:Omit<StoredPaper,"id"|"version"|"status"|"discoverableUntil"|"identityDisclosure"|"contactAllowed"|"confirmedAt"|"withdrawnAt"|"createdAt"|"updatedAt">){const rows=z.array(paperRow).parse(await this.request("mailbox_papers","POST",{owner_id:input.ownerId,conversation_id:input.conversationId,subject:input.subject,quote:input.quote,context:input.context,background:input.background},"return=representation"));return mapPaper(rows[0]!);}
   async getPaper(id:string,ownerId:string){const rows=z.array(paperRow).parse(await this.request(`mailbox_papers?id=eq.${id}&owner_id=eq.${ownerId}&select=*&limit=1`,"GET"));if(!rows[0])throw new BusinessStoreError("NOT_FOUND");return mapPaper(rows[0]);}
   async editPaper(id:string,ownerId:string,expectedVersion:number,fields:Pick<StoredPaper,"subject"|"quote"|"context"|"background">){const rows=z.array(paperRow).parse(await this.request(`mailbox_papers?id=eq.${id}&owner_id=eq.${ownerId}&status=eq.draft&current_version=eq.${expectedVersion}`,"PATCH",{...fields,current_version:expectedVersion+1,updated_at:new Date().toISOString()},"return=representation"));if(!rows[0])throw new BusinessStoreError("CONFLICT");return mapPaper(rows[0]);}
-  async confirmPaper(input:{id:string;ownerId:string;expectedVersion:number;discoverableUntil:string;identityDisclosure:"anonymous"|"nickname";contactAllowed:boolean}){const rows=z.array(paperRow).parse(await this.request("rpc/confirm_mailbox_paper","POST",{p_paper_id:input.id,p_owner_id:input.ownerId,p_expected_version:input.expectedVersion,p_discoverable_until:input.discoverableUntil,p_identity_disclosure:input.identityDisclosure,p_contact_allowed:input.contactAllowed}));if(!rows[0])throw new BusinessStoreError("CONFLICT");return mapPaper(rows[0]);}
-  async confirmPaperAndDeliver(input:{id:string;ownerId:string;expectedVersion:number;discoverableUntil:string;identityDisclosure:"anonymous"|"nickname";contactAllowed:boolean;discoveryId:string;candidateId:string}){const result=z.object({paper:paperRow,delivery:deliveryRow}).parse(await this.request("rpc/confirm_and_deliver_mailbox_paper","POST",{p_paper_id:input.id,p_owner_id:input.ownerId,p_expected_version:input.expectedVersion,p_discoverable_until:input.discoverableUntil,p_identity_disclosure:input.identityDisclosure,p_contact_allowed:input.contactAllowed,p_discovery_id:input.discoveryId,p_candidate_ref:input.candidateId}));return {paper:mapPaper(result.paper),delivery:mapDelivery(result.delivery)};}
-  async withdrawPaper(id:string,ownerId:string){const rows=z.array(paperRow).parse(await this.request("rpc/withdraw_mailbox_paper","POST",{p_paper_id:id,p_owner_id:ownerId}));if(!rows[0])throw new BusinessStoreError("CONFLICT");return mapPaper(rows[0]);}
+  async confirmPaper(input:{id:string;ownerId:string;expectedVersion:number;discoverableUntil:string;identityDisclosure:"anonymous"|"nickname";contactAllowed:boolean;matchingAllowed?:boolean}){const rows=z.array(paperRow).parse(await this.request("rpc/confirm_mailbox_paper_v2","POST",{p_paper_id:input.id,p_owner_id:input.ownerId,p_expected_version:input.expectedVersion,p_discoverable_until:input.discoverableUntil,p_identity_disclosure:input.identityDisclosure,p_matching_allowed:input.matchingAllowed??true,p_contact_allowed:input.contactAllowed}));if(!rows[0])throw new BusinessStoreError("CONFLICT");return mapPaper(rows[0]);}
+  async confirmPaperAndDeliver(input:{id:string;ownerId:string;expectedVersion:number;discoverableUntil:string;identityDisclosure:"anonymous"|"nickname";contactAllowed:boolean;matchingAllowed?:boolean;discoveryId:string;candidateId:string}){const result=z.object({paper:paperRow,delivery:deliveryRow}).parse(await this.request("rpc/confirm_and_deliver_mailbox_paper_v2","POST",{p_paper_id:input.id,p_owner_id:input.ownerId,p_expected_version:input.expectedVersion,p_discoverable_until:input.discoverableUntil,p_identity_disclosure:input.identityDisclosure,p_matching_allowed:input.matchingAllowed??true,p_contact_allowed:input.contactAllowed,p_discovery_id:input.discoveryId,p_candidate_ref:input.candidateId}));return {paper:mapPaper(result.paper),delivery:mapDelivery(result.delivery)};}
+  async withdrawPaper(id:string,ownerId:string){const rows=z.array(paperRow).parse(await this.request("rpc/withdraw_mailbox_paper_v2","POST",{p_paper_id:id,p_owner_id:ownerId}));if(!rows[0])throw new BusinessStoreError("CONFLICT");return mapPaper(rows[0]);}
+  async listPapers(ownerId:string) {
+    uuid.parse(ownerId);return z.array(paperRow).parse(await this.request(`mailbox_papers?owner_id=eq.${ownerId}&select=*&order=updated_at.desc,id&limit=50`,"GET")).map(mapPaper);
+  }
+  async listConversations(ownerId:string) {
+    uuid.parse(ownerId);return z.array(conversationRow).parse(await this.request(`conversations?owner_id=eq.${ownerId}&select=*&order=updated_at.desc,id&limit=30`,"GET")).map(mapConversation);
+  }
+  async conversationHistory(id:string,ownerId:string) {
+    await this.getConversation(id,ownerId);return z.array(messageRow).parse(await this.request(`conversation_messages?conversation_id=eq.${id}&owner_id=eq.${ownerId}&select=*&order=created_at.desc,id.desc&limit=100`,"GET")).reverse().map(mapMessage);
+  }
+  async hasConfirmedPaper(ownerId:string) {
+    uuid.parse(ownerId);const rows=z.array(z.object({id:uuid})).parse(await this.request(`mailbox_papers?owner_id=eq.${ownerId}&status=in.(active,expired)&confirmed_at=not.is.null&select=id&limit=1`,"GET"));return rows.length>0;
+  }
+  async readMatchedPaper(ownerId:string,discoveryId:string,candidateId:string) {
+    return matchedPaperViewSchema.parse(await this.request("rpc/read_matched_mailbox_paper","POST",{p_viewer_id:ownerId,p_discovery_id:discoveryId,p_candidate_ref:candidateId}));
+  }
+  async openDiscussion(ownerId:string,discoveryId:string,candidateId:string) {
+    return discussionViewSchema.parse(await this.request("rpc/open_mailbox_discussion","POST",{p_viewer_id:ownerId,p_discovery_id:discoveryId,p_candidate_ref:candidateId}));
+  }
+  async listDiscussions(ownerId:string) {
+    return z.array(discussionViewSchema).parse(await this.request("rpc/list_mailbox_discussions","POST",{p_viewer_id:ownerId}));
+  }
+  async getDiscussion(id:string,ownerId:string) {
+    return discussionViewSchema.parse(await this.request("rpc/mailbox_discussion_view","POST",{p_discussion_id:id,p_viewer_id:ownerId}));
+  }
+  async replyDiscussion(id:string,ownerId:string,content:string,clientMessageId:string) {
+    return discussionViewSchema.parse(await this.request("rpc/reply_mailbox_discussion","POST",{p_discussion_id:id,p_sender_id:ownerId,p_content:content,p_client_message_id:clientMessageId}));
+  }
   async createDelivery(input:Omit<StoredDelivery,"id"|"createdAt"|"status">){const rows=z.array(deliveryRow).parse(await this.request("rpc/deliver_mailbox_paper","POST",{p_paper_id:input.paperId,p_paper_version:input.paperVersion,p_sender_id:input.senderId,p_discovery_id:input.discoveryId,p_candidate_ref:input.candidateId}));if(!rows[0])throw new BusinessStoreError("CONFLICT");return mapDelivery(rows[0]);}
 }
 function mapConversation(r:z.infer<typeof conversationRow>):StoredConversation{return{id:r.id,ownerId:r.owner_id,createdAt:r.created_at,updatedAt:r.updated_at};}
 function mapMessage(r:z.infer<typeof messageRow>):StoredMessage{return{id:r.id,conversationId:r.conversation_id,ownerId:r.owner_id,role:r.role,content:r.content,generationStatus:r.generation_status,createdAt:r.created_at};}
 function mapDisplay(r:z.infer<typeof displayRow>):StoredTopicDisplay{return{id:r.id,conversationId:r.conversation_id,ownerId:r.owner_id,assistantMessageId:r.assistant_message_id,topicKey:r.topic_key,createdAt:r.created_at};}
-function mapPaper(r:z.infer<typeof paperRow>):StoredPaper{const status=r.status==="active"&&r.discoverable_until&&Date.parse(r.discoverable_until)<=Date.now()?"expired":r.status;return{id:r.id,ownerId:r.owner_id,conversationId:r.conversation_id,version:r.current_version,status,subject:r.subject,quote:r.quote,context:r.context,background:r.background,discoverableUntil:r.discoverable_until,identityDisclosure:r.identity_disclosure,contactAllowed:r.contact_allowed,confirmedAt:r.confirmed_at,withdrawnAt:r.withdrawn_at,createdAt:r.created_at,updatedAt:r.updated_at};}
+function mapPaper(r:z.infer<typeof paperRow>):StoredPaper{const status=r.status==="active"&&r.discoverable_until&&Date.parse(r.discoverable_until)<=Date.now()?"expired":r.status;return{id:r.id,ownerId:r.owner_id,conversationId:r.conversation_id,version:r.current_version,expressionId:r.expression_id??null,matchingAllowed:r.matching_allowed,status,subject:r.subject,quote:r.quote,context:r.context,background:r.background,discoverableUntil:r.discoverable_until,identityDisclosure:r.identity_disclosure,contactAllowed:r.contact_allowed,confirmedAt:r.confirmed_at,withdrawnAt:r.withdrawn_at,createdAt:r.created_at,updatedAt:r.updated_at};}
 function mapDelivery(r:z.infer<typeof deliveryRow>):StoredDelivery{return{id:r.id,paperId:r.paper_id,paperVersion:r.paper_version,senderId:r.sender_id,discoveryId:r.discovery_id,candidateId:r.candidate_ref,status:r.status,createdAt:r.created_at};}

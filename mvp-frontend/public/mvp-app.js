@@ -80,7 +80,7 @@ app.addEventListener('click', async event => {
   controller.action(button.dataset.action, button.dataset.id);
 });
 
-const fields = { 'kanshan-message': ['chatDraft', 'send-chat'], 'private-message': ['privateDraft', 'send-private'], 'public-response': ['publicDraft', 'send-public'] };
+const fields = { 'kanshan-message': ['chatDraft', 'send-chat'], 'private-message': ['privateDraft', 'send-private'], 'public-response': ['publicDraft', 'send-public'], 'discussion-message': ['replyDraft', 'send-discussion'] };
 app.addEventListener('input', event => {
   const entry = fields[event.target.id];
   if (entry) {
@@ -89,7 +89,7 @@ app.addEventListener('input', event => {
     const state = controller.getState();
     const canQueue = entry[1] === 'send-chat' && state.phase && !state.queuedChat;
     if (button) button.disabled = (state.busy && !canQueue) || !event.target.value.trim();
-  } else if (event.target.dataset.field) controller.input(event.target.dataset.field, event.target.value);
+  } else if (event.target.dataset.field) controller.input(event.target.dataset.field, event.target.type === 'checkbox' ? event.target.checked : event.target.value);
 });
 app.addEventListener('keydown', event => {
   const entry = fields[event.target.id];

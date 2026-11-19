@@ -68,7 +68,7 @@ describe("Supabase workflow store", () => {
       paper: { id: paperId, version: 2, status: "active" },
       delivery: { id: deliveryId, candidateId: "candidate-1" }
     });
-    expect(String(fetcher.mock.calls[0]?.[0])).toBe("https://example.supabase.co/rest/v1/rpc/confirm_and_deliver_mailbox_paper");
+    expect(String(fetcher.mock.calls[0]?.[0])).toBe("https://example.supabase.co/rest/v1/rpc/confirm_and_deliver_mailbox_paper_v2");
   });
 
   it("maps database serialization conflicts to a stable store conflict", async () => {

@@ -23,6 +23,10 @@ export class InMemoryConversationStore implements ConversationStore {
   private assessments = new Map<string, TopicAssessment>();
   private displays = new Map<string, StoredTopicDisplay>();
 
+  protected ownerConversations(ownerId:string) {
+    return [...this.conversations.values()].filter(c=>c.ownerId===ownerId).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)).slice(0,30).map(c=>structuredClone(c));
+  }
+
   async createConversation(ownerId: string) {
     const now = new Date().toISOString();
     const value = { id: randomUUID(), ownerId, createdAt: now, updatedAt: now };

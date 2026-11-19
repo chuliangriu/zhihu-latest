@@ -4,6 +4,7 @@ import { containsForbiddenModelArtifact, scanConversationForPromptInjection } fr
 import { isZhihuUrl } from "../guards/candidates.js";
 import { OWN_PAPER_SYSTEM_PROMPT } from "../prompts/own-paper.js";
 import { ownPaperModelSchema } from "./contracts.js";
+import { MailboxRuleError } from "./store.js";
 import type { WorkflowStore } from "./store.js";
 
 export class WorkflowService {
@@ -38,7 +39,7 @@ export class WorkflowService {
     return this.store.editPaper(id,ownerId,expectedVersion,fields);
   }
 
-  async confirmPaper(input:{ownerId:string;id:string;expectedVersion:number;discoverableDays:number;identityDisclosure:"anonymous"|"nickname";contactAllowed:boolean;target:{kind:"mailbox_only"}|{kind:"selected_private";discoveryId:string;candidateId:string}|{kind:"synthetic_demo";discoveryId:string;candidateId:string}}) {
+  async confirmPaper(input:{ownerId:string;id:string;expectedVersion:number;discoverableDays:number;identityDisclosure:"anonymous"|"nickname";contactAllowed:boolean;matchingAllowed?:boolean;target:{kind:"mailbox_only"}|{kind:"selected_private";discoveryId:string;candidateId:string}|{kind:"synthetic_demo";discoveryId:string;candidateId:string}}) {
     let discovery;
     let fixturePrivate=false;
     if (input.target.kind === "selected_private" || input.target.kind === "synthetic_demo") {
@@ -54,7 +55,7 @@ export class WorkflowService {
     const current=await this.store.getPaper(input.id,input.ownerId);
     const expectedVersion=current.status==="active"?current.version-1:current.version;
     const common={id:input.id,ownerId:input.ownerId,expectedVersion,
-      discoverableUntil:new Date(Date.now()+input.discoverableDays*86_400_000).toISOString(),identityDisclosure:input.identityDisclosure,contactAllowed:input.contactAllowed};
+      discoverableUntil:new Date(Date.now()+input.discoverableDays*86_400_000).toISOString(),identityDisclosure:input.identityDisclosure,contactAllowed:input.contactAllowed,matchingAllowed:input.matchingAllowed??true};
     if(input.target.kind==="selected_private"&&!fixturePrivate)return this.store.confirmPaperAndDeliver({...common,discoveryId:input.target.discoveryId,candidateId:input.target.candidateId});
     if(input.target.kind==="synthetic_demo"||fixturePrivate)return {paper:await this.store.confirmPaper({...common,contactAllowed:false}),delivery:null};
     return {paper:await this.store.confirmPaper(common),delivery:null};
@@ -64,6 +65,8 @@ export class WorkflowService {
     const discovery = await this.store.getDiscovery(discoveryId,ownerId);
     const candidate = discovery.candidates.find(x=>x.candidateId===candidateId);
     if (!candidate || candidate.sourceType === "synthetic_private") throw new WorkflowServiceError("HANDOFF_UNAVAILABLE");
+    if(candidate.sourceType!=="public")throw new WorkflowServiceError("HANDOFF_UNAVAILABLE");
+    if(!await this.store.hasConfirmedPaper(ownerId))throw new MailboxRuleError("OWN_PAPER_REQUIRED");
     const redirectUrl = candidate.sourceType === "public" ? candidate.sourceUrl : candidate.authorProfileUrl;
     const safeUrl=redirectUrl?normalizeHandoffUrl(redirectUrl):null;
     if (!safeUrl) throw new WorkflowServiceError("HANDOFF_URL_UNAVAILABLE");

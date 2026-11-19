@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check local-backend.mjs && node --check public/mvp-live.js && node --check public/mvp-api.js && node --check public/mvp-app.js && node --check public/mvp-entry.js && node --check public/mvp-demo-views.js && node --check public/mvp-chat-sample.js && node --check public/mvp-local-flow.js && node --check public/mvp-profile.js && node --check public/mvp-auth.js",
+    "check": "node --check server.mjs && node --check local-backend.mjs && node --check public/mvp-live.js && node --check public/mvp-mailbox.js && node --check public/mvp-api.js && node --check public/mvp-app.js && node --check public/mvp-entry.js && node --check public/mvp-demo-views.js && node --check public/mvp-chat-sample.js && node --check public/mvp-local-flow.js && node --check public/mvp-profile.js && node --check public/mvp-auth.js",
     "test": "node --test tests/*.test.mjs",
     "build": "node scripts/build-backend.mjs",
     "prestart": "npm --prefix ../mvp-backend run build"

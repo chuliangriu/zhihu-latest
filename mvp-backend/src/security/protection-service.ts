@@ -54,17 +54,18 @@ export class ProtectionService {
     try {
       const endpointId = input.endpointId ?? "discovery.evaluate";
       const requiresLlm = input.requiresLlm ?? true;
+      const mailboxAction = !requiresLlm && ["mailbox.read","discussion.open","discussion.reply","paper.edit","paper.confirm","paper.withdraw","handoff.create"].includes(endpointId);
       await this.monitoringStore.ping();
       const rate = await this.protectionStore.consumeRateLimits([
         {
           key: `ip:${input.ipHash}:${endpointId}`,
-          limit: this.config.quota.rateIpMax,
-          windowMs: this.config.quota.rateIpWindowMs
+          limit: mailboxAction ? this.config.quota.mailboxRateIpMax : this.config.quota.rateIpMax,
+          windowMs: mailboxAction ? 60_000 : this.config.quota.rateIpWindowMs
         },
         {
           key: `user:${input.userIdHash}:${endpointId}`,
-          limit: this.config.quota.rateUserMax,
-          windowMs: this.config.quota.rateUserWindowMs
+          limit: mailboxAction ? this.config.quota.mailboxRateUserMax : this.config.quota.rateUserMax,
+          windowMs: mailboxAction ? 60_000 : this.config.quota.rateUserWindowMs
         }
       ]);
       if (!rate.allowed) {
@@ -101,8 +102,13 @@ export class ProtectionService {
             budget(`${date}:user:${input.userIdHash}:zhihu_search_request`,input.zhihuSearchRequestReserve!,this.config.quota.dailyUserZhihuSearchRequests),
             budget(`${date}:global:all:zhihu_search_request`,input.zhihuSearchRequestReserve!,this.config.quota.dailyGlobalZhihuSearchRequests)
           ]:[]),
-          budget(`${date}:user:${input.userIdHash}:discovery_workflow`, 1, this.config.quota.dailyUserWorkflows),
-          budget(`${date}:ip:${input.ipHash}:discovery_workflow`, 1, this.config.quota.dailyIpWorkflows),
+          ...(mailboxAction ? [
+            budget(`${date}:user:${input.userIdHash}:mailbox_action`,1,this.config.quota.dailyUserMailboxActions),
+            budget(`${date}:ip:${input.ipHash}:mailbox_action`,1,this.config.quota.dailyIpMailboxActions)
+          ] : [
+            budget(`${date}:user:${input.userIdHash}:discovery_workflow`, 1, this.config.quota.dailyUserWorkflows),
+            budget(`${date}:ip:${input.ipHash}:discovery_workflow`, 1, this.config.quota.dailyIpWorkflows)
+          ]),
           ...(requiresLlm ? [budget(`${date}:user:${input.userIdHash}:llm_request`, llmRequestReserve, this.config.quota.dailyUserLlmRequests),
           budget(`${date}:global:all:llm_request`, llmRequestReserve, this.config.quota.dailyGlobalLlmRequests),
           budget(
@@ -178,6 +184,7 @@ export class ProtectionService {
     }
   ): Promise<void> {
     const actual = usageFromTrace(input.trace);
+    if(context.reservation.budgetItems.some(item=>item.key.endsWith(":mailbox_action")))actual.discoveryWorkflows=0;
     actual.zhihuUserDataRequests = input.userDataRequests ?? 0;
     const hasUnknownLiveUsage =
       this.config.llm.mode === "live" &&

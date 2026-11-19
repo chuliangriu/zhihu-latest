@@ -1,3 +1,4 @@
+import { mailboxView, discussionView, ownPaperView, livePaperOverlay } from './mvp-mailbox.js';
 import { createDemoViews } from './mvp-demo-views.js';
 import { initialUser, parseProfile, KANSHAN_PROFILE_PROMPT } from './mvp-profile.js';
 import { localChatTurn } from './mvp-local-flow.js';
@@ -5,7 +6,7 @@ import { createChatSample } from './mvp-chat-sample.js';
 import { createPublicChatSample } from './mvp-public-sample.js';
 export { KANSHAN_PROFILE_PROMPT } from './mvp-profile.js';
 
-export const SCENE_SCREENS = ['chat', 'card', 'consent', 'share', 'deposit', 'delivered', 'private', 'public-preview', 'public'];
+export const SCENE_SCREENS = ['chat', 'card', 'consent', 'share', 'deposit', 'delivered', 'private', 'public-preview', 'public', 'mailbox', 'discussion', 'own-paper'];
 const esc = (value = '') => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const flowUser = state => state.sampleScenario || state.user;
 const viewUser = state => {
@@ -210,13 +211,18 @@ function renderEntry(state) {
   const views = createDemoViews(state, () => viewUser(state));
   if (state.screen === 'home') return `<header><button class="brand" data-action="reset">未见之人</button></header>${home(state)}`;
   if (state.screen === 'login') {
+    if (state.live && state.authRequired) return `<header><button class="brand" data-action="back-home">未见之人</button></header><main class="login-page"><section class="login-card"><h1>登录知乎，继续这次相遇</h1><p>登录后可以读取你授权的背景，恢复自己的纸条与交流。</p><a class="primary" href="/api/zhihu-login">登录知乎</a><button class="text-btn" data-action="back-home">返回首页</button></section></main>`;
     const syncNotice = state.live && state.profileNotice ? `<section class="profile-sync-status" aria-label="背景同步状态"><p role="status">${esc(state.profileNotice)}</p>${state.profileNeedsLogin
       ? '<a href="/api/zhihu-login">重新登录知乎</a>'
       : `<button data-action="retry-profile"${state.profileRetryAt > Date.now() ? ' disabled' : ''}>${state.profileRetryAt > Date.now() ? '请等待后再试' : state.profileQuotaBlocked ? '检查额度并重试' : '重新同步背景'}</button>`}${state.profileDiagnostic ? `<button type="button" data-action="copy-profile-diagnostic">复制同步诊断</button><details><summary>查看同步详情</summary><textarea id="profile-sync-diagnostic" aria-label="同步诊断信息" readonly>${esc(JSON.stringify(state.profileDiagnostic, null, 2))}</textarea></details>` : ''}</section>` : '';
     const accountNotice = state.live && state.accountNotice ? `<p class="profile-sync-status" role="status">${esc(state.accountNotice)}</p>` : '';
     return views.header() + views.login() + accountNotice + syncNotice + `<button class="profile-recovery" data-action="open-profile">${state.user.profileReady ? '修改背景' : '资料未同步'}</button>` + (state.profileOpen ? profileImport(state) : '');
   }
+  if (state.live && state.screen === 'mailbox') return views.chat(mailboxView(state));
+  if (state.live && state.screen === 'discussion') return views.chat(discussionView(state));
+  if (state.live && state.screen === 'own-paper') return views.chat(ownPaperView(state));
   const selected = flowUser(state).candidates[state.selected];
+  if (state.live && ['consent','share','deposit','delivered'].includes(state.screen) && !selected?.synthetic) return views.chat(livePaperOverlay(state));
   if (state.screen === 'chat') return views.chat();
   const overlay = { card: () => views.candidateOverlay(selected), consent: () => views.consentOverlay(selected), share: views.sharePaperOverlay,
     deposit: views.depositOverlay, delivered: () => views.deliveredOverlay(selected) }[state.screen];
@@ -236,7 +242,6 @@ export function entryView(state) {
     .replace('Demo 评论预览 · Enter 发布', '点击后前往知乎原文，文字不会自动发布。');
   if (state.error) html += `<div class="mvp-live-status" role="alert">${esc(state.error)}</div>`;
   else if (state.busy && state.screen !== 'chat') html += `<div class="mvp-live-status" role="status">${state.phase === 'profile_summary' ? '正在读取你的知乎足迹，生成你专属的背景介绍……' : state.phase === 'session' ? '正在确认登录状态……' : '正在处理……'}</div>`;
-  if (state.activePapers?.length && state.screen === 'chat' && !state.busy) html += `<div class="mvp-paper-tools">${state.activePapers.map(p => `<button data-action="withdraw-paper" data-id="${esc(p.id)}">收回${p.subject ? `「${esc(p.subject)}」` : '我的纸条'}</button>`).join('')}</div>`;
-  if (state.screen === 'share' && !state.busy) html += '<div class="mvp-paper-tools"><button data-action="edit-paper">修改这张纸</button></div>';
+  if (state.screen === 'chat' && !state.busy) html += `<div class="mvp-paper-tools"><button data-action="leave-paper">留一张自己的纸条</button><button data-action="open-mailbox">我的纸条与交流</button></div>`;
   return html;
 }

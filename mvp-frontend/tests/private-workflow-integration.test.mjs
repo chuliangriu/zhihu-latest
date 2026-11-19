@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {createApi,discoveryView} from '../public/mvp-api.js';
+import {entryView} from '../public/mvp-entry.js';
 import {createLiveController} from '../public/mvp-live.js';
 import {createApp} from '../../mvp-backend/dist/api/app.js';
 import {loadConfig} from '../../mvp-backend/dist/config.js';
@@ -15,13 +16,17 @@ const require=createRequire(new URL('../../mvp-backend/package.json',import.meta
 const request=require('supertest');
 
 // Isolated test identities and model fixture; never sends messages to a real person.
-test('private frontend actions use real backend draft, confirm/deliver, handoff and withdrawal routes',async()=>{
+test('private frontend persists notes, participant replies, refresh history and withdrawal through real backend routes',async()=>{
   const token='test-api-token-longer-than-thirty-two-characters';
   const signing='test-signing-key-longer-than-thirty-two-characters';
   const config=loadConfig({NODE_ENV:'test',APP_API_TOKEN:token,IDENTITY_SIGNING_SECRET:signing,
     IP_HASH_SECRET:'test-ip-hash-key-longer-than-thirty-two-characters',RATE_USER_MAX:'30',RATE_IP_MAX:'30'});
   const store=new InMemoryWorkflowStore(),owner='test-sender',other='test-other';
-  const recipient='33333333-3333-4333-8333-333333333333';
+  const recipientOwner='test-recipient';
+  const targetConversation=await store.createConversation(recipientOwner);
+  const targetDraft=await store.createPaperDraft({ownerId:recipientOwner,conversationId:targetConversation.id,subject:'等待回声',quote:'我也在等待回应，希望能听到一些具体的想法。',context:'持续投入',background:'这个人持续投入着一件重要的事，也在等待更多具体的回应。'});
+  const targetPaper=await store.confirmPaper({id:targetDraft.id,ownerId:recipientOwner,expectedVersion:1,discoverableUntil:new Date(Date.now()+7*86400000).toISOString(),identityDisclosure:'anonymous',contactAllowed:true});
+  const recipient=targetPaper.expressionId;
   const conversation=await store.createConversation(owner);
   await store.appendMessage({ownerId:owner,conversationId:conversation.id,role:'user',generationStatus:'complete',content:'我还在做这件事，只是没有回声，不知道怎样判断下一步。'});
   const result={requestId:crypto.randomUUID(),status:'matched',matches:{situationClose:null,structureRelated:{
@@ -65,11 +70,20 @@ test('private frontend actions use real backend draft, confirm/deliver, handoff 
   const confirmation=calls.find(x=>x.path.endsWith('/confirm'));
   const repeated=await api.json(confirmation.path,confirmation.body);
   assert.equal(repeated.delivery.id,s.delivery.id);
-  await c.action('continue-private');c.input('privateDraft','这段私人文字不应被传到跳转接口');await c.action('send-private');
-  assert.equal(s.error,'');assert.deepEqual(navigation,['https://www.zhihu.com/people/test-recipient']);
-  assert.deepEqual(calls.find(x=>x.path==='/api/handoffs').body,{discoveryId:snapshot.id,candidateId:recipient});
+  await c.action('continue-private');assert.equal(s.screen,'discussion');
+  c.input('replyDraft','这是一段保存在站内的真实回复');await c.action('send-discussion');
+  assert.equal(s.error,'');assert.deepEqual(navigation,[]);assert.equal(s.discussion.messages.length,1);
+  assert.equal(s.discussion.messages[0].content,'这是一段保存在站内的真实回复');
+  assert.equal(calls.some(x=>x.path==='/api/handoffs'),false);
+  const discussionId=s.discussion.id;
   principal=other;
-  await assert.rejects(api.json('/api/handoffs',{discoveryId:snapshot.id,candidateId:recipient}));
+  await assert.rejects(api.json(`/api/discussions/${discussionId}`,undefined,'GET'));
+  principal=recipientOwner;
+  const recipientHistory=await api.json('/api/mailbox',undefined,'GET');assert.equal(recipientHistory.discussions[0].id,discussionId);
+  await api.json(`/api/discussions/${discussionId}/replies`,{content:'我看到了，谢谢你。',clientMessageId:crypto.randomUUID()});
+  principal=owner;await c.action('refresh-discussion');assert.equal(s.discussion.messages.length,2);
+  assert.match(entryView(s),/我看到了，谢谢你。/);
   principal=owner;await c.action('withdraw-paper');assert.equal(s.error,'');
   assert.equal((await store.getPaper(s.paper.id,owner)).status,'withdrawn');
+  const closed=await api.json(`/api/discussions/${discussionId}`,undefined,'GET');assert.equal(closed.canReply,false);assert.equal(closed.introduction.quote,null);assert.equal(closed.messages.length,2);
 });

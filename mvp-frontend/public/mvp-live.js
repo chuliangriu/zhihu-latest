@@ -8,7 +8,7 @@ const NEW_CONVERSATION_GREETING = '先多跟我讲讲你的事吧。发生了什
 export function createLiveController({ render, api = createApi(), navigate = url => globalThis.location.assign(url), schedule = setTimeout, cancel = clearTimeout }) {
   const base = createEntryController({ render, schedule, cancel });
   const state = base.getState();
-  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [] });
+  Object.assign(state, { live: true, busy: false, phase: null, queuedChat: '', error: '', conversationId: null, discoveryId: null, sessionReady: false, authRequired: false, accountNotice: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false, paper: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true} });
   state.chatNotice = '';
   const paint = () => render(state);
   const candidate = () => state.user.candidates[state.selected];
@@ -16,6 +16,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
   let controller;
   function fail(error) {
     const code = error?.code || error?.message || 'SERVICE_UNAVAILABLE';
+    if (/^(NOT_LOGGED_IN|UNAUTHENTICATED)$/.test(code)) { clearAccount(); state.screen = 'login'; state.authRequired = true; state.error = '登录状态已失效，请重新登录。'; return; }
     const modelFailures = {
       LLM_OUTPUT_INVALID: '看山这次没把纸条整理好。你的聊天和选择都还在，可以点“重新整理纸条”再试；还没有投入信箱。',
       LLM_TIMEOUT: '整理纸条暂时超时了。你的聊天和选择都还在，可以点“重新整理纸条”再试；还没有投入信箱。',
@@ -25,6 +26,12 @@ export function createLiveController({ render, api = createApi(), navigate = url
     };
     if (state.screen === 'consent' && modelFailures[code]) { state.error = modelFailures[code]; return; }
     const protectionFailures = {
+      OWN_PAPER_REQUIRED: '请先确认并留下自己的纸条，再开始交流；纸条需要允许交流。',
+      DISCUSSION_CLOSED: '纸条已撤回、到期或不接受新的交流。已有讨论可从“我的纸条与交流”查看。',
+      MAILBOX_PERSISTENCE_REQUIRED: '纸条与交流的持久存储尚未启用，请稍后再试。',
+      MAILBOX_SETUP_REQUIRED: '纸条与交流的存储尚未配置完成，请稍后再试。',
+      STORE_NOT_FOUND: '这张纸条或交流暂时不可访问。',
+      STORE_CONFLICT: '纸条状态已变化，请刷新后再试。',
       SHORT_RATE_LIMITED: '操作太快了，请在稍后再试。',
       CONCURRENCY_LIMITED: '上一项任务仍在处理，请等待完成后再试。',
       DAILY_QUOTA_EXCEEDED: '今日体验额度已用完，请明天再试。',
@@ -121,7 +128,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
   function clearAccount() {
     base.stop(); clearTimeout(profileRetryTimer);
     Object.assign(state, { user: initialUser(), sampleScenario: null, conversationId: null, discoveryId: null,
-      sessionReady: false, localDevelopment: false, selected: null, paper: null, paperEdit: null, activePapers: [],
+      sessionReady: false, localDevelopment: false, selected: null, paper: null, paperEdit: null, activePapers: [], mailbox: null, discussion: null, replyDraft: '', replyPending: null, standalonePaper: false, paperOptions: {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true},
       chatDraft: '', queuedChat: '', privateDraft: '', privateMessages: [], publicDraft: '', publicReplies: [],
       profileDraft: '', nameDraft: '', roleDraft: '', profileOpen: false, profileError: '',
       accountNotice: '', profileDiagnostic: null, profileNotice: '', profileIssueCode: '', profileNeedsLogin: false, profileRetryAt: 0, profileQuotaBlocked: false,
@@ -223,19 +230,66 @@ export function createLiveController({ render, api = createApi(), navigate = url
     const target = candidate(); state.busy = true; state.error = ''; paint();
     try {
       const result = await api.json(`/api/papers/${state.paper.id}/confirm`, { expectedVersion: state.paper.version,
-        discoverableDays: 7, identityDisclosure: 'nickname', contactAllowed: true,
-        target: target?.sourceType === 'authorized_private' ? { kind: 'selected_private', discoveryId: state.discoveryId, candidateId: target.candidateId } : target?.sourceType === 'synthetic_private' ? { kind: 'synthetic_demo', discoveryId: state.discoveryId, candidateId: target.candidateId } : { kind: 'mailbox_only' } });
+        discoverableDays: 7, ...state.paperOptions,
+        target: target?.sourceType === 'authorized_private' && state.paperOptions.contactAllowed ? { kind: 'selected_private', discoveryId: state.discoveryId, candidateId: target.candidateId } : target?.sourceType === 'synthetic_private' ? { kind: 'synthetic_demo', discoveryId: state.discoveryId, candidateId: target.candidateId } : { kind: 'mailbox_only' } });
       state.paper = result.paper; state.user.sharePaper = result.paper; state.delivery = result.delivery;
       if (!result.delivery && target?.sourceType === 'authorized_private' && !/^[0-9a-f-]{36}$/i.test(target.candidateId)) {
         target.sourceType = 'synthetic_private'; target.synthetic = true;
       }
       state.activePapers = [...state.activePapers.filter(p => p.id !== result.paper.id), result.paper];
       state.screen = 'deposit'; paint();
-      state.timer = schedule(() => { state.timer = null; state.screen = 'delivered'; state.busy = false; paint(); }, 8400);
+      state.timer = schedule(() => { state.timer = null; state.screen = 'delivered'; state.busy = false; paint(); }, 1200);
     } catch (error) { state.busy = false; fail(error); paint(); }
   }
+  async function loadMailbox() {
+    base.stop(); state.busy = true; state.error = ''; state.screen = 'mailbox'; paint();
+    try { state.mailbox = await api.json('/api/mailbox', undefined, 'GET'); state.activePapers = state.mailbox.papers.filter(p => p.status === 'active'); }
+    catch (error) { fail(error); }
+    finally { state.busy = false; paint(); }
+  }
+  async function loadDiscussion(id) {
+    base.stop(); state.busy = true; state.error = ''; paint();
+    try { const next = await api.json(`/api/discussions/${id}`, undefined, 'GET');
+      if (state.discussion?.id !== next.id) { state.replyDraft = ''; state.replyPending = null; }
+      state.discussion = next; state.screen = 'discussion';
+    } catch(error) { fail(error); }
+    finally { state.busy = false; paint(); }
+  }
+  async function openDiscussion() {
+    if (candidate()?.synthetic) { base.action('continue-private'); return; }
+    if (!candidate() || candidate().sourceType !== 'authorized_private') return;
+    state.busy = true; state.error = ''; paint();
+    try { state.discussion = await api.json('/api/discussions', {discoveryId:state.discoveryId,candidateId:candidate().candidateId});
+      state.replyDraft = ''; state.replyPending = null; state.screen = 'discussion';
+    } catch(error) { fail(error); }
+    finally { state.busy = false; paint(); }
+  }
+  async function sendDiscussion() {
+    const text = state.replyDraft.trim(), thread = state.discussion;
+    if (!text || !thread?.canReply) return;
+    if (!state.replyPending || state.replyPending.threadId !== thread.id || state.replyPending.content !== text) state.replyPending = {threadId:thread.id,content:text,clientMessageId:crypto.randomUUID()};
+    state.busy = true; state.error = ''; paint();
+    try { const pending = state.replyPending;
+      state.discussion = await api.json(`/api/discussions/${thread.id}/replies`, {content:pending.content,clientMessageId:pending.clientMessageId});
+      state.replyDraft = ''; state.replyPending = null;
+    } catch(error) { fail(error); if (error?.code === 'DISCUSSION_CLOSED') { thread.canReply = false; thread.closedReason = 'paper_withdrawn'; } }
+    finally { state.busy = false; paint(); }
+  }
+  async function readCandidate(id) {
+    const target = state.user.candidates[id]; if (!target) return;
+    if (target.sourceType !== 'authorized_private' || target.synthetic) { base.action('view', id); return; }
+    state.busy = true; state.error = ''; paint();
+    try { const result = await api.json(`/api/discoveries/${state.discoveryId}/candidates/${encodeURIComponent(target.candidateId)}`, undefined, 'GET');
+      if (result.status !== 'active') {
+        target.quote = ''; target.profile = []; target.focus = ''; target.shared = ''; target.contact = false;
+        if (result.discussionId) { state.discussion = await api.json(`/api/discussions/${result.discussionId}`, undefined, 'GET'); state.replyDraft = ''; state.replyPending = null; state.screen = 'discussion'; }
+        else { state.selected = null; state.chatNotice = result.status === 'withdrawn' ? '这张纸条已撤回，不能继续查看。' : '这张纸条已停止新匹配，不能开始新的交流。'; }
+      } else { if (result.paper) Object.assign(target,{quote:result.paper.quote,profile:[result.paper.background],name:result.paper.displayName}); target.contact = result.contactable; state.selected = null; base.action('view', id); }
+    } catch(error) { fail(error); }
+    finally { state.busy = false; paint(); }
+  }
   async function handoff() {
-    if (!(state.privateDraft.trim() || state.publicDraft.trim())) return;
+    if (!(state.privateDraft.trim() || state.publicDraft.trim()) && candidate()?.sourceType !== 'public') return;
     if (candidate()?.synthetic) {
       state.privateMessages.push(state.privateDraft.trim()); state.privateDraft = ''; paint(); return;
     }
@@ -248,7 +302,9 @@ export function createLiveController({ render, api = createApi(), navigate = url
     finally { state.busy = false; paint(); }
   }
   return { initialize: base.initialize, input(field, value) {
-    if (field.startsWith('paper-') && state.paperEdit) state.paperEdit[field.slice(6)] = value;
+    if (['matchingAllowed','identityDisclosure','contactAllowed'].includes(field)) { state.paperOptions[field] = value; paint(); }
+    else if (field === 'replyDraft') state.replyDraft = value;
+    else if (field.startsWith('paper-') && state.paperEdit) state.paperEdit[field.slice(6)] = value;
     else base.input(field, value);
   }, getState: base.getState,
     async action(action, id) {
@@ -269,13 +325,42 @@ export function createLiveController({ render, api = createApi(), navigate = url
         }
         state.screen = 'chat'; state.chatOpen = true; state.stage = state.user.chat.length + state.user.discoveryChat.length; paint(); return;
       }
+      if (action === 'open-mailbox' || action === 'refresh-mailbox') return loadMailbox();
+      if (action === 'close-mailbox' || action === 'close-discussion') { state.screen = 'chat'; state.error = ''; paint(); return; }
+      if (action === 'open-discussion') return loadDiscussion(id);
+      if (action === 'refresh-discussion' && state.discussion) return loadDiscussion(state.discussion.id);
+      if (action === 'send-discussion') return sendDiscussion();
+      if (action === 'continue-private') return openDiscussion();
+      if (action === 'continue-public') return handoff();
+      if (action === 'view') return readCandidate(id);
+      if (action === 'open-paper') {
+        state.busy = true; state.error = ''; paint();
+        try { state.paper = await api.json(`/api/papers/${id}`, undefined, 'GET'); state.screen = 'own-paper'; }
+        catch(error) { fail(error); } finally { state.busy = false; paint(); } return;
+      }
+      if (action === 'resume-paper' && state.paper?.status === 'draft') {
+        state.standalonePaper = true; state.selected = null; state.user.sharePaper = state.paper; state.screen = 'share'; paint(); return;
+      }
+      if (action === 'restore-conversation') {
+        state.busy = true; state.error = ''; paint();
+        try { const saved = await api.json(`/api/conversations/${id}`, undefined, 'GET');
+          state.conversationId = saved.conversation.id; state.discoveryId = null; state.selected = null; state.paper = null;
+          state.user.chat = saved.messages.filter(m => m.generationStatus === 'complete').map(m => ({role:m.role === 'assistant' ? 'agent' : 'user',text:m.content}));
+          state.user.discoveryChat = []; state.user.candidates = {}; state.stage = state.user.chat.length; state.typewriterStage = null;
+          state.screen = 'chat'; state.chatNotice = '已恢复这段对话，显示最近 100 条消息。';
+        } catch(error) { fail(error); } finally { state.busy = false; paint(); } return;
+      }
+      if (action === 'leave-paper') {
+        if (!state.conversationId) { state.chatNotice = '先和看山聊聊想留下的那件事，再整理成纸条。'; paint(); return; }
+        state.selected = null; state.paper = null; state.standalonePaper = true; state.paperOptions = {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true}; state.screen = 'consent'; state.error = ''; paint(); return;
+      }
       if (action === 'send-chat') return send();
       if (action === 'confirm-consent') {
-        if (state.screen === 'consent' && canRespond()) return draft();
+        if (state.screen === 'consent' && (state.standalonePaper || canRespond())) return draft();
         return;
       }
       if (action === 'deposit') {
-        if (state.screen === 'share' && canRespond()) return deposit();
+        if (state.screen === 'share' && (state.standalonePaper || canRespond())) return deposit();
         return;
       }
       if (action === 'edit-paper') { state.paperEdit = { subject: state.paper.subject, quote: state.paper.quote, context: state.paper.context, background: state.paper.background }; paint(); return; }
@@ -290,10 +375,11 @@ export function createLiveController({ render, api = createApi(), navigate = url
       if (action === 'send-private' || action === 'send-public') return handoff();
       if (action === 'withdraw-paper' && (id || state.paper?.id)) {
         state.busy = true; state.error = ''; paint();
-        try { const paper = await api.json(`/api/papers/${id || state.paper.id}/withdraw`, {}); state.activePapers = state.activePapers.filter(p => p.id !== paper.id); if (state.paper?.id === paper.id) state.paper = paper; state.screen = 'chat'; state.chatNotice = '你的纸条已收回。'; } catch (error) { fail(error); }
+        try { const paper = await api.json(`/api/papers/${id || state.paper.id}/withdraw`, {}); state.activePapers = state.activePapers.filter(p => p.id !== paper.id); if (state.paper?.id === paper.id) state.paper = paper; if (state.mailbox) { state.mailbox.papers = state.mailbox.papers.map(p => p.id === paper.id ? paper : p); state.mailbox.discussions = []; } state.discussion = null; state.screen = 'chat'; state.chatNotice = '你的纸条已收回，相关讨论停止新回复。'; } catch (error) { fail(error); }
         finally { state.busy = false; paint(); } return;
       }
-      if (action === 'write' && canRespond()) { state.user.sharePaper.subject ||= '刚才聊到的事'; state.screen = 'consent'; paint(); return; }
+      if (action === 'write' && canRespond()) { state.standalonePaper = false; state.paperOptions = {matchingAllowed:true,identityDisclosure:'nickname',contactAllowed:true}; state.user.sharePaper.subject ||= '刚才聊到的事'; state.screen = 'consent'; paint(); return; }
+      if (action === 'back' && state.standalonePaper && ['share','consent'].includes(state.screen)) { state.screen = state.screen === 'share' ? 'consent' : 'chat'; state.error = ''; paint(); return; }
       if (action === 'back' && state.screen === 'card' && candidate()?.synthetic) { state.selected = null; state.screen = 'chat'; paint(); return; }
       if (action === 'switch-sample' || action === 'skip-sample' || action === 'replay-chat') return;
       base.action(action, id);
