@@ -17,7 +17,11 @@ export const PROFILE_SUMMARY_OUTPUT_SCHEMA = {
     background: { type: "array", maxItems: 2, items: claimSchema(80) },
     recentFocus: { anyOf: [claimSchema(90), { type: "null" }] },
     unknown: { type: "array", maxItems: 6, items: { type: "string", enum: ["年龄", "职业", "学校", "城市", "关系状态", "健康情况"] } }
-  }
+  },
+  oneOf: [
+    { properties: { insufficientEvidence: { const: false }, background: { minItems: 2 }, recentFocus: { type: "object" } } },
+    { properties: { insufficientEvidence: { const: true }, background: { maxItems: 0 }, recentFocus: { type: "null" } } }
+  ]
 };
 
 export const PROFILE_SUMMARY_SYSTEM_PROMPT = `你为《未见之人》整理用户的“有限背景”。只输出符合下方 JSON Schema 的一个 JSON 对象，不输出 Markdown、代码围栏、开场白或纯文本章节。

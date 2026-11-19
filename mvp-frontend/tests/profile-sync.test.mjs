@@ -163,3 +163,15 @@ test('rejected generated evidence preserves login and counts without blaming mis
   assert.doesNotMatch(h.c.getState().profileNotice, /足迹还不足|重新登录/);
   assert.deepEqual(h.c.getState().profileDiagnostic.diagnostics.evidenceIssues, [{path:'recentFocus.citations.0.quote',code:'citation_quote_not_found'}]);
 });
+
+
+test('an incomplete summary after correction retains missing-field diagnostics and the authenticated session', async () => {
+  const h = harness([Response.json({ success:false,data:{ status:'unavailable',reasonCode:'profile_output_incomplete',requestId:'incomplete-test-request',coverage:{creations:1,collections:3},diagnostics:{usableCount:4,modelCalled:true,stage:'model',schemaCorrectionAttempted:true,schemaIssues:[{path:'background',code:'too_small',minimum:2},{path:'recentFocus',code:'invalid_type'}]}} }, {status:503})]);
+  await h.c.action('start');
+  assert.equal(h.c.getState().sessionReady, true);
+  assert.equal(h.c.getState().user.profileReady, false);
+  assert.match(h.html, /这次背景整理不完整/);
+  assert.match(h.html, /data-action="retry-profile"/);
+  assert.deepEqual(h.c.getState().profileDiagnostic.diagnostics.schemaIssues, [{path:'background',code:'too_small',minimum:2},{path:'recentFocus',code:'invalid_type'}]);
+  assert.doesNotMatch(h.c.getState().profileNotice, /尚不足 2 条|重新登录/);
+});

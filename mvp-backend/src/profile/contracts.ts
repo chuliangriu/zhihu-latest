@@ -1,11 +1,13 @@
 import { z } from "zod";
 const citation = z.object({ refId: z.string().min(1).max(80), quote: z.string().min(2).max(300) }).strict();
 const claim = z.object({ text: z.string().trim().min(1).max(80), kind: z.enum(["self_report", "interest_observation"]), citations: z.array(citation).min(1).max(6) }).strict();
-export const profileModelSchema = z.object({
-  insufficientEvidence: z.boolean(), background: z.array(claim).max(2),
-  recentFocus: claim.extend({ text: z.string().trim().min(1).max(90) }).nullable(),
-  unknown: z.array(z.enum(["年龄", "职业", "学校", "城市", "关系状态", "健康情况"])).max(6)
-}).strict();
+const recentFocus = claim.extend({ text: z.string().trim().min(1).max(90) });
+const unknown = z.array(z.enum(["年龄", "职业", "学校", "城市", "关系状态", "健康情况"])).max(6);
+// Ready and insufficient-evidence responses have different, explicit structures.
+export const profileModelSchema = z.discriminatedUnion("insufficientEvidence", [
+  z.object({ insufficientEvidence: z.literal(false), background: z.array(claim).length(2), recentFocus, unknown }).strict(),
+  z.object({ insufficientEvidence: z.literal(true), background: z.array(claim).length(0), recentFocus: z.null(), unknown }).strict()
+]);
 export type ProfileModelOutput = z.infer<typeof profileModelSchema>;
 export interface ProfileEvidenceIssue {
   path: string;

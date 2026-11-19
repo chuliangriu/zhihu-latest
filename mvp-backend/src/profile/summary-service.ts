@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { ProfileDataError } from "./zhihu-footprints.js";
 import { PROFILE_FOOTPRINT_LIMIT_PER_KIND, PROFILE_FOOTPRINT_LOOKBACK_YEARS } from "./footprint-policy.js";
-import { LlmProviderError, type LlmProvider } from "../llm/provider.js";
+import { LlmProviderError, schemaIssueDiagnostics, type LlmProvider } from "../llm/provider.js";
 import type { PipelineTrace } from "../pipeline/discovery-pipeline.js";
 import { scanConversationForPromptInjection } from "../security/prompt-injection.js";
 import { PROFILE_SUMMARY_SYSTEM_PROMPT } from "../prompts/profile-summary.js";
@@ -55,7 +55,12 @@ export class ProfileSummaryService {
             payload: previousDraft ? { ...payload, previousDraft } : payload,
             schema: profileModelSchema, signal });
           stage.usage = completion.usage;
-          return completion;
+          // Enforce the contract here as well: every provider must enter the same bounded correction path.
+          const parsed = profileModelSchema.safeParse(completion.data);
+          if (!parsed.success) throw new LlmProviderError("LLM_SCHEMA_INVALID", "Profile output failed validation", {
+            schemaIssues: schemaIssueDiagnostics(parsed.error.issues), usage: completion.usage
+          });
+          return { ...completion, data: parsed.data };
         } catch (error) {
           stage.usage = error instanceof LlmProviderError && error.details ? { ...error.details.usage }
             : { inputTokens: null, outputTokens: null, requests: 1, retries: 0 };
@@ -75,14 +80,10 @@ export class ProfileSummaryService {
           correction = "schema";
           continue;
         }
-        const output = profileModelSchema.parse(completion.data);
+        const output = completion.data;
         result.diagnostics.stage = "evidence";
         if (output.insufficientEvidence) {
           result.reasonCode = "profile_insufficient_evidence";
-          return { result, trace, userDataRequests };
-        }
-        if (output.background.length !== 2 || !output.recentFocus) {
-          result.status = "unavailable"; result.reasonCode = "profile_output_incomplete";
           return { result, trace, userDataRequests };
         }
         const issues = profileEvidenceIssues(output, footprints);
@@ -106,7 +107,10 @@ export class ProfileSummaryService {
         break;
       }
     } catch (error) {
-      const code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "PROFILE_UNAVAILABLE";
+      let code = error && typeof error === "object" && "code" in error && typeof error.code === "string" ? error.code : "PROFILE_UNAVAILABLE";
+      if (error instanceof LlmProviderError && error.code === "LLM_SCHEMA_INVALID" && error.details?.schemaIssues.some(issue =>
+        (issue.path === "background" && ["too_small", "too_big"].includes(issue.code)) ||
+        (issue.path === "recentFocus" && issue.code === "invalid_type"))) code = "profile_output_incomplete";
       result.status = "unavailable"; result.reasonCode = code;
       if (error instanceof LlmProviderError && error.details) result.diagnostics.schemaIssues = error.details.schemaIssues;
       if (error instanceof ProfileDataError) {
