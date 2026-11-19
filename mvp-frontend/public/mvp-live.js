@@ -78,7 +78,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
       insufficient_footprints: `近两年可用的公开创作和收藏共 ${(coverage?.creations || 0) + (coverage?.collections || 0)} 条，尚不足 2 条。你可以补充知乎内容后再同步，或手动补充背景。`,
       profile_insufficient_evidence: '已读取足够数量的知乎资料，但内容还不足以可靠地整理你的背景。你可以先手动补充背景。',
       profile_output_incomplete: '知乎资料已读取，但这次背景整理不完整。请重新同步，或先手动补充背景。',
-      profile_evidence_rejected: '现有足迹还不足以可靠地介绍你。你可以先补充自己的近期背景。',
+      profile_evidence_rejected: '知乎足迹已读取，但这次生成的背景内容或引用未通过核验。可以重新同步，或先手动补充背景。',
       SHORT_RATE_LIMITED: '同步太频繁了，请稍后再试。',
       DAILY_QUOTA_EXCEEDED: '今天的背景同步额度已用完，可以先手动补充背景。',
     };

@@ -79,6 +79,11 @@ export function profileDiagnostic(value = {}) {
     ...(Number.isInteger(issue.minimum) && issue.minimum >= 0 && issue.minimum <= 1000 ? { minimum: issue.minimum } : {}),
     ...(Number.isInteger(issue.maximum) && issue.maximum >= 0 && issue.maximum <= 1000 ? { maximum: issue.maximum } : {}),
   })) : null;
+  const evidenceCodes = new Set(['claim_text_invalid', 'citation_ref_unknown', 'self_report_requires_creation', 'self_report_requires_summary_quote', 'citation_quote_not_found']);
+  const evidenceIssues = Array.isArray(value.diagnostics?.evidenceIssues) ? value.diagnostics.evidenceIssues.slice(0, 6).filter(issue => issue && evidenceCodes.has(issue.code)).map(issue => ({
+    path: typeof issue.path === 'string' ? issue.path.split('.').slice(0, 8).map(part => schemaFields.has(part) || /^[0-9]{1,2}$/.test(part) ? part : '*').join('.') : '$',
+    code: issue.code,
+  })) : null;
   const safeId = id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(id) ? id : null;
   return {
     reasonCode: safeId(value.reasonCode) || 'PROFILE_UNAVAILABLE',
@@ -90,6 +95,8 @@ export function profileDiagnostic(value = {}) {
       stage: stages.includes(value.diagnostics.stage) ? value.diagnostics.stage : null,
       ...(typeof value.diagnostics.schemaCorrectionAttempted === 'boolean' ? { schemaCorrectionAttempted: value.diagnostics.schemaCorrectionAttempted } : {}),
       ...(schemaIssues ? { schemaIssues } : {}),
+      ...(typeof value.diagnostics.evidenceCorrectionAttempted === 'boolean' ? { evidenceCorrectionAttempted: value.diagnostics.evidenceCorrectionAttempted } : {}),
+      ...(evidenceIssues ? { evidenceIssues } : {}),
     } : null,
   };
 }

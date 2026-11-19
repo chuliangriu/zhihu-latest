@@ -77,7 +77,7 @@ describe("profile generation", () => {
   it("does not use a collection as evidence for a personal identity", async () => {
     const bad = structuredClone(output); bad.background[0]!.kind = "self_report";
     const {result} = await new ProfileSummaryService({load:async()=>footprints},()=>new MockLlmProvider({profile_summary:bad})).generate(userId);
-    expect(result.status).toBe("needs_input"); expect(result.profile).toBeNull();
+    expect(result.status).toBe("unavailable"); expect(result.profile).toBeNull();
     expect(result.reasonCode).toBe("profile_evidence_rejected");
   });
   it("rejects invented citations and executable markup", async () => {
@@ -169,6 +169,78 @@ it("reserves the format correction before any upstream read and accounts for bot
   const events=await allowed.monitoringStore.list({date:new Date().toISOString().slice(0,10),endpointId:"profile.summarize",limit:10,cursor:0});
   expect(events.events.find(e=>e.quotaDecision==="allowed")?.llm.requests).toBe(2);
   await allowed.call("profile-schema-after-budget").expect(429);expect(allowed.load).toHaveBeenCalledTimes(1);
+});
+describe("profile evidence correction and diagnostics", () => {
+  const usage = { inputTokens: 100, outputTokens: 50, requests: 1, retries: 0 };
+  it("corrects a non-verbatim quotation once using the same footprints and keeps accounting", async () => {
+    const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "不是连续原文的改写";
+    const source = { load: vi.fn(async () => footprints) };
+    const llm = new MockLlmProvider({ profile_summary: output });
+    const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: bad, usage });
+    const detail = await new ProfileSummaryService(source, () => llm).generate(userId);
+    expect(detail.result.status).toBe("ready"); expect(source.load).toHaveBeenCalledTimes(1);
+    expect(complete).toHaveBeenCalledTimes(2);
+    expect(detail.result.diagnostics).toMatchObject({ evidenceCorrectionAttempted: true,
+      evidenceIssues: [{ path: "recentFocus.citations.0.quote", code: "citation_quote_not_found" }] });
+    const input = complete.mock.calls[1]![0];
+    expect(input.payload).toMatchObject({ footprints, previousDraft: bad });
+    expect(input.systemPrompt).toContain("不是事实来源");
+    expect(input.systemPrompt).toContain('"code":"citation_quote_not_found"');
+    expect(detail.trace.stages.filter(s => s.name === "profile_summary").map(s => s.usage?.requests)).toEqual([1, 1]);
+    expect(complete.mock.calls[0]![0].signal).toBe(input.signal);
+  });
+  it.each([
+    ["claim_text_invalid", "recentFocus.text"],
+    ["citation_ref_unknown", "recentFocus.citations.0.refId"],
+    ["self_report_requires_creation", "recentFocus.kind"],
+    ["self_report_requires_summary_quote", "recentFocus.citations.0.quote"],
+    ["citation_quote_not_found", "recentFocus.citations.0.quote"]
+  ])("retains only field and code for %s and never accepts a repeated invalid result", async (code, path) => {
+    const bad = structuredClone(output);
+    let records = footprints;
+    if (code === "claim_text_invalid") bad.recentFocus.text = "<private-model-text>";
+    if (code === "citation_ref_unknown") bad.recentFocus.citations[0]!.refId = "private-invalid-ref";
+    if (code === "self_report_requires_creation") bad.recentFocus.kind = "self_report";
+    if (code === "self_report_requires_summary_quote") {
+      bad.recentFocus.kind = "self_report";
+      records = footprints.map(f => ({ ...f, kind: "creation" as const }));
+    }
+    if (code === "citation_quote_not_found") bad.recentFocus.citations[0]!.quote = "private-invalid-quote";
+    const llm = new MockLlmProvider({ profile_summary: bad });
+    const detail = await new ProfileSummaryService({ load: async () => records }, () => llm).generate(userId);
+    expect(detail.result).toMatchObject({ status: "unavailable", reasonCode: "profile_evidence_rejected", profile: null,
+      diagnostics: { stage: "evidence", evidenceCorrectionAttempted: true, evidenceIssues: [{ path, code }] } });
+    expect(llm.calls).toHaveLength(2);
+    expect(JSON.stringify(detail.result)).not.toMatch(/private-model-text|private-invalid-ref|private-invalid-quote/);
+    expect(JSON.stringify(detail.result)).not.toContain(footprints[1]!.title);
+  });
+  it("shares the single correction allowance with schema validation in both directions", async () => {
+    const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "原文不存在的引用";
+    const llm = new MockLlmProvider({ profile_summary: { ...output, unknown: ["无"] } });
+    const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: bad, usage });
+    const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
+    expect(detail.result.reasonCode).toBe("LLM_SCHEMA_INVALID"); expect(complete).toHaveBeenCalledTimes(2);
+    expect(detail.result.diagnostics.evidenceCorrectionAttempted).toBe(true);
+    expect(detail.result.diagnostics.schemaCorrectionAttempted).toBeUndefined();
+    expect(detail.result.diagnostics.schemaIssues).toContainEqual({ path: "unknown.0", code: "invalid_enum_value" });
+  });
+  it("allows a correction to decline insufficient evidence without inventing a profile", async () => {
+    const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "原文不存在的引用";
+    const llm = new MockLlmProvider({ profile_summary: { insufficientEvidence: true, background: [], recentFocus: null, unknown: [] } });
+    const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: bad, usage });
+    const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
+    expect(detail.result).toMatchObject({ status: "needs_input", reasonCode: "profile_insufficient_evidence", profile: null });
+    expect(complete).toHaveBeenCalledTimes(2);
+  });
+  it("preserves the real upstream error when the correction hits a model rate limit", async () => {
+    const bad = structuredClone(output); bad.recentFocus.citations[0]!.quote = "原文不存在的引用";
+    const llm = new MockLlmProvider({ profile_summary: output });
+    const complete = vi.spyOn(llm, "completeJson").mockResolvedValueOnce({ data: bad, usage })
+      .mockRejectedValueOnce(new LlmProviderError("LLM_HTTP_429", "synthetic rate limit"));
+    const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
+    expect(detail.result.reasonCode).toBe("LLM_HTTP_429"); expect(complete).toHaveBeenCalledTimes(2);
+    expect(detail.result.diagnostics.stage).toBe("model");
+  });
 });
 describe("profile result diagnostics", () => {
   it("separates insufficient count, model evidence and incomplete model output", async () => {

@@ -6,6 +6,11 @@ export const profileModelSchema = z.object({
   recentFocus: claim.extend({ text: z.string().trim().min(1).max(90) }).nullable(),
   unknown: z.array(z.enum(["年龄", "职业", "学校", "城市", "关系状态", "健康情况"])).max(6)
 }).strict();
+export type ProfileModelOutput = z.infer<typeof profileModelSchema>;
+export interface ProfileEvidenceIssue {
+  path: string;
+  code: "claim_text_invalid" | "citation_ref_unknown" | "self_report_requires_creation" | "self_report_requires_summary_quote" | "citation_quote_not_found";
+}
 export interface ProfileSources { creation: "read" | "failed" | "not_requested"; collection: "read" | "failed" | "not_requested"; }
 export interface Footprint { id: string; kind: "creation" | "collection"; title: string; summary: string; occurredAt: string; }
 export interface AccessSecretCheck { status: "accepted" | "rejected" | "unavailable"; httpStatus?: number; upstreamCode?: number; }
@@ -23,6 +28,8 @@ export interface ProfileConnectionDiagnostic {
 export interface ProfileDiagnostics {
   schemaIssues?: import("../llm/provider.js").SchemaIssueDiagnostic[];
   schemaCorrectionAttempted?: boolean;
+  evidenceIssues?: ProfileEvidenceIssue[];
+  evidenceCorrectionAttempted?: boolean;
   usableCount: number;
   modelCalled: boolean;
   stage: "reading" | "filtering" | "model" | "evidence" | "complete";

@@ -47,3 +47,20 @@ test('profile schema issues show fields and limits without exposing rejected val
   assert.doesNotMatch(JSON.stringify(error),/private-do-not-copy|private-field/);return true;
  });
 });
+
+
+test('profile evidence failures retain safe field codes without quotes, IDs or raw model content', async () => {
+  const api = createApi(async () => Response.json({success:false,data:{reasonCode:'profile_evidence_rejected',diagnostics:{stage:'evidence',usableCount:4,modelCalled:true,evidenceCorrectionAttempted:true,evidenceIssues:[
+    {path:'recentFocus.citations.0.quote',code:'citation_quote_not_found',quote:'private-do-not-copy',refId:'private-do-not-copy'},
+    {path:'private-field-do-not-copy',code:'citation_ref_unknown',raw:'private-do-not-copy'},
+    {path:'background.0.kind',code:'unrecognized-private-code'}
+  ]}}},{status:503}));
+  await assert.rejects(() => api.json('/api/profile/summary', {}), error => {
+    assert.deepEqual(error.diagnostics, {stage:'evidence',usableCount:4,modelCalled:true,evidenceCorrectionAttempted:true,evidenceIssues:[
+      {path:'recentFocus.citations.0.quote',code:'citation_quote_not_found'},
+      {path:'*',code:'citation_ref_unknown'}
+    ]});
+    assert.doesNotMatch(JSON.stringify(error), /private-do-not-copy|private-field|unrecognized-private-code/);
+    return true;
+  });
+});

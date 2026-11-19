@@ -152,3 +152,14 @@ test('model rate limits and model configuration failures stay separate from Zhih
   const h=harness([Response.json({success:false,data:{reasonCode:code,coverage:{creations:2,collections:1}}},{status:503})]);await h.c.action('start');assert.match(h.c.getState().profileNotice,expected);assert.equal(h.c.getState().profileNeedsLogin,false);
  }
 });
+
+
+test('rejected generated evidence preserves login and counts without blaming missing user content', async () => {
+  const h = harness([Response.json({success:false,data:{status:'unavailable',reasonCode:'profile_evidence_rejected',requestId:'evidence-test-request',coverage:{creations:1,collections:3},diagnostics:{stage:'evidence',usableCount:4,modelCalled:true,evidenceCorrectionAttempted:true,evidenceIssues:[{path:'recentFocus.citations.0.quote',code:'citation_quote_not_found'}]}}},{status:503})]);
+  await h.c.action('start');
+  assert.equal(h.c.getState().sessionReady, true);
+  assert.match(h.html, /这次生成的背景内容或引用未通过核验/);
+  assert.match(h.html, /data-action="retry-profile"/);
+  assert.doesNotMatch(h.c.getState().profileNotice, /足迹还不足|重新登录/);
+  assert.deepEqual(h.c.getState().profileDiagnostic.diagnostics.evidenceIssues, [{path:'recentFocus.citations.0.quote',code:'citation_quote_not_found'}]);
+});
