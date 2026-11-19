@@ -227,7 +227,7 @@ export function createLiveController({ render, api = createApi(), navigate = url
     state.busy = true; state.error = ''; paint();
     try {
       const paper = await api.json('/api/papers/drafts', { conversationId: state.conversationId,
-        confirmedProfile: state.user.profileReady ? { background: [...state.user.impression], recentFocus: state.user.recentFocus || null } : null });
+        confirmedProfile: state.user.profileReady ? { background: state.user.impression.slice(0, 2).map(text => text.slice(0, 160)), recentFocus: state.user.recentFocus?.slice(0, 180) || null } : null });
       state.paper = paper; state.user.sharePaper = paper; state.paperOrigin = '由看山根据刚才的对话整理'; state.screen = 'share';
     } catch (error) { fail(error); }
     finally { state.busy = false; paint(); }

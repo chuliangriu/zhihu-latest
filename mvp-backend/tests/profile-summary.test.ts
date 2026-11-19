@@ -104,12 +104,28 @@ describe("profile generation", () => {
   });
 });
 describe("schema correction for profile summaries", () => {
-  it("allows flexible text and metadata while preserving grounded citation structure",()=>{
+  it("keeps model instructions and runtime limits aligned",()=>{
     expect(PROFILE_SUMMARY_SYSTEM_PROMPT).not.toContain("【有限背景】");
-    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.background.items.properties.text).not.toHaveProperty("maxLength");
-    expect(PROFILE_SUMMARY_OUTPUT_SCHEMA.properties.background).toMatchObject({minItems:2,maxItems:2});
-    expect(profileModelSchema.parse({...output,unknown:["无"]}).unknown).toEqual([]);
-    expect(profileModelSchema.safeParse({...output,background:[{...output.background[0],text:"长".repeat(800)}]}).success).toBe(true);
+    const schema = PROFILE_SUMMARY_OUTPUT_SCHEMA.properties;
+    expect(schema.background).toMatchObject({minItems:2,maxItems:2});
+    expect(schema.background.items.properties.text).toMatchObject({maxLength:80});
+    expect(schema.recentFocus.properties.text).toMatchObject({maxLength:90});
+    expect(schema.background.items.properties.citations).toMatchObject({minItems:1,maxItems:6});
+    expect(schema.background.items.properties.citations.items.properties).toEqual({refId:{type:"string",minLength:1,maxLength:80},quote:{type:"string",minLength:2,maxLength:300}});
+    expect(schema.unknown).toMatchObject({maxItems:6,items:{enum:output.unknown}});
+    const claim = {...output.background[0]!,text:"长".repeat(80),citations:Array.from({length:6},()=>({refId:"r".repeat(80),quote:"引".repeat(300)}))};
+    const valid = {...output,background:[claim,claim],recentFocus:{...claim,text:"关".repeat(90)}};
+    expect(profileModelSchema.safeParse(valid).success).toBe(true);
+    const invalid = [
+      {...valid,background:[{...claim,text:"长".repeat(81)}]},
+      {...valid,background:[claim,claim,claim]},
+      {...valid,recentFocus:{...claim,text:"关".repeat(91)}},
+      {...valid,background:[{...claim,citations:[]}]},
+      {...valid,background:[{...claim,citations:[...claim.citations,claim.citations[0]]}]},
+      ...[{refId:"",quote:"引文"},{refId:"r".repeat(81),quote:"引文"},{refId:"r",quote:"引"},{refId:"r",quote:"引".repeat(301)}].map(c=>({...valid,background:[{...claim,citations:[c]}]})),
+      {...valid,unknown:["无"]},{...valid,unknown:["其他"]},{...valid,unknown:[...output.unknown,"年龄"]}
+    ];
+    for(const draft of invalid) expect(profileModelSchema.safeParse(draft).success).toBe(false);
   });
   it("corrects a GLM JSON schema failure once, counts both calls, and reads footprints only once",async()=>{
     const invalid={...output,unknown:{private:"无"}};
@@ -184,12 +200,26 @@ describe("fixed profile cards from sparse inputs", () => {
     expect(detail.result.profile?.markdown).toContain("【最近最明显的一条线】");
     expect(profileCardSchema.safeParse(detail.result.profile).success).toBe(true);
   });
-  it("retains all long draft content inside exactly two background paragraphs", async () => {
-    const paragraphs = Array.from({ length: 3 }, (_, i) => ({ ...output.background[0]!, text: `第${i}段：` + "这个人近期关注过客厅与公共空间的讨论。".repeat(30) }));
+  it("corrects an oversized model draft once and returns a bounded source card if still invalid", async () => {
+    const paragraphs = Array.from({ length: 3 }, () => ({ ...output.background[0]!, text: "很长的背景".repeat(30) }));
     const llm = new MockLlmProvider({ profile_summary: { background: paragraphs, recentFocus: null } });
     const detail = await new ProfileSummaryService({ load: async () => footprints }, () => llm).generate(userId);
-    expect(detail.result.status).toBe("ready"); expect(detail.result.profile?.impression).toEqual([paragraphs[0]!.text, paragraphs.slice(1).map(c => c.text).join(" ")]);
+    expect(detail.result.status).toBe("ready");
+    expect(detail.result.diagnostics).toMatchObject({schemaCorrectionAttempted:true,generationMode:"source_excerpt",fallbackReason:"LLM_SCHEMA_INVALID"});
     expect(profileCardSchema.safeParse(detail.result.profile).success).toBe(true);
+    expect(llm.calls).toHaveLength(2);
+    expect(detail.result.diagnostics.schemaIssues).toContainEqual(expect.objectContaining({path:"background.0.text",code:"too_big",maximum:80}));
+  });
+  it.each([true,false])("bounds every source fallback section for 30 long records (titles: %s)", async hasTitle => {
+    const records = Array.from({length:30},(_,i)=>({...footprints[0]!,id:`long-${i}`,kind:i<15?"creation" as const:"collection" as const,title:hasTitle?"标题".repeat(80):"",summary:"真实摘要".repeat(175)}));
+    const llm = new MockLlmProvider({profile_summary:{}});
+    const {result} = await new ProfileSummaryService({load:async()=>records},()=>llm).generate(userId);
+    expect(result.status).toBe("ready");
+    expect(profileCardSchema.safeParse(result.profile).success).toBe(true);
+    expect(result.profile!.impression.every(text=>text.length<=80)).toBe(true);
+    expect(result.profile!.recentFocus.length).toBeLessThanOrEqual(90);
+    expect(result.profile!.recentFocus).toContain(hasTitle ? "是否属于持续兴趣仍需本人确认" : "尚不能据此判断长期状态");
+    expect(result.profile!.markdown).toContain(result.profile!.impression.join("\n\n"));
     expect(llm.calls).toHaveLength(1);
   });
   it("accepts focus-only output and does not discard grounded text because of an old insufficientEvidence flag", async () => {
@@ -207,16 +237,21 @@ describe("fixed profile cards from sparse inputs", () => {
     expect(detail.result).toMatchObject({ status: "ready", reasonCode: "profile_summary_from_footprints", profile: { impression: ["这个人近期在知乎收藏过《旅行》。", expect.any(String)], recentFocus: expect.stringContaining("旅行") } });
     expect(llm.calls).toHaveLength(1);
   });
-  it("a one-character summary can be quoted without a minimum richness threshold", async () => {
+  it("a one-character source still summarizes through fallback while one-character model quotes remain invalid", async () => {
     const record = { ...footprints[0]!, kind: "creation" as const, title: "", summary: "忙" };
     const draft = { background: [{ text: "这个人近期写下了忙这个字。", kind: "interest_observation", citations: [{ refId: record.id, quote: "忙" }] }] };
     const detail = await new ProfileSummaryService({ load: async () => [record] }, () => new MockLlmProvider({ profile_summary: draft })).generate(userId);
-    expect(detail.result.status).toBe("ready"); expect(detail.result.reasonCode).toBe("profile_summary_generated");
+    expect(detail.result.status).toBe("ready"); expect(detail.result.reasonCode).toBe("profile_summary_from_footprints");
+    expect(profileCardSchema.safeParse(detail.result.profile).success).toBe(true);
   });
-  it("a confirmed background passes to paper drafting without a two-paragraph or 160-character gate", () => {
-    const background = Array.from({ length: 3 }, (_, i) => `第${i}段：` + "近期关注和公开表达。".repeat(50));
-    const parsed = paperDraftRequestSchema.parse({ conversationId: "11111111-1111-4111-8111-111111111111", confirmedProfile: { background, recentFocus: null } });
-    expect(parsed.confirmedProfile?.background).toEqual(background);
+  it("validates paper draft background at two paragraphs of 160 characters and focus at 180", () => {
+    const base = {conversationId:userId,confirmedProfile:{background:["段".repeat(160),"段".repeat(160)],recentFocus:"关".repeat(180)}};
+    expect(paperDraftRequestSchema.safeParse(base).success).toBe(true);
+    for(const confirmedProfile of [
+      {...base.confirmedProfile,background:["段".repeat(161)]},
+      {...base.confirmedProfile,background:["一","二","三"]},
+      {...base.confirmedProfile,recentFocus:"关".repeat(181)}
+    ]) expect(paperDraftRequestSchema.safeParse({...base,confirmedProfile}).success).toBe(false);
   });
   it.each(["model", "empty", "schema", "evidence"])("always presents two background paragraphs and one focus after %s output", async mode => {
     const bad = structuredClone(output); bad.background[0]!.citations[0]!.quote = "不存在的引文";

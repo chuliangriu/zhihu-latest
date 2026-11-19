@@ -1,15 +1,18 @@
 import { z } from "zod";
-const citation = z.object({ refId: z.string().trim().min(1), quote: z.string().min(1) }).strict();
-const claim = z.object({ text: z.string().trim().min(1), kind: z.enum(["self_report", "interest_observation"]), citations: z.array(citation).min(1) }).strict();
-// Accept sparse model drafts for assembly; the final card contract below always has two background paragraphs and one focus.
+const citation = z.object({ refId: z.string().trim().min(1).max(80), quote: z.string().min(2).max(300) }).strict();
+const claim = z.object({ text: z.string().trim().min(1).max(80), kind: z.enum(["self_report", "interest_observation"]), citations: z.array(citation).min(1).max(6) }).strict();
+const recentFocus = claim.extend({ text: z.string().trim().min(1).max(90) });
+const unknown = z.array(z.enum(["年龄", "职业", "学校", "城市", "关系状态", "健康情况"])).max(6);
+// Sparse drafts can be assembled without raising the source minimum above one.
+// Every accepted claim retains the same length, citation and metadata constraints.
 export const profileModelSchema = z.object({
-  insufficientEvidence: z.boolean().default(false), background: z.array(claim).default([]),
-  recentFocus: claim.nullish().transform(value => value ?? null),
-  unknown: z.array(z.string()).default([]).transform(values => values.map(v => v.trim()).filter(v => v && v !== "无"))
+  insufficientEvidence: z.boolean().default(false), background: z.array(claim).max(2).default([]),
+  recentFocus: recentFocus.nullish().transform(value => value ?? null),
+  unknown: unknown.default([])
 }).strict();
 export const profileCardSchema = z.object({
-  role: z.string(), impression: z.array(z.string().trim().min(1)).length(2),
-  recentFocus: z.string().trim().min(1), markdown: z.string(), requiresConfirmation: z.literal(true)
+  role: z.string(), impression: z.array(z.string().trim().min(1).max(80)).length(2),
+  recentFocus: z.string().trim().min(1).max(90), markdown: z.string(), requiresConfirmation: z.literal(true)
 }).strict();
 export type ProfileModelOutput = z.infer<typeof profileModelSchema>;
 export interface ProfileEvidenceIssue {

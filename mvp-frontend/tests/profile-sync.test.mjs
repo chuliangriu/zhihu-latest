@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createLiveController } from '../public/mvp-live.js';
 import { entryView } from '../public/mvp-entry.js';
+import { parseProfile, profileCardSections } from '../public/mvp-profile.js';
 import { createApi, ApiError } from '../public/mvp-api.js';
 const session = { success: true, user: { id: 'current-user', display_name: '测试用户', avatar_url: null } };
 const ready = { status: 'ready', profile: { role: '近期背景', impression: ['用户自己的近期背景'], recentFocus: '用户持续关注的事情' } };
@@ -187,17 +188,17 @@ test('one source-based paragraph fills the fixed two-background and one-focus ca
   assert.doesNotMatch(h.html, /尚不足|重新同步背景/);
   assert.equal(h.c.getState().user.impression.length, 2);
   await h.c.action('open-profile');
-  assert.doesNotMatch(h.html, /maxlength="1600"/);
+  assert.match(h.html, /maxlength="1600"/);
   h.c.input('profileDraft', '【有限背景】\n' + '自己的完整背景。'.repeat(300));
   await h.c.action('save-profile');
-  assert.equal(h.c.getState().user.impression[0].length, '自己的完整背景。'.repeat(300).length);
+  assert.equal(h.c.getState().user.impression[0].length, 80);
   assert.equal(h.c.getState().user.impression.length, 2);
   assert.ok(h.c.getState().user.recentFocus);
   assert.doesNotMatch(h.html, /已按读取到的资料生成简要背景/);
   assert.match(h.html, /class="impression-focus"/);
 });
 
-test('all confirmed background paragraphs reach paper drafting without silent truncation', async () => {
+test('paper drafting transmits only two background paragraphs capped at 160 and focus capped at 180', async () => {
   const background = ['第一段：' + '近期表达。'.repeat(70), '第二段：' + '收藏讨论。'.repeat(70), '第三段：' + '其他近况。'.repeat(70)];
   let captured;
   const c = createLiveController({ render:()=>{}, api:{ async json(path,body) {
@@ -208,8 +209,9 @@ test('all confirmed background paragraphs reach paper drafting without silent tr
   }}});
   await c.action('start');
   c.getState().conversationId='11111111-1111-4111-8111-111111111111';
+  c.getState().user.impression=background; c.getState().user.recentFocus='关注'.repeat(150);
   await c.action('leave-paper'); await c.action('confirm-consent');
-  assert.deepEqual(captured.confirmedProfile, {background:[background[0],background.slice(1).join(' ')],recentFocus:'最近最明显的一条线仍待你补充。'});
+  assert.deepEqual(captured.confirmedProfile, {background:background.slice(0,2).map(text=>text.slice(0,160)),recentFocus:'关注'.repeat(90)});
   assert.equal(c.getState().error, '');
 });
 
@@ -218,4 +220,14 @@ test('generated text remains escaped after removing stylistic text gates', async
   await h.c.action('start');
   assert.match(h.html, /&lt;script&gt;/);
   assert.doesNotMatch(h.html, /<script>/);
+});
+
+
+test('manual parsing truncates at 1600 before parsing and all card sections retain 80/90 limits', () => {
+  const parsed = parseProfile('背景'.repeat(800) + '【最近最明显的一条线】不应解析到这里');
+  assert.equal(parsed.impression[0].length,80);
+  assert.equal(parsed.recentFocus,'最近最明显的一条线仍待你补充。');
+  const card = profileCardSections(['一'.repeat(100),'二'.repeat(100),'三'.repeat(100)],'关'.repeat(120));
+  assert.deepEqual(card,{impression:['一'.repeat(80),'二'.repeat(80)],recentFocus:'关'.repeat(90)});
+  assert.equal(parseProfile('').profileReady,false);
 });
